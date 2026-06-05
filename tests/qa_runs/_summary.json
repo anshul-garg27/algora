@@ -1,0 +1,325 @@
+[
+  {
+    "key": "closest_palindrome",
+    "mode": "interview",
+    "ttf_s": 3.1,
+    "first_tool_s": 61.5,
+    "chars": 14311,
+    "pre_tool_chars": 9360,
+    "tools": [
+      "write_file",
+      "run_python",
+      "write_file",
+      "run_python"
+    ],
+    "opener_before_tools": true,
+    "sections": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6",
+      "7",
+      "8",
+      "9"
+    ],
+    "code_chars": 1317,
+    "elapsed_s": 97.1
+  },
+  {
+    "key": "dsu_remove_components",
+    "mode": "interview",
+    "ttf_s": 36.3,
+    "first_tool_s": 119.2,
+    "chars": 21148,
+    "pre_tool_chars": 10613,
+    "tools": [
+      "write_file",
+      "run_python",
+      "write_file",
+      "run_python"
+    ],
+    "opener_before_tools": true,
+    "sections": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6",
+      "7",
+      "8",
+      "9"
+    ],
+    "code_chars": 2498,
+    "elapsed_s": 221.0
+  },
+  {
+    "key": "predict_winner",
+    "mode": "interview",
+    "ttf_s": 3.2,
+    "first_tool_s": 66.0,
+    "chars": 14459,
+    "pre_tool_chars": 9064,
+    "tools": [
+      "write_file",
+      "run_python"
+    ],
+    "opener_before_tools": true,
+    "sections": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6",
+      "7",
+      "8",
+      "9"
+    ],
+    "code_chars": 423,
+    "elapsed_s": 93.6
+  },
+  {
+    "key": "burn_tree",
+    "mode": "interview",
+    "ttf_s": 9.2,
+    "first_tool_s": 58.8,
+    "chars": 12396,
+    "pre_tool_chars": 7693,
+    "tools": [
+      "write_file",
+      "run_python"
+    ],
+    "opener_before_tools": true,
+    "sections": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6",
+      "7",
+      "8",
+      "9"
+    ],
+    "code_chars": 1343,
+    "elapsed_s": 86.9
+  },
+  {
+    "key": "closest_driver",
+    "mode": "interview",
+    "ttf_s": 4.0,
+    "first_tool_s": 55.1,
+    "chars": 12711,
+    "pre_tool_chars": 7703,
+    "tools": [
+      "write_file",
+      "run_python"
+    ],
+    "opener_before_tools": true,
+    "sections": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6",
+      "7",
+      "8",
+      "9"
+    ],
+    "code_chars": 564,
+    "elapsed_s": 81.8
+  },
+  {
+    "key": "course_schedule_ii",
+    "mode": "interview",
+    "ttf_s": 2.9,
+    "first_tool_s": 50.3,
+    "chars": 11362,
+    "pre_tool_chars": 7317,
+    "tools": [
+      "write_file",
+      "run_python"
+    ],
+    "opener_before_tools": true,
+    "sections": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6",
+      "7",
+      "8",
+      "9"
+    ],
+    "code_chars": 763,
+    "elapsed_s": 70.7
+  },
+  {
+    "key": "merge_cars_k",
+    "mode": "interview",
+    "ttf_s": 60.2,
+    "first_tool_s": 83.4,
+    "chars": 12030,
+    "pre_tool_chars": 7879,
+    "tools": [
+      "write_file",
+      "run_python"
+    ],
+    "opener_before_tools": true,
+    "sections": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6",
+      "7",
+      "8",
+      "9"
+    ],
+    "code_chars": 615,
+    "elapsed_s": 108.3
+  },
+  {
+    "key": "min_appends_subsequence",
+    "mode": "interview",
+    "ttf_s": 6.9,
+    "first_tool_s": 51.4,
+    "chars": 11211,
+    "pre_tool_chars": 7100,
+    "tools": [
+      "write_file",
+      "run_python"
+    ],
+    "opener_before_tools": true,
+    "sections": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6",
+      "7",
+      "8",
+      "9"
+    ],
+    "code_chars": 762,
+    "elapsed_s": 75.9
+  },
+  {
+    "key": "trapped_colors",
+    "mode": "interview",
+    "ttf_s": 6.9,
+    "first_tool_s": 65.3,
+    "chars": 15485,
+    "pre_tool_chars": 8828,
+    "tools": [
+      "write_file",
+      "run_python",
+      "write_file",
+      "run_python"
+    ],
+    "opener_before_tools": true,
+    "sections": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6",
+      "7",
+      "8",
+      "9"
+    ],
+    "code_chars": 2057,
+    "elapsed_s": 120.0
+  },
+  {
+    "key": "array_equal_general_x",
+    "mode": "interview",
+    "ttf_s": 3.3,
+    "first_tool_s": 42.5,
+    "chars": 10239,
+    "pre_tool_chars": 6472,
+    "tools": [
+      "write_file",
+      "run_python"
+    ],
+    "opener_before_tools": true,
+    "sections": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6",
+      "7",
+      "8",
+      "9"
+    ],
+    "code_chars": 691,
+    "elapsed_s": 63.9
+  },
+  {
+    "key": "task_scheduler_lld",
+    "mode": "lld",
+    "ttf_s": 3.7,
+    "first_tool_s": 38.2,
+    "chars": 13126,
+    "pre_tool_chars": 106,
+    "tools": [
+      "write_file",
+      "write_file",
+      "run_python"
+    ],
+    "opener_before_tools": true,
+    "sections": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6",
+      "7",
+      "8",
+      "9"
+    ],
+    "code_chars": 69,
+    "elapsed_s": 110.7
+  },
+  {
+    "key": "stock_alert_hld",
+    "mode": "hld",
+    "ttf_s": 3.7,
+    "first_tool_s": 39.3,
+    "chars": 32105,
+    "pre_tool_chars": 4788,
+    "tools": [
+      "run_python",
+      "run_python",
+      "write_file",
+      "run_python"
+    ],
+    "opener_before_tools": true,
+    "sections": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6",
+      "7",
+      "8",
+      "9",
+      "10",
+      "11"
+    ],
+    "code_chars": 3931,
+    "elapsed_s": 203.6
+  }
+]

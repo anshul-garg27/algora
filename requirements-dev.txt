@@ -1,0 +1,5 @@
+# Dev / test dependencies (not needed to run the app)
+-r requirements.txt
+pytest>=8.0.0
+httpx>=0.27.0
+playwright>=1.40.0   # browser E2E: run `python -m playwright install chromium` after installing

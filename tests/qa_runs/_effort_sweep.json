@@ -1,0 +1,83 @@
+[
+  {
+    "key": "dsu_remove_components",
+    "effort": "low",
+    "ttf_s": 5.7,
+    "opener_done_s": 72.8,
+    "elapsed_s": 120.1,
+    "chars": 16806,
+    "opener_before_tools": true
+  },
+  {
+    "key": "dsu_remove_components",
+    "effort": "high",
+    "ttf_s": 78.7,
+    "opener_done_s": 100.1,
+    "elapsed_s": 140.3,
+    "chars": 18089,
+    "opener_before_tools": true
+  },
+  {
+    "key": "dsu_remove_components",
+    "effort": "xhigh",
+    "ttf_s": 123.9,
+    "opener_done_s": 156.0,
+    "elapsed_s": 213.2,
+    "chars": 16433,
+    "opener_before_tools": true
+  },
+  {
+    "key": "closest_palindrome",
+    "effort": "low",
+    "ttf_s": 5.5,
+    "opener_done_s": 68.2,
+    "elapsed_s": 100.2,
+    "chars": 12086,
+    "opener_before_tools": true
+  },
+  {
+    "key": "closest_palindrome",
+    "effort": "high",
+    "ttf_s": 3.9,
+    "opener_done_s": 63.5,
+    "elapsed_s": 112.1,
+    "chars": 13518,
+    "opener_before_tools": true
+  },
+  {
+    "key": "closest_palindrome",
+    "effort": "xhigh",
+    "ttf_s": 67.3,
+    "opener_done_s": 88.9,
+    "elapsed_s": 156.9,
+    "chars": 15043,
+    "opener_before_tools": true
+  },
+  {
+    "key": "predict_winner",
+    "effort": "low",
+    "ttf_s": 5.3,
+    "opener_done_s": 49.4,
+    "elapsed_s": 88.6,
+    "chars": 10871,
+    "opener_before_tools": true
+  },
+  {
+    "key": "predict_winner",
+    "effort": "high",
+    "ttf_s": 5.2,
+    "opener_done_s": 65.0,
+    "elapsed_s": 98.1,
+    "chars": 14419,
+    "opener_before_tools": true
+  },
+  {
+    "key": "predict_winner",
+    "effort": "xhigh",
+    "ttf_s": 99.9,
+    "opener_done_s": 135.0,
+    "elapsed_s": 172.2,
+    "chars": 17440,
+    "opener_before_tools": true
+  }
+]

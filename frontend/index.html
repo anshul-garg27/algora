@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0e0f13" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>Algora · Agentic DSA Solver</title>
+  <link rel="stylesheet" href="/styles.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>" />
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">⚡</span>
+        <div class="brand-text">
+          <h1>Algora</h1>
+          <p class="tagline">autonomous DSA agent — writes code, runs it, proves it</p>
+        </div>
+      </div>
+      <div class="topbar-controls">
+        <label class="select-wrap" title="Model">
+          <span class="select-label">model</span>
+          <select id="model-select">
+            <option value="opus">Opus 4.8</option>
+            <option value="sonnet">Sonnet 4.6</option>
+            <option value="haiku">Haiku 4.5</option>
+          </select>
+        </label>
+        <label class="select-wrap" id="voice-wrap" title="Read-aloud voice" hidden>
+          <span class="select-label">voice</span>
+          <select id="voice-select"></select>
+        </label>
+        <button id="thinking-toggle" class="chip-toggle is-on" title="Extended thinking">
+          <span class="dot"></span> thinking
+        </button>
+        <button id="devices-btn" class="ghost-btn" title="Open on your phone or iPad">📱</button>
+        <button id="history-btn" class="ghost-btn" title="Chat history">history</button>
+        <button id="reset-btn" class="ghost-btn" title="Start a new conversation">new</button>
+        <span id="status-dot" class="status-dot" title="connecting…"></span>
+      </div>
+    </header>
+
+    <nav class="tabs" role="tablist" aria-label="Mode">
+      <button class="tab is-active" data-mode="assessment" role="tab" aria-selected="true">
+        <span class="tab-icon">⏱</span> Online Assessment
+      </button>
+      <button class="tab" data-mode="interview" role="tab" aria-selected="false">
+        <span class="tab-icon">🎙</span> Coding Interview
+      </button>
+      <button class="tab" data-mode="lld" role="tab" aria-selected="false">
+        <span class="tab-icon">🧩</span> Low Level Design
+      </button>
+      <button class="tab" data-mode="hld" role="tab" aria-selected="false">
+        <span class="tab-icon">🏛</span> System Design (HLD)
+      </button>
+      <button class="tab" data-mode="behavioral" role="tab" aria-selected="false">
+        <span class="tab-icon">💼</span> Behavioral / HM
+      </button>
+    </nav>
+
+    <main class="panels">
+      <section class="transcript is-active" data-mode="assessment">
+        <div class="empty-state">
+          <div class="empty-glyph">∑</div>
+          <h2>Drop a problem. Watch it get solved.</h2>
+          <p>Paste a DSA problem, or attach a screenshot. The agent analyses the
+             constraints, writes Python, <em>actually runs it</em> against sample
+             and adversarial edge cases, fixes failures, and only then answers.
+             Built for timed online assessments.</p>
+          <div class="example-row">
+            <button class="example-chip" data-example="Given an array of integers nums and an integer target, return indices of the two numbers that add up to target. Constraints: 2 <= nums.length <= 1e4, -1e9 <= nums[i] <= 1e9. Exactly one solution exists.">Two Sum</button>
+            <button class="example-chip" data-example="Find the length of the longest substring without repeating characters. 0 <= s.length <= 5e4.">Longest Substring</button>
+            <button class="example-chip" data-example="Given a directed graph with n nodes and a list of prerequisite edges, determine if you can finish all courses (i.e. the graph has no cycle). 1 <= n <= 1e5.">Course Schedule</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="transcript" data-mode="interview" hidden>
+        <div class="empty-state">
+          <div class="empty-glyph">🎙</div>
+          <h2>Walk into the interview ready.</h2>
+          <p>Paste (or <strong>dictate</strong>) the problem. You get the full
+             playbook: problem understanding &amp; clarifying questions, brute force,
+             the optimal approach with a worked example and <em>diagrams</em>,
+             commented runnable code (actually executed), a line-by-line walkthrough,
+             complexity, edge cases — and 💬 exactly what to say out loud.</p>
+          <div class="example-row">
+            <button class="example-chip" data-example="Explain and solve: Merge k sorted linked lists into one sorted list. Walk me through how to present this in an interview, with diagrams and what to say.">Merge k Lists</button>
+            <button class="example-chip" data-example="Interview walkthrough for: Lowest Common Ancestor of a Binary Tree. Include a diagram of the tree and what to say to the interviewer.">LCA of Binary Tree</button>
+            <button class="example-chip" data-example="Interview walkthrough for the 0/1 Knapsack problem with DP. Show the DP table evolving and explain what to say.">0/1 Knapsack</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="transcript" data-mode="lld" hidden>
+        <div class="empty-state">
+          <div class="empty-glyph">🧩</div>
+          <h2>Low Level Design, explained as you'd say it.</h2>
+          <p>Give an OOD problem. You get the full playbook: requirements, core
+             objects, a <em>class diagram</em>, design patterns &amp; SOLID,
+             then the code <strong>narrated class by class</strong> (not dumped),
+             actually run to prove it works, a sequence diagram, concurrency &amp;
+             edge cases — with 💬 exactly what to say.</p>
+          <div class="example-row">
+            <button class="example-chip" data-example="Low level design for a Parking Lot system. Narrate the classes, show a class diagram and a sequence diagram, use design patterns, and write + run the code.">Parking Lot</button>
+            <button class="example-chip" data-example="Low level design for Splitwise (expense sharing). Class diagram, patterns, narrated code that runs, and what to say.">Splitwise</button>
+            <button class="example-chip" data-example="Low level design for an Elevator system with multiple lifts. Class diagram, state/strategy patterns, narrated runnable code, sequence diagram.">Elevator System</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="transcript" data-mode="hld" hidden>
+        <div class="empty-state">
+          <div class="empty-glyph">🏛</div>
+          <h2>System Design, end to end.</h2>
+          <p>Give a system-design problem. You get requirements (functional +
+             non-functional), capacity estimates, API &amp; data model, a
+             <em>high-level architecture diagram</em>, deep dives, scaling,
+             trade-offs and failure modes — researched with live web search where
+             it helps, and 💬 exactly what to say.</p>
+          <div class="example-row">
+            <button class="example-chip" data-example="System design (HLD) for a URL shortener like bit.ly. Requirements, capacity estimation, API, architecture diagram, data model, scaling and trade-offs.">URL Shortener</button>
+            <button class="example-chip" data-example="System design (HLD) for Twitter / a news feed. Fan-out on write vs read, caching, sharding, architecture diagram, deep dives.">Twitter / News Feed</button>
+            <button class="example-chip" data-example="System design (HLD) for a ride-sharing backend like Uber. Matching, geospatial indexing, real-time location, architecture diagram, scaling.">Ride Sharing (Uber)</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="transcript" data-mode="behavioral" hidden>
+        <div class="empty-state">
+          <div class="empty-glyph">💼</div>
+          <h2>Behavioral &amp; hiring-manager rounds — in your own voice.</h2>
+          <p>Ask any behavioral, cultural-fit, or resume question — or just say
+             <em>"tell me about yourself"</em>. The coach answers in <strong>your
+             voice</strong>, grounded in <em>your real projects and stories</em>, in
+             tight STAR form, with the deep-dive defense and 💬 exactly what to say.
+             Name the company (Amazon, Google, a startup) and it re-tilts.
+             <strong>Read it aloud</strong> to practise saying it.</p>
+          <div class="example-row">
+            <button class="example-chip" data-example="Tell me about yourself — walk me through your background and resume.">Tell me about yourself</button>
+            <button class="example-chip" data-example="Amazon Ownership: tell me about a time you took on something outside your defined role.">Ownership (Amazon)</button>
+            <button class="example-chip" data-example="Tell me about a time you disagreed with your manager or a senior, and how it played out.">Disagreed with manager</button>
+            <button class="example-chip" data-example="Describe a time you had to dive deep to debug a hard production issue under pressure.">Dive deep / debugging</button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <div id="attachments" class="attachments" hidden></div>
+
+    <form id="composer" class="composer" autocomplete="off">
+      <button type="button" id="mic-btn" class="icon-btn" title="Dictate by voice" aria-label="Dictate by voice" hidden>
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+      </button>
+      <button type="button" id="attach-btn" class="icon-btn" title="Attach image" aria-label="Attach image">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+      </button>
+      <input type="file" id="file-input" accept="image/*" multiple hidden />
+      <textarea id="input" rows="1" placeholder="Describe the problem, or paste a screenshot…" aria-label="Problem input"></textarea>
+      <button type="submit" id="send-btn" class="send-btn" title="Send" aria-label="Send">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      </button>
+    </form>
+  </div>
+
+  <div id="drop-overlay" class="drop-overlay" hidden><div class="drop-card">Drop image to attach</div></div>
+
+  <div id="history-backdrop" class="history-backdrop" hidden></div>
+  <aside id="history-drawer" class="history-drawer" hidden aria-label="Chat history">
+    <div class="history-head">
+      <span id="history-title">History</span>
+      <button id="history-close" class="ghost-btn" title="Close">✕</button>
+    </div>
+    <div id="history-list" class="history-list"></div>
+  </aside>
+
+  <script src="/markdown.js"></script>
+  <script src="/audio.js"></script>
+  <script src="/app.js"></script>
+</body>
+</html>
