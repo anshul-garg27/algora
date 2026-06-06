@@ -1,65 +1,59 @@
-"""The agentic loop: drives Claude through analyse -> code -> run -> verify.
+"""The agentic loop — now powered by the Claude Agent SDK (drives the `claude` CLI).
 
-An ``Agent`` owns one conversation. ``stream_turn`` is a generator that yields
-plain event dicts describing everything happening (thinking, text, tool calls,
-tool results) so the web layer can forward them to the browser as SSE.
+Instead of calling the Anthropic Messages API directly, this spawns Claude Code
+under the hood: Claude writes files and runs them with its OWN built-in tools
+(Write / Read / Bash / …) inside a per-session workspace, loops until its code
+passes, and then writes the final structured answer.
+
+We translate the SDK's streamed messages into the SAME event dicts the web layer
+already forwards as SSE (`step_start`, `thinking_delta`, `text_delta`,
+`tool_call`, `tool_result`, `web_search`, `turn_done`, `notice`, `error`), and we
+remap Claude Code's tool names/inputs onto the names the existing frontend
+expects (`Bash`→`run_command`, `Write`→`write_file`, `Read`→`read_file`,
+`Glob`/`Grep`→`list_files`) so the UI renders unchanged.
+
+Auth: the underlying CLI authenticates with ANTHROPIC_API_KEY (API billing) by
+default, or with your logged-in subscription when `ALGORA_USE_SUBSCRIPTION=1`
+strips the key from the subprocess env (see `config.subprocess_env`). Flipping
+that one flag is the ONLY change needed to move from an API key to a Claude
+subscription on another machine.
 """
 
 from __future__ import annotations
 
-import copy
-from typing import Any, Iterator
+import base64
+import binascii
+from pathlib import Path
+from typing import Any, AsyncIterator
 
-import anthropic
+from claude_agent_sdk import (
+    AssistantMessage,
+    ClaudeAgentOptions,
+    CLINotFoundError,
+    ClaudeSDKError,
+    ResultMessage,
+    StreamEvent,
+    ToolResultBlock,
+    ToolUseBlock,
+    UserMessage,
+    query,
+)
 
 from . import config
 from .prompts import get_system_prompt
-from .tools import TOOLS, execute_tool
 
-# A single shared client; it reads ANTHROPIC_API_KEY from the environment.
-_client = anthropic.Anthropic()
-
-
-def _system_blocks(mode: str) -> list[dict]:
-    """System prompt for a mode as a cacheable block (caches tools + system)."""
-    return [
-        {
-            "type": "text",
-            "text": get_system_prompt(mode),
-            "cache_control": {"type": "ephemeral"},
-        }
-    ]
-
-
-def _mark_last_for_cache(messages: list[dict]) -> list[dict]:
-    """Return a copy of messages with a cache breakpoint on the final user block.
-
-    This makes the agentic tool loop re-use the conversation prefix instead of
-    re-billing it at full price on every step.
-    """
-    if not messages:
-        return messages
-    # Only the last message is mutated, so copy just that one (the rest, incl.
-    # large SDK pydantic blocks, are shared by reference — O(1) not O(history)).
-    msgs = messages[:-1] + [copy.deepcopy(messages[-1])]
-    last = msgs[-1]
-    if last.get("role") != "user":
-        return msgs
-
-    content = last.get("content")
-    if isinstance(content, str):
-        last["content"] = [
-            {"type": "text", "text": content, "cache_control": {"type": "ephemeral"}}
-        ]
-    elif isinstance(content, list) and content:
-        block = content[-1]
-        if isinstance(block, dict):
-            block["cache_control"] = {"type": "ephemeral"}
-    return msgs
+# base64 image -> file extension for attachments written into the workspace.
+_IMAGE_EXT = {
+    "image/png": "png",
+    "image/jpeg": "jpg",
+    "image/jpg": "jpg",
+    "image/gif": "gif",
+    "image/webp": "webp",
+}
 
 
 class Agent:
-    """Holds one conversation and runs streaming, tool-using turns."""
+    """Holds one conversation and runs streaming, tool-using turns via Claude Code."""
 
     def __init__(
         self,
@@ -72,7 +66,12 @@ class Agent:
         self.mode = config.resolve_mode(mode)
         self.thinking_enabled = thinking_enabled
         self.session_id = session_id
-        self.messages: list[dict] = []
+        # Claude Code's own session id, captured from the stream and reused to
+        # `resume` the conversation on follow-up turns (survives server restarts).
+        self.cc_session_id: str | None = None
+        # Per-turn map of tool_use_id -> display name, so a tool_result can be
+        # rendered with the same (remapped) name as its tool_call.
+        self._tool_names: dict[str, str] = {}
 
     @property
     def thinking_on(self) -> bool:
@@ -81,238 +80,237 @@ class Agent:
     def _mode_cfg(self) -> dict:
         return config.MODES[self.mode]
 
-    # -- persistence -----------------------------------------------------------
-
-    def export_messages(self) -> list:
-        """JSON-safe copy of the conversation for saving/continuation.
-
-        Assistant pydantic blocks are dumped to dicts; thinking/redacted_thinking
-        blocks are dropped (they're only required intra-turn, which is complete),
-        which keeps reload robust without juggling thinking signatures.
-        """
-        return [_serialize_message(m) for m in self.messages]
-
-    def import_messages(self, messages: list) -> None:
-        """Restore a previously exported conversation (dicts the SDK accepts)."""
-        self.messages = list(messages or [])
-
-    def _workspace(self):
+    def _workspace(self) -> Path:
         """Per-conversation workspace subdir so concurrent chats never share files."""
         return config.workspace_for(self.session_id, self.mode)
 
+    # -- persistence -----------------------------------------------------------
+    #
+    # The render-ready transcript is built separately (store.TranscriptBuilder)
+    # from the same events; here we only need to persist Claude Code's session id
+    # so a reloaded conversation can be `resume`d with full context.
+
+    def export_messages(self) -> dict:
+        return {"cc_session_id": self.cc_session_id}
+
+    def import_messages(self, data: Any) -> None:
+        if isinstance(data, dict):
+            self.cc_session_id = data.get("cc_session_id")
+        # Tolerate the pre-migration list-of-messages format: there's no Claude
+        # Code session to resume, so a fresh one starts; the saved transcript
+        # still redisplays the old conversation.
+
     # -- request construction --------------------------------------------------
 
-    def _tools(self) -> list:
-        tools = list(TOOLS)
-        if config.ENABLE_WEB_SEARCH:
-            # Server-side tool: Anthropic runs the search and returns results
-            # inline; our loop never executes it.
-            tools.append(
-                {
-                    "type": "web_search_20250305",
-                    "name": "web_search",
-                    "max_uses": config.WEB_SEARCH_MAX_USES,
-                }
-            )
-        return tools
-
-    def _create_kwargs(self) -> dict:
+    def _options(self, cwd: Path) -> ClaudeAgentOptions:
         cfg = self._mode_cfg()
-        extra_body: dict[str, Any] = {}
-        kwargs: dict[str, Any] = {
+        opts: dict[str, Any] = {
+            "system_prompt": get_system_prompt(self.mode),
             "model": self.model,
-            "max_tokens": cfg["max_tokens"],
-            "system": _system_blocks(self.mode),
-            "tools": self._tools(),
-            "messages": _mark_last_for_cache(self.messages),
+            "cwd": str(cwd),
+            "permission_mode": config.PERMISSION_MODE,
+            "allowed_tools": list(config.ALLOWED_TOOLS),
+            "setting_sources": list(config.SETTING_SOURCES),
+            "max_turns": config.MAX_AGENT_STEPS,
+            "include_partial_messages": True,  # delta-level text/thinking streaming
         }
+        env = config.subprocess_env()
+        if env is not None:  # only in subscription mode; None must NOT be passed
+            opts["env"] = env
+        if config.CLAUDE_CLI:
+            opts["cli_path"] = config.CLAUDE_CLI
         if self.thinking_on:
-            if config.uses_adaptive_thinking(self.model):
-                # Newer models (Opus 4.8): adaptive thinking + effort. Opus defaults
-                # to display="omitted" (hidden thinking, no thinking_delta stream);
-                # "summarized" surfaces the reasoning so the UI can show it. Sent via
-                # extra_body so it works regardless of SDK typing for these fields.
-                extra_body["thinking"] = {"type": "adaptive", "display": "summarized"}
-                extra_body["output_config"] = {"effort": cfg["effort"]}
-            else:
-                # Budget-style thinking (Sonnet 4.6, Haiku 4.5).
-                kwargs["thinking"] = {"type": "enabled", "budget_tokens": cfg["thinking_budget"]}
-        if extra_body:
-            kwargs["extra_body"] = extra_body
-        # 1M context for Opus, so long multi-turn design sessions fit.
-        if config.ENABLE_1M_CONTEXT and config.uses_adaptive_thinking(self.model):
-            kwargs["extra_headers"] = {"anthropic-beta": config.CONTEXT_1M_BETA}
-        return kwargs
+            opts["max_thinking_tokens"] = cfg["thinking_budget"]
+        if self.cc_session_id:
+            opts["resume"] = self.cc_session_id
+        return ClaudeAgentOptions(**opts)
+
+    def _build_prompt(self, user_content: list[dict] | str, cwd: Path) -> str:
+        """Flatten user content into a prompt string.
+
+        Images are written into the workspace and referenced by path, because the
+        Agent SDK takes a text prompt — Claude reads them back with the Read tool.
+        """
+        if isinstance(user_content, str):
+            return user_content or "(no text provided)"
+
+        text_parts: list[str] = []
+        image_names: list[str] = []
+        idx = 0
+        for block in user_content or []:
+            if not isinstance(block, dict):
+                continue
+            if block.get("type") == "text":
+                text_parts.append(block.get("text", ""))
+            elif block.get("type") == "image":
+                src = block.get("source", {}) or {}
+                ext = _IMAGE_EXT.get(src.get("media_type", ""), "png")
+                name = f"attachment_{idx}.{ext}"
+                try:
+                    (cwd / name).write_bytes(base64.b64decode(src.get("data", "")))
+                    image_names.append(name)
+                    idx += 1
+                except (binascii.Error, ValueError, OSError):
+                    pass
+
+        prompt = "\n".join(p for p in text_parts if p).strip()
+        if image_names:
+            refs = ", ".join(f"./{n}" for n in image_names)
+            preface = (
+                f"[The user attached {len(image_names)} image(s) saved in your "
+                f"working directory: {refs}. Read them with the Read tool.]\n\n"
+            )
+            prompt = preface + prompt
+        return prompt or "(no text provided)"
 
     # -- main loop -------------------------------------------------------------
 
-    def stream_turn(self, user_content: list[dict] | str) -> Iterator[dict]:
+    async def stream_turn(self, user_content: list[dict] | str) -> AsyncIterator[dict]:
         """Run one user turn to completion, yielding event dicts.
 
-        Loops over assistant responses: whenever the model calls tools, the
-        tools run, results are appended, and the model is invoked again — until
-        it stops calling tools or the step ceiling is hit.
+        A single ``query`` call runs Claude Code's full internal agentic loop
+        (write → run → read → fix → …) up to ``max_turns``; we surface each piece
+        of it as it streams in.
         """
-        self.messages.append({"role": "user", "content": user_content})
+        cwd = self._workspace()
+        cwd.mkdir(parents=True, exist_ok=True)
+        prompt = self._build_prompt(user_content, cwd)
+        self._tool_names = {}
 
-        for step in range(config.MAX_AGENT_STEPS):
-            final = None
-            for attempt in range(2):
-                try:
-                    final = yield from self._stream_one_response(step)
-                    break
-                except anthropic.APIStatusError as exc:
-                    # If the model rejects the thinking config, drop thinking and
-                    # retry once rather than failing the whole turn.
-                    if attempt == 0 and self.thinking_on and _is_thinking_error(exc):
-                        self.thinking_enabled = False
-                        yield {
-                            "type": "notice",
-                            "message": "This model rejected the extended-thinking "
-                            "configuration; retrying without it.",
-                        }
-                        continue
-                    yield {"type": "error", "message": f"API error {exc.status_code}: {_err(exc)}"}
-                    return
-                except anthropic.APIError as exc:
-                    yield {"type": "error", "message": f"API error: {_err(exc)}"}
-                    return
-            if final is None:
-                return
+        yield {"type": "step_start", "step": 0}
+        try:
+            async for message in query(prompt=prompt, options=self._options(cwd)):
+                for event in self._translate(message):
+                    yield event
+        except CLINotFoundError:
+            yield {
+                "type": "error",
+                "message": "The `claude` CLI was not found. Install Claude Code "
+                "and ensure it is on PATH (or set ALGORA_CLAUDE_CLI).",
+            }
+        except ClaudeSDKError as exc:
+            yield {"type": "error", "message": f"Agent error: {type(exc).__name__}: {exc}"}
+        except Exception as exc:  # never leak a raw 500 mid-stream
+            yield {"type": "error", "message": f"{type(exc).__name__}: {exc}"}
 
-            # Persist the assistant turn verbatim (preserves thinking signatures
-            # and tool_use blocks needed for the next request).
-            self.messages.append({"role": "assistant", "content": final.content})
+    def _translate(self, message: Any) -> list[dict]:
+        """Map one SDK message to zero or more frontend event dicts."""
+        # Any message that carries a session id lets us resume later.
+        sid = getattr(message, "session_id", None)
+        if sid:
+            self.cc_session_id = sid
 
-            # A long server-side tool turn (e.g. web_search) can pause: resend the
-            # paused assistant turn as-is so the model continues — do NOT end here,
-            # or the answer is truncated at the pause point.
-            if final.stop_reason == "pause_turn":
-                continue
+        if isinstance(message, StreamEvent):
+            return _deltas(message.event)
 
-            tool_uses = [b for b in final.content if getattr(b, "type", None) == "tool_use"]
-            if final.stop_reason != "tool_use" or not tool_uses:
-                yield {
-                    "type": "turn_done",
-                    "stop_reason": final.stop_reason,
-                    "usage": _usage(final),
-                }
-                return
+        if isinstance(message, AssistantMessage):
+            out: list[dict] = []
+            for block in message.content:
+                if isinstance(block, ToolUseBlock):
+                    out.append(self._tool_call_event(block))
+            return out
 
-            tool_results = []
-            for block in tool_uses:
-                yield {
-                    "type": "tool_call",
-                    "id": block.id,
-                    "name": block.name,
-                    "input": block.input,
-                }
-                output, is_error = execute_tool(block.name, block.input, self._workspace())
-                yield {
-                    "type": "tool_result",
-                    "id": block.id,
-                    "name": block.name,
-                    "output": output,
-                    "is_error": is_error,
-                }
-                tool_results.append(
+        if isinstance(message, UserMessage):
+            out = []
+            content = message.content
+            if isinstance(content, list):
+                for block in content:
+                    if isinstance(block, ToolResultBlock):
+                        out.append(self._tool_result_event(block))
+            return out
+
+        if isinstance(message, ResultMessage):
+            if message.is_error and message.subtype != "success":
+                return [
                     {
-                        "type": "tool_result",
-                        "tool_use_id": block.id,
-                        "content": output,
-                        "is_error": is_error,
+                        "type": "error",
+                        "message": message.result or f"Run ended: {message.subtype}",
                     }
-                )
-            self.messages.append({"role": "user", "content": tool_results})
+                ]
+            return [
+                {
+                    "type": "turn_done",
+                    "stop_reason": message.stop_reason or message.subtype,
+                    "usage": _usage(message),
+                }
+            ]
 
-        yield {
-            "type": "error",
-            "message": f"Reached the maximum of {config.MAX_AGENT_STEPS} agent steps.",
+        # SystemMessage(init) and anything else: session id already captured.
+        return []
+
+    def _tool_call_event(self, block: ToolUseBlock) -> dict:
+        name, inp = _map_tool(block.name, block.input)
+        if name == "__web_search__":
+            return {"type": "web_search", "query": (block.input or {}).get("query")}
+        self._tool_names[block.id] = name
+        return {"type": "tool_call", "id": block.id, "name": name, "input": inp}
+
+    def _tool_result_event(self, block: ToolResultBlock) -> dict:
+        return {
+            "type": "tool_result",
+            "id": block.tool_use_id,
+            "name": self._tool_names.get(block.tool_use_id, ""),
+            "output": _stringify(block.content),
+            "is_error": bool(block.is_error),
         }
 
-    def _stream_one_response(self, step: int):
-        """Stream a single assistant message, yielding deltas; return final msg."""
-        yield {"type": "step_start", "step": step}
-        with _client.messages.stream(**self._create_kwargs()) as stream:
-            for event in stream:
-                etype = getattr(event, "type", None)
-                if etype == "content_block_start":
-                    cb = getattr(event, "content_block", None)
-                    if getattr(cb, "type", None) == "server_tool_use" and (
-                        getattr(cb, "name", None) == "web_search"
-                    ):
-                        # Anthropic runs this search server-side; surface it to the UI.
-                        yield {"type": "web_search", "query": _ws_query(cb)}
-                elif etype == "content_block_delta":
-                    delta = event.delta
-                    dtype = getattr(delta, "type", None)
-                    if dtype == "thinking_delta":
-                        yield {"type": "thinking_delta", "text": delta.thinking}
-                    elif dtype == "text_delta":
-                        yield {"type": "text_delta", "text": delta.text}
-            return stream.get_final_message()
+
+# --- Helpers ------------------------------------------------------------------
 
 
-_DROP_BLOCK_TYPES = {"thinking", "redacted_thinking"}
+def _map_tool(name: str, inp: dict | None) -> tuple[str, dict]:
+    """Translate a Claude Code tool name + input into the {name, input} shape the
+    existing frontend already knows how to render."""
+    inp = inp or {}
+    if name == "Bash":
+        return "run_command", {"command": inp.get("command", "")}
+    if name == "Write":
+        return "write_file", {"path": inp.get("file_path", ""), "content": inp.get("content", "")}
+    if name == "Read":
+        return "read_file", {"path": inp.get("file_path", "")}
+    if name in ("Glob", "Grep", "LS"):
+        return "list_files", {}
+    if name == "WebSearch":
+        return "__web_search__", inp
+    # Edit / MultiEdit / WebFetch / TodoWrite / … render as a neutral card.
+    return name, inp
 
 
-def _serialize_block(block):
-    """Turn an SDK content block (pydantic) or dict into a plain JSON-safe dict."""
-    if hasattr(block, "model_dump"):
-        return block.model_dump(exclude_none=True)
-    return block
+def _deltas(event: dict | None) -> list[dict]:
+    """Extract text/thinking deltas from a raw partial-stream event."""
+    if not isinstance(event, dict) or event.get("type") != "content_block_delta":
+        return []
+    delta = event.get("delta") or {}
+    dtype = delta.get("type")
+    if dtype == "text_delta" and delta.get("text"):
+        return [{"type": "text_delta", "text": delta["text"]}]
+    if dtype == "thinking_delta" and delta.get("thinking"):
+        return [{"type": "thinking_delta", "text": delta["thinking"]}]
+    return []
 
 
-def _serialize_message(msg: dict) -> dict:
-    content = msg.get("content")
+def _stringify(content: Any) -> str:
+    """Flatten a ToolResultBlock's content (str | list of blocks) to text."""
+    if content is None:
+        return ""
+    if isinstance(content, str):
+        return content
     if isinstance(content, list):
-        blocks = []
-        for b in content:
-            d = _serialize_block(b)
-            if isinstance(d, dict) and d.get("type") in _DROP_BLOCK_TYPES:
-                continue
-            blocks.append(d)
-        return {"role": msg["role"], "content": blocks}
-    return {"role": msg["role"], "content": content}
+        parts = []
+        for block in content:
+            if isinstance(block, dict):
+                parts.append(block.get("text") or block.get("content") or "")
+            else:
+                parts.append(str(block))
+        return "\n".join(p for p in parts if p)
+    return str(content)
 
 
-def _ws_query(cb) -> str | None:
-    inp = getattr(cb, "input", None)
-    if isinstance(inp, dict):
-        return inp.get("query")
-    return None
-
-
-def _usage(message) -> dict:
-    u = getattr(message, "usage", None)
-    if u is None:
-        return {}
+def _usage(message: ResultMessage) -> dict:
+    u = message.usage if isinstance(message.usage, dict) else {}
     return {
-        "input_tokens": getattr(u, "input_tokens", None),
-        "output_tokens": getattr(u, "output_tokens", None),
-        "cache_read_input_tokens": getattr(u, "cache_read_input_tokens", None),
-        "cache_creation_input_tokens": getattr(u, "cache_creation_input_tokens", None),
+        "input_tokens": u.get("input_tokens"),
+        "output_tokens": u.get("output_tokens"),
+        "cache_read_input_tokens": u.get("cache_read_input_tokens"),
+        "cache_creation_input_tokens": u.get("cache_creation_input_tokens"),
     }
-
-
-def _err(exc: Exception) -> str:
-    msg = getattr(exc, "message", None)
-    return msg if msg else str(exc)
-
-
-def _is_thinking_error(exc: Exception) -> bool:
-    """True only for a 400 specifically about the thinking/effort config.
-
-    Tight matching so we never swallow an unrelated 400 (e.g. a bad message)
-    and silently strip thinking from the request.
-    """
-    if getattr(exc, "status_code", None) != 400:
-        return False
-    msg = (getattr(exc, "message", "") or str(exc)).lower()
-    return (
-        "thinking.type" in msg
-        or "adaptive thinking" in msg
-        or "output_config" in msg
-        or "effort parameter" in msg
-        or ("thinking" in msg and "support" in msg)
-    )

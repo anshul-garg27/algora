@@ -3,9 +3,9 @@
 __pycache__/
 *.pyc
 .env
-workspace/*
+#workspace/*
 !workspace/.gitkeep
 .pytest_cache/
 .DS_Store
 .certs/
-data/
+#data/

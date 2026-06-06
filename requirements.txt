@@ -1,5 +1,9 @@
 # Runtime dependencies
-anthropic>=0.40.0
+claude-agent-sdk>=0.1.0     # drives the `claude` CLI (Claude Code) under the hood
 fastapi>=0.110.0
 uvicorn[standard]>=0.29.0
 pydantic>=2.0.0
+
+# Note: the Claude Code CLI (`claude`) must be installed and on PATH, and you must
+# be authenticated — either ANTHROPIC_API_KEY in the env (API billing, default) or
+# `claude login` / `claude setup-token` plus ALGORA_USE_SUBSCRIPTION=1 (subscription).

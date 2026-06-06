@@ -9,6 +9,7 @@ from __future__ import annotations
 import hashlib
 import os
 import re
+import shutil
 from pathlib import Path
 
 # --- Paths --------------------------------------------------------------------
@@ -62,9 +63,9 @@ def workspace_for(session_id: str | None, mode: str | None = None) -> Path:
 
 # --- Models -------------------------------------------------------------------
 
-# Current Claude model IDs (verified at runtime by /api/health). The default is
-# Sonnet for a strong balance of agentic coding skill and speed; the UI exposes
-# Opus and Haiku as alternatives.
+# Current Claude model IDs (verified at runtime by /api/health). Opus 4.8 is the
+# default for the deepest agentic reasoning; the UI exposes Sonnet and Haiku as
+# faster/cheaper alternatives.
 MODELS = {
     "sonnet": os.environ.get("MODEL_SONNET", "claude-sonnet-4-6"),
     "opus": os.environ.get("MODEL_OPUS", "claude-opus-4-8"),
@@ -93,6 +94,65 @@ ALGORA_TOKEN = os.environ.get("ALGORA_TOKEN", "").strip()
 # Cross-origin allowlist (the SPA is same-origin, so empty is the safe default).
 ALLOWED_ORIGINS = [
     o.strip() for o in os.environ.get("ALGORA_ALLOWED_ORIGINS", "").split(",") if o.strip()
+]
+
+
+# --- Engine auth (the Claude Agent SDK drives the `claude` CLI) ---------------
+#
+# The underlying CLI authenticates one of two ways:
+#   * API key      — ANTHROPIC_API_KEY present in the subprocess env (per-token
+#                    billing against your API account). This is the default.
+#   * Subscription — ANTHROPIC_API_KEY ABSENT and you have logged in once with
+#                    `claude login` (or `claude setup-token`); the CLI then uses
+#                    your Pro/Max plan and no API key is needed.
+#
+# Set ALGORA_USE_SUBSCRIPTION=1 to strip the key from the spawned CLI so it falls
+# back to your subscription. Flipping this single flag is the ONLY change needed
+# to move this app from an API key to a Claude subscription on another machine.
+USE_SUBSCRIPTION = os.environ.get("ALGORA_USE_SUBSCRIPTION", "0") == "1"
+
+
+def subprocess_env() -> dict[str, str] | None:
+    """Environment overrides for the spawned `claude` CLI.
+
+    Returns ``None`` in API mode so we don't pass ``env`` at all — the subprocess
+    inherits this process's environment (ANTHROPIC_API_KEY included → API billing).
+
+    In subscription mode it returns ONLY the overrides. The SDK merges these on
+    top of the inherited environment, so to actually drop the API key we must
+    override it to empty (the CLI treats an empty key as "no key" and falls back
+    to your `claude login` subscription) rather than just omitting it.
+    """
+    if not USE_SUBSCRIPTION:
+        return None
+    return {"ANTHROPIC_API_KEY": "", "ANTHROPIC_AUTH_TOKEN": ""}
+
+
+# Explicit path to the `claude` binary; auto-discovered on PATH if unset. Passed
+# to the SDK so a non-login shell (e.g. launched by run.sh) still finds it.
+CLAUDE_CLI = os.environ.get("ALGORA_CLAUDE_CLI") or shutil.which("claude") or ""
+
+# Claude Code's built-in tools the agent is allowed to use — it writes and runs
+# its own code with these (no custom write_file/run_python tools anymore).
+ALLOWED_TOOLS = [
+    t.strip()
+    for t in os.environ.get(
+        "ALGORA_ALLOWED_TOOLS", "Read,Write,Edit,Bash,Glob,Grep,WebSearch"
+    ).split(",")
+    if t.strip()
+]
+
+# Local personal tool: let the agent write files and run code WITHOUT interactive
+# permission prompts (headless can't answer them). This is a looser sandbox than
+# the old per-path allowlist — fine on a private machine; see the README security
+# note. Override with ALGORA_PERMISSION_MODE if you want a stricter mode.
+PERMISSION_MODE = os.environ.get("ALGORA_PERMISSION_MODE", "bypassPermissions")
+
+# Filesystem settings sources the agent loads (user/project/local). Empty by
+# default so the agent's behaviour comes ONLY from the mode system prompt and is
+# not coloured by your global ~/.claude/CLAUDE.md or a project's settings.
+SETTING_SOURCES = [
+    s.strip() for s in os.environ.get("ALGORA_SETTING_SOURCES", "").split(",") if s.strip()
 ]
 
 

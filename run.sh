@@ -18,11 +18,20 @@ if [ ! -d ".venv" ]; then
   ./.venv/bin/python -m pip install -r requirements.txt
 fi
 
-if [ -z "${ANTHROPIC_API_KEY:-}" ] && [ -f ".env" ]; then
+# Always load .env (if present) so project flags — ALGORA_USE_SUBSCRIPTION,
+# CLAUDE_CODE_OAUTH_TOKEN, etc. — apply even when ANTHROPIC_API_KEY is already
+# exported in the shell.
+if [ -f ".env" ]; then
   set -a; . ./.env; set +a
 fi
-if [ -z "${ANTHROPIC_API_KEY:-}" ]; then
-  echo "ERROR: ANTHROPIC_API_KEY is not set. Export it or put it in .env" >&2
+# An API key is required ONLY in API mode. In subscription mode
+# (ALGORA_USE_SUBSCRIPTION=1) the spawned `claude` CLI authenticates with your
+# `claude login` / `claude setup-token` session instead, so no API key is needed.
+if [ "${ALGORA_USE_SUBSCRIPTION:-0}" = "1" ]; then
+  echo "Auth: SUBSCRIPTION mode (ALGORA_USE_SUBSCRIPTION=1) — using your 'claude login' session, not an API key."
+elif [ -z "${ANTHROPIC_API_KEY:-}" ]; then
+  echo "ERROR: ANTHROPIC_API_KEY is not set. Export it, put it in .env, or set" >&2
+  echo "       ALGORA_USE_SUBSCRIPTION=1 (after running 'claude login')." >&2
   exit 1
 fi
 
@@ -74,5 +83,8 @@ if [ "${RELOAD:-1}" = "1" ]; then
   RELOAD_ARGS=(--reload --reload-dir backend)
 fi
 
+# Note the `${arr[@]+"${arr[@]}"}` form: under `set -u`, macOS's bash 3.2 treats
+# an EMPTY array expansion as an unbound variable, so guard both optional arrays.
 exec ./.venv/bin/python -m uvicorn backend.server:app \
-  --host 0.0.0.0 --port "${PORT}" "${SSL_ARGS[@]}" "${RELOAD_ARGS[@]}"
+  --host 0.0.0.0 --port "${PORT}" \
+  ${SSL_ARGS[@]+"${SSL_ARGS[@]}"} ${RELOAD_ARGS[@]+"${RELOAD_ARGS[@]}"}

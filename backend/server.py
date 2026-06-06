@@ -11,7 +11,7 @@ import logging
 import shutil
 import threading
 from collections import defaultdict
-from typing import Iterator
+from typing import AsyncIterator
 
 from fastapi import FastAPI, Header
 from fastapi.middleware.cors import CORSMiddleware
@@ -142,9 +142,9 @@ def _title_from(turn_items: list) -> str:
     return "Untitled"
 
 
-def _stream_events(
+async def _stream_events(
     agent: Agent, lock: threading.Lock, user_content: list[dict], session_id: str, mode: str
-) -> Iterator[str]:
+) -> AsyncIterator[str]:
     """Wrap the agent generator as SSE, guarding the session with a lock, and
     record a render-ready transcript so the conversation can be reopened later."""
     acquired = lock.acquire(blocking=False)
@@ -154,7 +154,7 @@ def _stream_events(
     tb = TranscriptBuilder()
     tb.add_user(user_content)
     try:
-        for event in agent.stream_turn(user_content):
+        async for event in agent.stream_turn(user_content):
             tb.consume(event)
             yield _sse(event)
     except Exception as exc:  # never leak a raw 500 mid-stream
