@@ -832,9 +832,19 @@ side that everything plugs into…").
 
 ## 5. Design Patterns & Principles
 Apply AT LEAST one or two appropriate design patterns (Strategy, Factory, Observer, \
-State, Singleton, Command, etc.) in the ACTUAL class design — name each, say why it \
-fits, and make sure it visibly appears in the code in section 6/7. Call out the SOLID \
-principles your design respects. 💬 + layman.
+State, Singleton, Command, etc.) in the ACTUAL class design. For EACH PATTERN:
+  - **Name** the pattern
+  - **Why it fits** — the specific problem it solves (not generic; tie it to THIS design's needs)
+  - **The interface/implementation** — one line naming the interface and its concrete impls
+  - **🎙️ Script** — how to narrate it out loud: "I use Strategy here because the ParkingLot \
+    needs to support different spot-allocation strategies — nearest-empty, random, most-available. \
+    By extracting SpotSelectionStrategy as an interface, the core logic stays clean and the \
+    business can swap strategies without touching the orchestrator code."
+
+Also call out the SOLID principles your design respects (e.g. "Open/Closed: new strategies don't \
+require modifying the core"; "Single Responsibility: SpotSelectionStrategy owns only the allocation \
+decision"). 💬 + layman (if jargon appears, gloss it).
+
 EARN YOUR PATTERNS: only list a pattern under "applied" if its interface/seam is actually \
 visible in the §6/§7 code (a real Strategy interface with an implementation, a real \
 Observer registration, etc.). If something is merely a future extension point, label it \
@@ -853,10 +863,17 @@ service/manager, the driver), never one giant blob and never one-class-per-file 
 This is the CLEAN, single-threaded-correct CORE — do NOT add any locks or thread-safety \
 here; concurrency hardening is a deliberate SECOND version in §9. Keep §6/§7 lock-free and \
 readable so the OO design is the star; §7's run proves FUNCTIONAL correctness only. \
-For each important class: one sentence on its role, then its ```python code in its own \
-block, then a note on the tricky methods. Cover the enums, the interfaces/abstract base \
-classes, the strategies, and the orchestrator. EVERY class shown here must appear in the \
-§4 diagram (and vice-versa). 💬 talking points on the methods that carry the real logic.
+For each important class:
+  - One sentence on its ROLE + WHY it exists (not just "what it does" — why is this class needed \
+    in the design? What responsibility does it own?)
+  - Its ```python code in its own block
+  - A 💬 talking point on the tricky/important methods: the decision logic, the invariant it \
+    guards, or the extension point it provides. (This is what you'd narrate out loud to the \
+    interviewer: "This method checks that the balance never goes negative, which is our \
+    invariant — you can't have debt in this system.")
+
+Cover the enums, the interfaces/abstract base classes, the strategies, and the orchestrator. \
+EVERY class shown here must appear in the §4 diagram (and vice-versa).
 
 ## 7. Putting It Together (verified run)
 The assembled program (driver/demo + assertions). Show that you wrote it and ran it; \
@@ -1018,7 +1035,14 @@ For EACH requirement, a subsection:
     | Rides DB | PostgreSQL, sharded by city | ACID (money involved) + per-city isolation + compliance | Operational complexity |
     | Quote Cache | Redis (TTL 30s) | Ephemeral, fast expiry, no durability needed | Lost on crash (OK) |
     | Match Queue | Kafka | Durable, survives crashes, async (don't block rider) | Adds complexity |
-  Keep this concise (2–5 rows per slice), focused on THIS slice's new tech choices; reuse is noted below.
+  Keep this concise (2–5 rows per slice), focused on THIS slice's new tech choices; reuse is noted below. \
+  THEN follow the table with a 🎙️ SCRIPT that SPEAKS each choice out loud in plain words the \
+  candidate can narrate: e.g., "I'm using PostgreSQL here because we're handling money, and we need \
+  ACID guarantees — a transaction can't half-succeed. I'm sharding by city because each city has \
+  different regulations and independent scale, so this way each shard can be managed separately." \
+  The script is the narration the candidate GIVES — plain, conversational, justified in 1–2 sentences \
+  per choice. Never dump the table; always speak the "why" out loud so the interviewer hears reasoning, \
+  not just naming.
 - a ```mermaid flowchart for THIS slice that is FOCUSED — show ONLY the components and edges this \
 requirement's flow actually touches, kept clean (~10-12 nodes), NOT the whole cumulative system. \
 BUT stay consistent with the other slices per diagram_conventions: any component that also appeared \
@@ -1045,8 +1069,12 @@ cache/search) justified by the access pattern, with the partition/shard key and 
 consistency. Gloss the store per jargon_guard. For EACH storage decision, state the ONE reason it's \
 the right choice (e.g. "PostgreSQL: ACID + strong consistency for financial correctness"; "Redis: \
 ephemeral, fast, TTL auto-expiry"; "DynamoDB: KV, sharded by user_id, eventual consistency"). \
-Never just name the store — explain the access pattern that drives the choice. 🎙️ Script on \
-access-pattern → store choice.
+Never just name the store — explain the access pattern that drives the choice. Then a 🎙️ SCRIPT \
+that speaks each choice aloud: e.g., "For the Rides table, I use PostgreSQL because we read and \
+write rides frequently and need strong consistency — if the match crashes, the ride is still persisted. \
+For the Quote cache, Redis is enough because quotes are temporary (30-second TTL); we don't need \
+durability, just speed. For the idempotency store, a short-lived Redis key works because it's \
+dedup-only, not the source of truth." This is your access-pattern → store reasoning, spoken.
 
 ## 8. Deep Dives — Bad → Good → Great (the senior signal)
 This is where the interview is won — go as DEEP as a written Hello-Interview breakdown, not a \
