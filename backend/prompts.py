@@ -1011,6 +1011,14 @@ For EACH requirement, a subsection:
 ### 6.x "<the requirement text>"
 - a one-sentence framing of this slice;
 - introduce ONLY the new components it needs, wired onto what already exists;
+- AN ARCHITECTURE DECISIONS TABLE (for new components only, don't repeat) with columns \
+  **Component | Technology | Why | Trade-off** — explicitly name the database/queue/cache choice and \
+  justify WHY (ACID needed? TTL-based? Async to not block? Sharded for scale?). This is where you \
+  answer "Redis or Postgres?", "Kafka or SQS?", "why this store and not that?" E.g.:
+    | Rides DB | PostgreSQL, sharded by city | ACID (money involved) + per-city isolation + compliance | Operational complexity |
+    | Quote Cache | Redis (TTL 30s) | Ephemeral, fast expiry, no durability needed | Lost on crash (OK) |
+    | Match Queue | Kafka | Durable, survives crashes, async (don't block rider) | Adds complexity |
+  Keep this concise (2–5 rows per slice), focused on THIS slice's new tech choices; reuse is noted below.
 - a ```mermaid flowchart for THIS slice that is FOCUSED — show ONLY the components and edges this \
 requirement's flow actually touches, kept clean (~10-12 nodes), NOT the whole cumulative system. \
 BUT stay consistent with the other slices per diagram_conventions: any component that also appeared \
@@ -1034,7 +1042,11 @@ Checkpoint handing the deep-dive choice to the interviewer.
 ## 7. Data Model & Storage
 A table of the key entities' fields (type + one-line note) + storage choice (SQL/NoSQL/KV/blob/ \
 cache/search) justified by the access pattern, with the partition/shard key and per-operation \
-consistency. Gloss the store per jargon_guard. 🎙️ Script on access-pattern → store choice.
+consistency. Gloss the store per jargon_guard. For EACH storage decision, state the ONE reason it's \
+the right choice (e.g. "PostgreSQL: ACID + strong consistency for financial correctness"; "Redis: \
+ephemeral, fast, TTL auto-expiry"; "DynamoDB: KV, sharded by user_id, eventual consistency"). \
+Never just name the store — explain the access pattern that drives the choice. 🎙️ Script on \
+access-pattern → store choice.
 
 ## 8. Deep Dives — Bad → Good → Great (the senior signal)
 This is where the interview is won — go as DEEP as a written Hello-Interview breakdown, not a \
