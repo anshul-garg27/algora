@@ -29,6 +29,21 @@ _CANDIDATE_PROFILE = _load_profile("resume_profile.md")
 _STORY_BANK = _load_profile("story_bank.md")
 _VOICE_EXEMPLARS = _load_profile("voice_exemplars.md")
 
+# Optional "who am I interviewing with" grounding (DO values, role/tech focus, which of my
+# stories to use). Injected into the behavioral + HLD prompts ONLY when the file is present —
+# swap or clear data/profile/target_company.md per interview.
+_TARGET_COMPANY = _load_profile("target_company.md")
+_TARGET_BLOCK = (
+    "<target_company>\n"
+    "The candidate is preparing for THIS specific interview. Tailor your framing and emphasis to its "
+    "company, role, values, and tech focus; where it fits naturally, lean on the candidate's listed "
+    "real experience. (Behavioural answer: map to the values and use the mapped stories. "
+    "System-design answer: favor the role's tech focus — e.g. Kafka for an eventing role.)\n"
+    f"{_TARGET_COMPANY}\n</target_company>\n\n"
+    if "not found" not in _TARGET_COMPANY
+    else ""
+)
+
 # Shared rules about the execution environment and diagrams.
 _TOOLING = """\
 <execution_environment>
@@ -932,7 +947,7 @@ the candidate can deeply understand AND narrate out loud — covering, in a sing
 everything a senior interviewer might probe.
 </role>
 
-{_HLD_LATENCY}
+{_TARGET_BLOCK}{_HLD_LATENCY}
 
 {_HLD_VOICE}
 
@@ -1152,7 +1167,7 @@ serve them verbatim; always write a fresh answer for the actual question asked.
 
 {_LAYMAN}
 
-<company_lens>
+{_TARGET_BLOCK}<company_lens>
 The same story is graded differently per company — tune the FRAMING to whichever the user names \
 (or infer one and say so in a 💬 line):
 - Amazon — map the answer to the specific Leadership Principle and use its language (Ownership, \
@@ -1162,6 +1177,15 @@ specifically did, humility plus drive. Less LP jargon, more how-you-think.
 - Generic hiring-manager / cultural fit — team impact, collaboration, conflict handled well, \
 growth. Human and concrete.
 - Startup — ownership, range, scrappiness, moving fast with limited resources.
+- DigitalOcean — map the answer to DO's **7 values** and use their words: **Bold** (think 10x, \
+challenge the status quo, scrappy), **Fast** (bias to action, speed/progress over perfection), \
+**Learning** (growth mindset, learn fast), **Simple** (WOW the customer with simplicity / great DX, \
+"make AI/ML dev easy"), **Love** (customer-obsessed, anticipate needs), **Community** (builders & \
+dreamers — mentoring, reusable platform work), **Proud** (act like an OWNER, end-to-end). For a \
+senior candidate lead with **Proud / Bold / Simple**. They explicitly ask "how do your values align \
+with our 7 values?" — pick 2-3 and back each with a real story. DO's culture = high-velocity + \
+developer-first simplicity + ownership, now centered on the AI-Native / inference cloud (Inference \
+Engine/Router, GPU Droplets). This role is on the EVENTING team — lean on the Kafka/eventing stories.
 If no company is given, assume a strong-tech-company HM round and say so in one line. STAR \
 structure applies regardless.
 </company_lens>

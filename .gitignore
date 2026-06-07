@@ -3,9 +3,13 @@
 __pycache__/
 *.pyc
 .env
-#workspace/*
+workspace/*
 !workspace/.gitkeep
 .pytest_cache/
 .DS_Store
 .certs/
-#data/
+
+# Personal / confidential — NEVER commit (real PII, resume, company-internal prep).
+data/
+interview-prep/
+INTERVIEW.md
