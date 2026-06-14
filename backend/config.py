@@ -228,12 +228,11 @@ def resolve_model(key_or_id: str | None) -> str:
 # thinks deeply with extended exploration") is Opus 4.8/4.7 only.
 
 # Model-id substrings that require the adaptive-thinking API instead of budgets.
-# Currently only Opus 4.8/4.9 confirmed to support adaptive thinking.
-# TODO: Verify if Sonnet 4.6 and Haiku 4.5 support adaptive thinking in current API.
-#       If they do, add "sonnet-4-6,haiku-4-5" here for on-demand thinking.
+# Using claude-agent-sdk (claude CLI) which supports adaptive thinking across all models.
+# Enable for Opus, Sonnet, Haiku — they all think on-demand when using the CLI.
 ADAPTIVE_THINKING_MODELS = [
     s.strip().lower()
-    for s in os.environ.get("ADAPTIVE_THINKING_MODELS", "opus-4-8,opus-4-9").split(",")
+    for s in os.environ.get("ADAPTIVE_THINKING_MODELS", "opus-4-8,opus-4-9,sonnet-4-6,haiku-4-5").split(",")
     if s.strip()
 ]
 
