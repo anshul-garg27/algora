@@ -41,7 +41,6 @@ const form = $("composer");
 const sendBtn = $("send-btn");
 const fileInput = $("file-input");
 const attachBtn = $("attach-btn");
-const debugBtn = $("debug-btn");
 const micBtn = $("mic-btn");
 const attachmentsEl = $("attachments");
 const statusDot = $("status-dot");
@@ -49,52 +48,6 @@ const modelSelect = $("model-select");
 const thinkingToggle = $("thinking-toggle");
 const resetBtn = $("reset-btn");
 const dropOverlay = $("drop-overlay");
-
-// Debug logging for multi-photo upload troubleshooting
-let debugLogs = [];
-let debugPanelVisible = false;
-function addDebugLog(msg) {
-  const ts = new Date().toLocaleTimeString();
-  const fullMsg = `[${ts}] ${msg}`;
-  debugLogs.push(fullMsg);
-  console.log(fullMsg);
-  updateDebugPanel();
-}
-function toggleDebugPanel() {
-  debugPanelVisible = !debugPanelVisible;
-  if (debugBtn) {
-    debugBtn.style.background = debugPanelVisible ? "#ff0000" : "#0f0";
-  }
-  updateDebugPanel();
-}
-// Expose to window for onclick handler
-window.toggleDebugPanel = toggleDebugPanel;
-function updateDebugPanel() {
-  let panel = document.getElementById("debug-panel");
-
-  if (!panel) {
-    panel = document.createElement("div");
-    panel.id = "debug-panel";
-    panel.style.cssText = `
-      position: fixed; bottom: 70px; left: 10px; right: 10px;
-      width: calc(100% - 20px); max-height: 40vh;
-      background: #1a1a1a; color: #0f0; font-family: monospace; font-size: 11px;
-      border: 2px solid #0f0; padding: 12px; border-radius: 6px; overflow-y: auto;
-      z-index: 9998; display: none; box-shadow: 0 0 20px rgba(0,255,0,0.3);
-    `;
-    document.body.appendChild(panel);
-  }
-
-  if (debugPanelVisible && debugLogs.length) {
-    panel.style.display = "block";
-    panel.innerHTML = debugLogs.map(l => `<div>${l}</div>`).join("");
-    setTimeout(() => { panel.scrollTop = panel.scrollHeight; }, 10);
-  } else {
-    panel.style.display = "none";
-  }
-}
-
-// Debug button uses onclick handler in HTML for better iPhone compatibility
 
 const PLACEHOLDERS = {
   assessment: "Describe the problem, or paste a screenshot…",
