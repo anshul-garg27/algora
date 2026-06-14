@@ -51,6 +51,7 @@ const dropOverlay = $("drop-overlay");
 
 // Debug logging for multi-photo upload troubleshooting
 let debugLogs = [];
+let debugPanelVisible = false;
 function addDebugLog(msg) {
   const ts = new Date().toLocaleTimeString();
   const fullMsg = `[${ts}] ${msg}`;
@@ -58,20 +59,41 @@ function addDebugLog(msg) {
   console.log(fullMsg);
   updateDebugPanel();
 }
+function toggleDebugPanel() {
+  debugPanelVisible = !debugPanelVisible;
+  updateDebugPanel();
+}
 function updateDebugPanel() {
   let panel = document.getElementById("debug-panel");
+  let btn = document.getElementById("debug-btn");
+
   if (!panel) {
     panel = document.createElement("div");
     panel.id = "debug-panel";
     panel.style.cssText = `
-      position: fixed; bottom: 60px; left: 10px; right: 10px; max-height: 200px;
-      background: #1a1a1a; color: #0f0; font-family: monospace; font-size: 11px;
-      border: 1px solid #0f0; padding: 8px; border-radius: 4px; overflow-y: auto;
-      z-index: 9999; display: none;
+      position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      width: 90%; max-width: 500px; max-height: 400px;
+      background: #1a1a1a; color: #0f0; font-family: monospace; font-size: 12px;
+      border: 2px solid #0f0; padding: 12px; border-radius: 6px; overflow-y: auto;
+      z-index: 99999; display: none; box-shadow: 0 0 20px rgba(0,255,0,0.3);
     `;
     document.body.appendChild(panel);
   }
-  if (debugLogs.length) {
+
+  if (!btn) {
+    btn = document.createElement("button");
+    btn.id = "debug-btn";
+    btn.textContent = "🐛 DEBUG";
+    btn.style.cssText = `
+      position: fixed; top: 10px; right: 10px; z-index: 99998;
+      padding: 6px 10px; background: #0f0; color: #000; border: none;
+      border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 12px;
+    `;
+    btn.addEventListener("click", toggleDebugPanel);
+    document.body.appendChild(btn);
+  }
+
+  if (debugPanelVisible && debugLogs.length) {
     panel.style.display = "block";
     panel.innerHTML = debugLogs.map(l => `<div>${l}</div>`).join("");
     panel.scrollTop = panel.scrollHeight;
