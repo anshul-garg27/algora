@@ -164,7 +164,7 @@ SETTING_SOURCES = [
 MODES = {
     "assessment": {
         "max_tokens": int(os.environ.get("ASSESS_MAX_TOKENS", "16000")),
-        "thinking_budget": int(os.environ.get("ASSESS_THINKING_BUDGET", "5000")),  # Reduced (adaptive thinking)
+        "thinking_budget": int(os.environ.get("ASSESS_THINKING_BUDGET", "8000")),
         "effort": os.environ.get("ASSESS_EFFORT", "xhigh"),
     },
     # Live coding interview: MEDIUM. Measured time-to-first-text by effort on hard
@@ -178,7 +178,7 @@ MODES = {
     # All models (Opus/Sonnet/Haiku) now use adaptive thinking, so they think ON-DEMAND.
     "interview": {
         "max_tokens": int(os.environ.get("INTERVIEW_MAX_TOKENS", "32000")),
-        "thinking_budget": int(os.environ.get("INTERVIEW_THINKING_BUDGET", "6000")),  # Lower now that adaptive
+        "thinking_budget": int(os.environ.get("INTERVIEW_THINKING_BUDGET", "8000")),
         "effort": os.environ.get("INTERVIEW_EFFORT", "medium"),
     },
     # Design modes use LOW thinking effort: the prompt's structure (rigor checklist,
@@ -228,11 +228,12 @@ def resolve_model(key_or_id: str | None) -> str:
 # thinks deeply with extended exploration") is Opus 4.8/4.7 only.
 
 # Model-id substrings that require the adaptive-thinking API instead of budgets.
-# All three latest models (Opus 4.8, Sonnet 4.6, Haiku 4.5) support adaptive thinking.
-# This makes them all think ON-DEMAND (when needed) instead of always upfront.
+# Currently only Opus 4.8/4.9 confirmed to support adaptive thinking.
+# TODO: Verify if Sonnet 4.6 and Haiku 4.5 support adaptive thinking in current API.
+#       If they do, add "sonnet-4-6,haiku-4-5" here for on-demand thinking.
 ADAPTIVE_THINKING_MODELS = [
     s.strip().lower()
-    for s in os.environ.get("ADAPTIVE_THINKING_MODELS", "opus-4-8,opus-4-9,sonnet-4-6,haiku-4-5").split(",")
+    for s in os.environ.get("ADAPTIVE_THINKING_MODELS", "opus-4-8,opus-4-9").split(",")
     if s.strip()
 ]
 
