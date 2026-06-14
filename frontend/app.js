@@ -498,17 +498,20 @@ function fileToAttachment(file) {
 async function addFiles(files) {
   const tab = cur(); // capture before await so files land on the originating tab
 
-  // iOS fix: Read ALL file data to memory FIRST (within the file access window),
-  // BEFORE any async operations. This prevents iOS from revoking access mid-loop.
-  const fileData = [];
-  for (const f of files) {
+  // iOS fix: Read ALL files to memory IN PARALLEL (faster, before iOS revokes access).
+  // Sequential reading was too slow — iOS revokes access between files.
+  // Parallel reads complete faster and within the access window.
+  const fileDataPromises = Array.from(files).map(async (f) => {
     try {
       const data = await f.arrayBuffer();
-      fileData.push({ name: f.name, type: f.type, data });
+      return { name: f.name, type: f.type, data };
     } catch (e) {
       console.warn(`Failed to read file ${f.name}:`, e);
+      return null;
     }
-  }
+  });
+
+  const fileData = (await Promise.all(fileDataPromises)).filter(x => x);
 
   // NOW process the in-memory data (iOS can't revoke this access)
   for (const { name, type, data } of fileData) {
