@@ -49,6 +49,37 @@ const thinkingToggle = $("thinking-toggle");
 const resetBtn = $("reset-btn");
 const dropOverlay = $("drop-overlay");
 
+// Debug logging for multi-photo upload troubleshooting
+let debugLogs = [];
+function addDebugLog(msg) {
+  const ts = new Date().toLocaleTimeString();
+  const fullMsg = `[${ts}] ${msg}`;
+  debugLogs.push(fullMsg);
+  console.log(fullMsg);
+  updateDebugPanel();
+}
+function updateDebugPanel() {
+  let panel = document.getElementById("debug-panel");
+  if (!panel) {
+    panel = document.createElement("div");
+    panel.id = "debug-panel";
+    panel.style.cssText = `
+      position: fixed; bottom: 60px; left: 10px; right: 10px; max-height: 200px;
+      background: #1a1a1a; color: #0f0; font-family: monospace; font-size: 11px;
+      border: 1px solid #0f0; padding: 8px; border-radius: 4px; overflow-y: auto;
+      z-index: 9999; display: none;
+    `;
+    document.body.appendChild(panel);
+  }
+  if (debugLogs.length) {
+    panel.style.display = "block";
+    panel.innerHTML = debugLogs.map(l => `<div>${l}</div>`).join("");
+    panel.scrollTop = panel.scrollHeight;
+  } else {
+    panel.style.display = "none";
+  }
+}
+
 const PLACEHOLDERS = {
   assessment: "Describe the problem, or paste a screenshot…",
   interview: "Paste or dictate the problem — get a full interview walkthrough…",
@@ -497,17 +528,18 @@ function fileToAttachment(file) {
   });
 }
 async function addFiles(files) {
+  debugLogs = [];  // Clear logs on new file selection
+  addDebugLog(`📁 Starting with ${files.length} files`);
   const tab = cur(); // capture before await so files land on the originating tab
-  console.log(`[addFiles] Starting with ${files.length} files`);
 
   // iOS fix: Read each file's data URL immediately (FileReader is fast).
   // Use FileReader instead of arrayBuffer — it may have different access semantics on iOS.
   const fileDataPromises = Array.from(files).map((f, i) => {
     return new Promise((resolve) => {
-      console.log(`[addFiles] Starting to read file ${i}: ${f.name}`);
+      addDebugLog(`📖 Reading file ${i}: ${f.name}`);
       const reader = new FileReader();
       reader.onload = () => {
-        console.log(`[addFiles] Successfully read file ${i}: ${f.name} (${reader.result.length} bytes)`);
+        addDebugLog(`✅ Read file ${i}: ${f.name} (${reader.result.length} bytes)`);
         resolve({
           name: f.name,
           type: f.type,
@@ -515,24 +547,24 @@ async function addFiles(files) {
         });
       };
       reader.onerror = (err) => {
-        console.warn(`[addFiles] Failed to read file ${i} (${f.name}):`, err);
+        addDebugLog(`❌ Failed to read file ${i} (${f.name}): ${err}`);
         resolve(null);
       };
       try {
         reader.readAsDataURL(f);  // Read immediately while file access is open
       } catch (e) {
-        console.error(`[addFiles] Exception reading file ${i} (${f.name}):`, e);
+        addDebugLog(`❌ Exception reading file ${i} (${f.name}): ${e.message}`);
         resolve(null);
       }
     });
   });
 
   const fileData = (await Promise.all(fileDataPromises)).filter(x => x);
-  console.log(`[addFiles] Successfully read ${fileData.length} files (out of ${files.length})`);
+  addDebugLog(`✅ Successfully read ${fileData.length}/${files.length} files`);
 
   // NOW process the data URL data (iOS can't revoke this access)
   for (const { name, type, dataUrl } of fileData) {
-    console.log(`[addFiles] Processing ${name} for attachment...`);
+    addDebugLog(`⚙️ Processing ${name}...`);
     // Create blob from data URL
     const arr = dataUrl.split(',');
     const bstr = atob(arr[1]);
@@ -544,13 +576,13 @@ async function addFiles(files) {
     const blob = new Blob([u8arr], { type });
     const a = await fileToAttachment(blob);
     if (a) {
-      console.log(`[addFiles] Attached ${name}`);
+      addDebugLog(`📎 Attached ${name}`);
       tab.attachments.push(a);
     } else {
-      console.warn(`[addFiles] Failed to create attachment for ${name}`);
+      addDebugLog(`❌ Failed to create attachment for ${name}`);
     }
   }
-  console.log(`[addFiles] Done. Total attachments: ${tab.attachments.length}`);
+  addDebugLog(`✅ Done! Total: ${tab.attachments.length} attachment(s)`);
   if (tab === cur()) renderAttachments();
 }
 function renderAttachments() {
