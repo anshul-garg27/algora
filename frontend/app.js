@@ -421,6 +421,7 @@ async function send() {
 
   input.value = "";
   autosize();
+  if (mic) mic.stop();  // Stop dictation so old text doesn't reappear on next dictation
   const payloadImages = imgs.map((a) => ({ media_type: a.media_type, data: a.data }));
   tab.attachments = [];
   renderAttachments();
@@ -933,7 +934,7 @@ document.addEventListener("visibilitychange", () => {
 window.addEventListener("focus", () => { if (!historyDrawer.hidden) refreshHistory(); liveSyncTick(); });
 
 // voice dictation (mic button shows only if supported)
-setupMic({ input, button: micBtn, onText: autosize });
+const mic = setupMic({ input, button: micBtn, onText: autosize });
 
 // ============================================================
 //  Health check
