@@ -67,6 +67,8 @@ function toggleDebugPanel() {
   }
   updateDebugPanel();
 }
+// Expose to window for onclick handler
+window.toggleDebugPanel = toggleDebugPanel;
 function updateDebugPanel() {
   let panel = document.getElementById("debug-panel");
 
@@ -92,19 +94,7 @@ function updateDebugPanel() {
   }
 }
 
-if (debugBtn) {
-  debugBtn.addEventListener("click", (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    toggleDebugPanel();
-  });
-  // Fallback for touch devices
-  debugBtn.addEventListener("touchend", (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    toggleDebugPanel();
-  });
-}
+// Debug button uses onclick handler in HTML for better iPhone compatibility
 
 const PLACEHOLDERS = {
   assessment: "Describe the problem, or paste a screenshot…",
