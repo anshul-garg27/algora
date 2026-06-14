@@ -531,15 +531,25 @@ function setStreaming(tab, on) {
 // ============================================================
 //  Attachments
 // ============================================================
-function fileToAttachment(file) {
+function fileToAttachment(file, preloadedDataUrl = null) {
   return new Promise((resolve, reject) => {
     if (!file.type.startsWith("image/")) return resolve(null);
+
+    // If dataUrl already loaded, skip reading again (important for Chrome on iOS)
+    if (preloadedDataUrl) {
+      const data = preloadedDataUrl.slice(preloadedDataUrl.indexOf(",") + 1);
+      return resolve({ media_type: file.type, data, dataUrl: preloadedDataUrl });
+    }
+
     const r = new FileReader();
     r.onload = () => {
       const dataUrl = r.result;
       resolve({ media_type: file.type, data: dataUrl.slice(dataUrl.indexOf(",") + 1), dataUrl });
     };
-    r.onerror = reject;
+    r.onerror = (err) => {
+      addDebugLog(`❌ FileReader error: ${err}`);
+      reject(err);
+    };
     r.readAsDataURL(file);
   });
 }
@@ -579,23 +589,35 @@ async function addFiles(files) {
   addDebugLog(`✅ Successfully read ${fileData.length}/${files.length} files`);
 
   // NOW process the data URL data (iOS can't revoke this access)
+  // Pass dataUrl directly to skip re-reading (Chrome iOS fix)
   for (const { name, type, dataUrl } of fileData) {
     addDebugLog(`⚙️ Processing ${name}...`);
-    // Create blob from data URL
-    const arr = dataUrl.split(',');
-    const bstr = atob(arr[1]);
-    const n = bstr.length;
-    const u8arr = new Uint8Array(n);
-    for (let i = 0; i < n; i++) {
-      u8arr[i] = bstr.charCodeAt(i);
-    }
-    const blob = new Blob([u8arr], { type });
-    const a = await fileToAttachment(blob);
-    if (a) {
-      addDebugLog(`📎 Attached ${name}`);
-      tab.attachments.push(a);
-    } else {
-      addDebugLog(`❌ Failed to create attachment for ${name}`);
+    try {
+      // Create blob from data URL
+      const arr = dataUrl.split(',');
+      if (arr.length < 2) {
+        addDebugLog(`❌ Invalid data URL for ${name}`);
+        continue;
+      }
+      const bstr = atob(arr[1]);
+      const n = bstr.length;
+      addDebugLog(`📊 Blob size: ${n} bytes`);
+      const u8arr = new Uint8Array(n);
+      for (let i = 0; i < n; i++) {
+        u8arr[i] = bstr.charCodeAt(i);
+      }
+      const blob = new Blob([u8arr], { type });
+      addDebugLog(`🔹 Blob created: ${blob.size} bytes, type: ${blob.type}`);
+      // Pass preloaded dataUrl to avoid re-reading in Chrome
+      const a = await fileToAttachment(blob, dataUrl);
+      if (a) {
+        addDebugLog(`📎 Attached ${name}`);
+        tab.attachments.push(a);
+      } else {
+        addDebugLog(`❌ fileToAttachment returned null for ${name}`);
+      }
+    } catch (e) {
+      addDebugLog(`❌ Exception processing ${name}: ${e.message}`);
     }
   }
   addDebugLog(`✅ Done! Total: ${tab.attachments.length} attachment(s)`);
