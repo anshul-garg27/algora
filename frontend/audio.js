@@ -19,10 +19,12 @@ function setupMic({ input, button, onText }) {
   recog.lang = "en-US";
 
   let listening = false;
+  let canUpdateInput = true;  // Set to false when stopping to prevent race conditions
   let baseText = "";      // input value when dictation started
   let finalText = "";     // accumulated finalized transcript this session
 
   function setText(extra) {
+    if (!canUpdateInput) return;  // Don't update if we're stopping/sending
     const joined = [baseText.trim(), (finalText + extra).trim()].filter(Boolean).join(" ");
     input.value = joined;
     if (onText) onText();
@@ -56,6 +58,7 @@ function setupMic({ input, button, onText }) {
   };
 
   function start() {
+    canUpdateInput = true;  // Allow input updates when starting
     baseText = input.value;
     finalText = "";
     listening = true;
@@ -65,6 +68,7 @@ function setupMic({ input, button, onText }) {
   }
 
   function stop() {
+    canUpdateInput = false;  // Prevent setText() from running during stop/send
     listening = false;
     baseText = "";      // Clear captured text so next dictation starts fresh
     finalText = "";     // Clear accumulated transcript
