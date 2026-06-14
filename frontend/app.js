@@ -62,6 +62,9 @@ function addDebugLog(msg) {
 }
 function toggleDebugPanel() {
   debugPanelVisible = !debugPanelVisible;
+  if (debugBtn) {
+    debugBtn.style.background = debugPanelVisible ? "#ff0000" : "#0f0";
+  }
   updateDebugPanel();
 }
 function updateDebugPanel() {
@@ -71,28 +74,37 @@ function updateDebugPanel() {
     panel = document.createElement("div");
     panel.id = "debug-panel";
     panel.style.cssText = `
-      position: absolute; bottom: 80px; left: 10px; right: 10px;
-      width: calc(100% - 20px); max-height: 300px;
+      position: fixed; bottom: 70px; left: 10px; right: 10px;
+      width: calc(100% - 20px); max-height: 40vh;
       background: #1a1a1a; color: #0f0; font-family: monospace; font-size: 11px;
       border: 2px solid #0f0; padding: 12px; border-radius: 6px; overflow-y: auto;
-      z-index: 9999; display: none; box-shadow: 0 0 20px rgba(0,255,0,0.3);
+      z-index: 9998; display: none; box-shadow: 0 0 20px rgba(0,255,0,0.3);
     `;
-    form.parentElement.appendChild(panel);
+    document.body.appendChild(panel);
   }
 
   if (debugPanelVisible && debugLogs.length) {
     panel.style.display = "block";
     panel.innerHTML = debugLogs.map(l => `<div>${l}</div>`).join("");
-    panel.scrollTop = panel.scrollHeight;
+    setTimeout(() => { panel.scrollTop = panel.scrollHeight; }, 10);
   } else {
     panel.style.display = "none";
   }
 }
 
-debugBtn.addEventListener("click", (e) => {
-  e.preventDefault();
-  toggleDebugPanel();
-});
+if (debugBtn) {
+  debugBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toggleDebugPanel();
+  });
+  // Fallback for touch devices
+  debugBtn.addEventListener("touchend", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toggleDebugPanel();
+  });
+}
 
 const PLACEHOLDERS = {
   assessment: "Describe the problem, or paste a screenshot…",
