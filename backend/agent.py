@@ -120,7 +120,14 @@ class Agent:
         if config.CLAUDE_CLI:
             opts["cli_path"] = config.CLAUDE_CLI
         if self.thinking_on:
-            opts["max_thinking_tokens"] = cfg["thinking_budget"]
+            # For models with adaptive thinking, DON'T set max_thinking_tokens.
+            # Let the Claude CLI use the model's native adaptive thinking (thinks on-demand).
+            # For budget-style models, set the budget explicitly.
+            is_adaptive = config.uses_adaptive_thinking(self.model)
+            if not is_adaptive:
+                # Budget thinking: set fixed token budget
+                opts["max_thinking_tokens"] = cfg["thinking_budget"]
+            # Adaptive models (Opus/Sonnet/Haiku via CLI) handle thinking internally
         if self.cc_session_id:
             opts["resume"] = self.cc_session_id
         return ClaudeAgentOptions(**opts)
