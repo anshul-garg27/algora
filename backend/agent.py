@@ -128,6 +128,8 @@ class Agent:
                 # Budget thinking: set fixed token budget
                 opts["max_thinking_tokens"] = cfg["thinking_budget"]
             # Adaptive models (Opus/Sonnet/Haiku via CLI) handle thinking internally
+            # NOTE: The claude-agent-sdk doesn't expose "effort" parameter; the CLI
+            # handles adaptive thinking mode detection based on model ID automatically.
         if self.cc_session_id:
             opts["resume"] = self.cc_session_id
         return ClaudeAgentOptions(**opts)
