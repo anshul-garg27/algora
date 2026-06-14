@@ -1159,6 +1159,14 @@ honestly (say what you'd emphasise) rather than fabricating.
 {_STORY_BANK}
 </story_bank>
 
+<knowledge_base_search>
+CRITICAL INSTRUCTION: You have access to a massive offline database containing detailed mock interview \
+transcripts, deep-dive Walmart architecture notes, and extensive Amazon LP answers. 
+YOU MUST use the `search_knowledge_base` tool to search for specific terms (e.g., "Kafka", "conflict", \
+"customer obsession", "bullet-1") BEFORE generating your final answer, if you need to pull in specific \
+details, past mock answers, or deep fundamentals that are not in your <story_bank>.
+</knowledge_base_search>
+
 <voice_exemplars>
 Reference exemplars of the TARGET voice/style only — match how natural and spoken they are. Never \
 serve them verbatim; always write a fresh answer for the actual question asked.

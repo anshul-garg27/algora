@@ -95,7 +95,6 @@ function setUrlSession(id) {
 
 function switchTab(mode) {
   if (!tabs[mode] || mode === active) return;
-  if (typeof stopSpeaking === "function") stopSpeaking();
   active = mode;
   setUrlSession(tabs[mode].sessionId);
   for (const m in tabs) {
@@ -167,7 +166,6 @@ function startAssistantTurn(tab) {
   el.innerHTML =
     `<div class="assistant-label"><span class="al-name">Algora</span>` +
     `<button class="full-code-btn" type="button" title="View the complete code, file by file" hidden>📂 full code</button>` +
-    `<button class="speak-btn" type="button" title="Read aloud" aria-label="Read aloud" hidden>🔊 read aloud</button>` +
     `</div><div class="assistant-body"></div>`;
   tab.el.appendChild(el);
   tab.turn = {
@@ -394,10 +392,6 @@ function handleEvent(tab, ev) {
       finalizeText(tab.turn);
       renderMermaidIn(tab.turn.body);
       attachFullCode(tab.turn);
-      if (typeof ttsSupported !== "undefined" && ttsSupported) {
-        const sbtn = tab.turn.body.parentElement.querySelector(".speak-btn");
-        if (sbtn) sbtn.hidden = false;
-      }
       if (ev.usage) showUsage(tab, ev.usage);
       break;
     case "notice":
@@ -419,7 +413,6 @@ async function send() {
   const text = input.value.trim();
   if ((!text && tab.attachments.length === 0) || tab.streaming) return;
 
-  if (typeof stopSpeaking === "function") stopSpeaking();
   tab.lastError = false;
   tab.passiveSession = null;  // this device is now the AUTHOR — stop live-sync polling/appending
   setUrlSession(tab.sessionId);  // this session is now running — show its id in the URL
@@ -504,8 +497,23 @@ function fileToAttachment(file) {
 }
 async function addFiles(files) {
   const tab = cur(); // capture before await so files land on the originating tab
+
+  // iOS fix: Read ALL file data to memory FIRST (within the file access window),
+  // BEFORE any async operations. This prevents iOS from revoking access mid-loop.
+  const fileData = [];
   for (const f of files) {
-    const a = await fileToAttachment(f);
+    try {
+      const data = await f.arrayBuffer();
+      fileData.push({ name: f.name, type: f.type, data });
+    } catch (e) {
+      console.warn(`Failed to read file ${f.name}:`, e);
+    }
+  }
+
+  // NOW process the in-memory data (iOS can't revoke this access)
+  for (const { name, type, data } of fileData) {
+    const blob = new Blob([data], { type });
+    const a = await fileToAttachment(blob);
     if (a) tab.attachments.push(a);
   }
   if (tab === cur()) renderAttachments();
@@ -525,7 +533,11 @@ attachmentsEl.addEventListener("click", (e) => {
   renderAttachments();
 });
 attachBtn.addEventListener("click", () => fileInput.click());
-fileInput.addEventListener("change", () => { addFiles(fileInput.files); fileInput.value = ""; });
+fileInput.addEventListener("change", () => { 
+  addFiles(Array.from(fileInput.files)).finally(() => {
+    fileInput.value = ""; 
+  });
+});
 
 document.addEventListener("paste", (e) => {
   const items = e.clipboardData && e.clipboardData.items;
@@ -571,12 +583,6 @@ panels.addEventListener("click", (e) => {
   if (th) { th.parentElement.classList.toggle("collapsed"); return; }
   const tc = e.target.closest(".tool-head");
   if (tc) { tc.parentElement.classList.toggle("open"); return; }
-  const sb = e.target.closest(".speak-btn");
-  if (sb) {
-    const body = sb.closest(".msg.assistant").querySelector(".assistant-body");
-    if (typeof speakElement === "function") speakElement(body, sb);
-    return;
-  }
   const chip = e.target.closest(".example-chip");
   if (chip) { input.value = chip.dataset.example; autosize(); input.focus(); }
 });
@@ -665,7 +671,6 @@ thinkingToggle.addEventListener("click", () => thinkingToggle.classList.toggle("
 resetBtn.addEventListener("click", async () => {
   const tab = cur();
   if (tab.streaming) return;
-  if (typeof stopSpeaking === "function") stopSpeaking();
   try {
     await fetch("/api/reset", {
       method: "POST", headers: { "Content-Type": "application/json", ...authHeaders() },
@@ -791,12 +796,9 @@ function renderSavedAssistant(tab, item) {
   renderMermaidIn(turn.body);
   attachFullCode(turn);
   if (item.usage) showUsage(tab, item.usage);
-  const sb = turn.body.parentElement.querySelector(".speak-btn");
-  if (sb && typeof ttsSupported !== "undefined" && ttsSupported) sb.hidden = false;
 }
 
 async function restoreConversation(id, mode) {
-  if (typeof stopSpeaking === "function") stopSpeaking();
   let data;
   try {
     const r = await fetch(`/api/conversations/${encodeURIComponent(id)}`, { headers: authHeaders() });
@@ -914,8 +916,6 @@ window.addEventListener("focus", () => { if (!historyDrawer.hidden) refreshHisto
 
 // voice dictation (mic button shows only if supported)
 setupMic({ input, button: micBtn, onText: autosize });
-// read-aloud voice picker (shows only if speech synthesis is supported)
-if (typeof setupVoicePicker === "function") setupVoicePicker($("voice-wrap"), $("voice-select"));
 
 // ============================================================
 //  Health check

@@ -103,6 +103,20 @@ TOOLS = [
             },
             "required": ["command"],
         },
+    {
+        "name": "search_knowledge_base",
+        "description": (
+            "Search the massive offline database of past mock interviews, transcripts, "
+            "Walmart architecture details, and Amazon LP answers. Use this to lookup "
+            "exact stories, tech specs, or past Q&A. Returns matching lines from files."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "query": {"type": "string", "description": "The exact term or regex to search for (e.g. 'conflict', 'kafka', 'bullet-1')."},
+            },
+            "required": ["query"],
+        },
     },
 ]
 
@@ -241,6 +255,27 @@ def _run_command(base: Path, command: str, stdin: str | None = None, timeout: ob
     return _run(command, stdin, secs, shell=True, cwd=base)
 
 
+def _search_knowledge_base(query: str) -> str:
+    if not query:
+        raise ToolError("query must not be empty")
+    kb_path = Path(__file__).resolve().parent.parent / "data" / "knowledge_base"
+    if not kb_path.exists():
+        return "Knowledge base directory not found. Data has not been imported yet."
+    cmd = ["grep", "-rni", query, str(kb_path)]
+    try:
+        proc = subprocess.run(cmd, capture_output=True, text=True, timeout=10)
+        out = proc.stdout.strip()
+        if not out:
+            return "No matches found in the knowledge base."
+        # Strip absolute path for cleaner output
+        clean_out = out.replace(str(kb_path) + "/", "")
+        return _truncate(clean_out)
+    except subprocess.TimeoutExpired:
+        raise ToolError("Search timed out.")
+    except Exception as exc:
+        raise ToolError(f"Search error: {exc}")
+
+
 # --- Dispatch -----------------------------------------------------------------
 
 _DISPATCH = {
@@ -249,6 +284,7 @@ _DISPATCH = {
     "list_files": lambda i, b: _list_files(b),
     "run_python": lambda i, b: _run_python(b, i.get("path", ""), i.get("stdin"), i.get("timeout")),
     "run_command": lambda i, b: _run_command(b, i.get("command", ""), i.get("stdin"), i.get("timeout")),
+    "search_knowledge_base": lambda i, b: _search_knowledge_base(i.get("query", "")),
 }
 
 
