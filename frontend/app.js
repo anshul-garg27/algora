@@ -498,24 +498,39 @@ function fileToAttachment(file) {
 async function addFiles(files) {
   const tab = cur(); // capture before await so files land on the originating tab
 
-  // iOS fix: Read ALL files to memory IN PARALLEL (faster, before iOS revokes access).
-  // Sequential reading was too slow — iOS revokes access between files.
-  // Parallel reads complete faster and within the access window.
-  const fileDataPromises = Array.from(files).map(async (f) => {
-    try {
-      const data = await f.arrayBuffer();
-      return { name: f.name, type: f.type, data };
-    } catch (e) {
-      console.warn(`Failed to read file ${f.name}:`, e);
-      return null;
-    }
+  // iOS fix: Read each file's data URL immediately (FileReader is fast).
+  // Use FileReader instead of arrayBuffer — it may have different access semantics on iOS.
+  const fileDataPromises = Array.from(files).map((f) => {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        resolve({
+          name: f.name,
+          type: f.type,
+          dataUrl: reader.result  // data: URL (already in memory)
+        });
+      };
+      reader.onerror = () => {
+        console.warn(`Failed to read file ${f.name}`);
+        resolve(null);
+      };
+      reader.readAsDataURL(f);  // Read immediately while file access is open
+    });
   });
 
   const fileData = (await Promise.all(fileDataPromises)).filter(x => x);
 
-  // NOW process the in-memory data (iOS can't revoke this access)
-  for (const { name, type, data } of fileData) {
-    const blob = new Blob([data], { type });
+  // NOW process the data URL data (iOS can't revoke this access)
+  for (const { name, type, dataUrl } of fileData) {
+    // Create blob from data URL
+    const arr = dataUrl.split(',');
+    const bstr = atob(arr[1]);
+    const n = bstr.length;
+    const u8arr = new Uint8Array(n);
+    for (let i = 0; i < n; i++) {
+      u8arr[i] = bstr.charCodeAt(i);
+    }
+    const blob = new Blob([u8arr], { type });
     const a = await fileToAttachment(blob);
     if (a) tab.attachments.push(a);
   }
