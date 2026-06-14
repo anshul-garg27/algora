@@ -498,31 +498,41 @@ function fileToAttachment(file) {
 }
 async function addFiles(files) {
   const tab = cur(); // capture before await so files land on the originating tab
+  console.log(`[addFiles] Starting with ${files.length} files`);
 
   // iOS fix: Read each file's data URL immediately (FileReader is fast).
   // Use FileReader instead of arrayBuffer — it may have different access semantics on iOS.
-  const fileDataPromises = Array.from(files).map((f) => {
+  const fileDataPromises = Array.from(files).map((f, i) => {
     return new Promise((resolve) => {
+      console.log(`[addFiles] Starting to read file ${i}: ${f.name}`);
       const reader = new FileReader();
       reader.onload = () => {
+        console.log(`[addFiles] Successfully read file ${i}: ${f.name} (${reader.result.length} bytes)`);
         resolve({
           name: f.name,
           type: f.type,
           dataUrl: reader.result  // data: URL (already in memory)
         });
       };
-      reader.onerror = () => {
-        console.warn(`Failed to read file ${f.name}`);
+      reader.onerror = (err) => {
+        console.warn(`[addFiles] Failed to read file ${i} (${f.name}):`, err);
         resolve(null);
       };
-      reader.readAsDataURL(f);  // Read immediately while file access is open
+      try {
+        reader.readAsDataURL(f);  // Read immediately while file access is open
+      } catch (e) {
+        console.error(`[addFiles] Exception reading file ${i} (${f.name}):`, e);
+        resolve(null);
+      }
     });
   });
 
   const fileData = (await Promise.all(fileDataPromises)).filter(x => x);
+  console.log(`[addFiles] Successfully read ${fileData.length} files (out of ${files.length})`);
 
   // NOW process the data URL data (iOS can't revoke this access)
   for (const { name, type, dataUrl } of fileData) {
+    console.log(`[addFiles] Processing ${name} for attachment...`);
     // Create blob from data URL
     const arr = dataUrl.split(',');
     const bstr = atob(arr[1]);
@@ -533,8 +543,14 @@ async function addFiles(files) {
     }
     const blob = new Blob([u8arr], { type });
     const a = await fileToAttachment(blob);
-    if (a) tab.attachments.push(a);
+    if (a) {
+      console.log(`[addFiles] Attached ${name}`);
+      tab.attachments.push(a);
+    } else {
+      console.warn(`[addFiles] Failed to create attachment for ${name}`);
+    }
   }
+  console.log(`[addFiles] Done. Total attachments: ${tab.attachments.length}`);
   if (tab === cur()) renderAttachments();
 }
 function renderAttachments() {
