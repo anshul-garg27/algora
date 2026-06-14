@@ -531,96 +531,28 @@ function setStreaming(tab, on) {
 // ============================================================
 //  Attachments
 // ============================================================
-function fileToAttachment(file, preloadedDataUrl = null) {
-  return new Promise((resolve, reject) => {
+function fileToAttachment(file) {
+  return new Promise((resolve) => {
     if (!file.type.startsWith("image/")) return resolve(null);
-
-    // If dataUrl already loaded, skip reading again (important for Chrome on iOS)
-    if (preloadedDataUrl) {
-      const data = preloadedDataUrl.slice(preloadedDataUrl.indexOf(",") + 1);
-      return resolve({ media_type: file.type, data, dataUrl: preloadedDataUrl });
-    }
-
     const r = new FileReader();
     r.onload = () => {
       const dataUrl = r.result;
       resolve({ media_type: file.type, data: dataUrl.slice(dataUrl.indexOf(",") + 1), dataUrl });
     };
-    r.onerror = (err) => {
-      addDebugLog(`❌ FileReader error: ${err}`);
-      reject(err);
-    };
+    r.onerror = () => resolve(null);
     r.readAsDataURL(file);
   });
 }
 async function addFiles(files) {
-  debugLogs = [];  // Clear logs on new file selection
-  addDebugLog(`📁 Starting with ${files.length} files`);
-  const tab = cur(); // capture before await so files land on the originating tab
+  const tab = cur();
 
-  // iOS fix: Read each file's data URL immediately (FileReader is fast).
-  // Use FileReader instead of arrayBuffer — it may have different access semantics on iOS.
-  const fileDataPromises = Array.from(files).map((f, i) => {
-    return new Promise((resolve) => {
-      addDebugLog(`📖 Reading file ${i}: ${f.name}`);
-      const reader = new FileReader();
-      reader.onload = () => {
-        addDebugLog(`✅ Read file ${i}: ${f.name} (${reader.result.length} bytes)`);
-        resolve({
-          name: f.name,
-          type: f.type,
-          dataUrl: reader.result  // data: URL (already in memory)
-        });
-      };
-      reader.onerror = (err) => {
-        addDebugLog(`❌ Failed to read file ${i} (${f.name}): ${err}`);
-        resolve(null);
-      };
-      try {
-        reader.readAsDataURL(f);  // Read immediately while file access is open
-      } catch (e) {
-        addDebugLog(`❌ Exception reading file ${i} (${f.name}): ${e.message}`);
-        resolve(null);
-      }
-    });
-  });
-
-  const fileData = (await Promise.all(fileDataPromises)).filter(x => x);
-  addDebugLog(`✅ Successfully read ${fileData.length}/${files.length} files`);
-
-  // NOW process the data URL data (iOS can't revoke this access)
-  // Pass dataUrl directly to skip re-reading (Chrome iOS fix)
-  for (const { name, type, dataUrl } of fileData) {
-    addDebugLog(`⚙️ Processing ${name}...`);
-    try {
-      // Create blob from data URL
-      const arr = dataUrl.split(',');
-      if (arr.length < 2) {
-        addDebugLog(`❌ Invalid data URL for ${name}`);
-        continue;
-      }
-      const bstr = atob(arr[1]);
-      const n = bstr.length;
-      addDebugLog(`📊 Blob size: ${n} bytes`);
-      const u8arr = new Uint8Array(n);
-      for (let i = 0; i < n; i++) {
-        u8arr[i] = bstr.charCodeAt(i);
-      }
-      const blob = new Blob([u8arr], { type });
-      addDebugLog(`🔹 Blob created: ${blob.size} bytes, type: ${blob.type}`);
-      // Pass preloaded dataUrl to avoid re-reading in Chrome
-      const a = await fileToAttachment(blob, dataUrl);
-      if (a) {
-        addDebugLog(`📎 Attached ${name}`);
-        tab.attachments.push(a);
-      } else {
-        addDebugLog(`❌ fileToAttachment returned null for ${name}`);
-      }
-    } catch (e) {
-      addDebugLog(`❌ Exception processing ${name}: ${e.message}`);
-    }
+  // Direct approach: use File objects straight from file picker (works on Chrome iOS)
+  for (const file of files) {
+    if (!file.type.startsWith("image/")) continue;
+    const a = await fileToAttachment(file);
+    if (a) tab.attachments.push(a);
   }
-  addDebugLog(`✅ Done! Total: ${tab.attachments.length} attachment(s)`);
+
   if (tab === cur()) renderAttachments();
 }
 function renderAttachments() {
