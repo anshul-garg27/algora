@@ -66,6 +66,8 @@ function setupMic({ input, button, onText }) {
 
   function stop() {
     listening = false;
+    baseText = "";      // Clear captured text so next dictation starts fresh
+    finalText = "";     // Clear accumulated transcript
     button.classList.remove("is-recording");
     button.title = "Dictate by voice";
     try { recog.stop(); } catch { /* already stopped */ }
