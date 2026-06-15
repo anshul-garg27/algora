@@ -137,7 +137,7 @@ CLAUDE_CLI = os.environ.get("ALGORA_CLAUDE_CLI") or shutil.which("claude") or ""
 ALLOWED_TOOLS = [
     t.strip()
     for t in os.environ.get(
-        "ALGORA_ALLOWED_TOOLS", "Read,Write,Edit,Bash,Glob,Grep,WebSearch"
+        "ALGORA_ALLOWED_TOOLS", "Read,Write,Edit,Bash,Glob,Grep,WebSearch,WebFetch"
     ).split(",")
     if t.strip()
 ]
