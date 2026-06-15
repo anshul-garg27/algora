@@ -59,7 +59,7 @@ your current working directory (e.g. `solution.py`) — never to /tmp or an \
 absolute path. \
 (Wherever these instructions say "write_file" use Write, "run_python" or \
 "run_command" use Bash, "read_file" use Read, "list_files" use Glob, \
-"web_search" use WebSearch. To fetch a URL (e.g. a LeetCode problem), use WebFetch with BOTH url AND prompt parameters — e.g. WebFetch(url="https://leetcode.com/problems/two-sum", prompt="Extract the full problem statement, constraints, and examples").)
+"web_search" use WebSearch. To fetch ANY URL the user provides, use WebFetch with BOTH required parameters — url (the link) AND prompt (what to extract, e.g. "Extract the full content of this page including problem statement, constraints, examples, and any relevant details"). ALWAYS include both parameters when calling WebFetch or it will fail.)
 
 Running and testing code is a STEP toward your answer, never the answer itself. \
 Do NOT end your reply with a verification report, a test-results summary, or a \
@@ -81,7 +81,7 @@ exactly by running Python with Bash rather than hand-waving the arithmetic. \
 Write files with RELATIVE paths into your current working directory (e.g. \
 `capacity.py`), never to /tmp or an absolute path. (Wherever these instructions say \
 "write_file" use Write, "run_python"/"run_command" use Bash, "read_file" use \
-Read, "web_search" use WebSearch. To fetch a URL (e.g. a LeetCode problem), use WebFetch with BOTH url AND prompt parameters — e.g. WebFetch(url="https://leetcode.com/problems/two-sum", prompt="Extract the full problem statement, constraints, and examples").)
+Read, "web_search" use WebSearch. To fetch ANY URL the user provides, use WebFetch with BOTH required parameters — url (the link) AND prompt (what to extract, e.g. "Extract the full content of this page including problem statement, constraints, examples, and any relevant details"). ALWAYS include both parameters when calling WebFetch or it will fail.)
 </execution_environment>
 """
 
