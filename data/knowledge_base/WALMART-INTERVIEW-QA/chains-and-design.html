@@ -1,0 +1,1542 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="description" content="Walmart principal-level interview drill: role-play chains, full transcripts, system design, and a 25-question mock drill — code-anchored against the real source." />
+<title>Walmart Interview · Drill-Down Chains, Role-Play &amp; System Design</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>
+  tailwind.config = {
+    darkMode: 'class',
+    theme: { extend: {
+      colors: {
+        wmblue:{100:'#0053e2',110:'#0045bf',130:'#002e80'},
+        spark:{100:'#ffc220',10:'#fff8e6',140:'#995213'},
+        wmred:{100:'#ea1100'}, wmgreen:{100:'#2a8703'},
+        gray:{10:'#f5f5f5',50:'#cccccc',100:'#999999',160:'#1a1a1a',200:'#0d0d12'}
+      },
+      fontFamily:{
+        sans:['ui-sans-serif','system-ui','-apple-system','Segoe UI','Roboto','Helvetica Neue','Arial','sans-serif'],
+        mono:['ui-monospace','SFMono-Regular','Menlo','Consolas','monospace']
+      },
+      boxShadow:{ card:'0 1px 2px rgba(0,46,128,.06), 0 8px 24px -12px rgba(0,46,128,.18)' }
+    } }
+  }
+</script>
+<style>
+  :root{
+    --ease-out-expo:cubic-bezier(0.16,1,0.3,1);
+    --dur:.42s;
+  }
+  html{scroll-behavior:smooth}
+  body{ -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; }
+
+  /* Accordion: max-height transition (compositor-light, no layout thrash on siblings) */
+  .acc-body{max-height:0;overflow:hidden;transition:max-height var(--dur) var(--ease-out-expo),opacity .3s ease;opacity:.4}
+  .acc.open .acc-body{max-height:9000px;opacity:1}
+  .acc.open .chev{transform:rotate(90deg)}
+  .chev{transition:transform .35s var(--ease-out-expo);will-change:transform}
+
+  /* Flip-card drill */
+  .flip{perspective:1400px}
+  .flip-inner{transition:transform .55s var(--ease-out-expo);transform-style:preserve-3d;position:relative}
+  .flip.flipped .flip-inner{transform:rotateY(180deg)}
+  .flip-face{backface-visibility:hidden;-webkit-backface-visibility:hidden}
+  .flip-back{position:absolute;inset:0;transform:rotateY(180deg)}
+
+  .mermaid{background:#fff;border-radius:.85rem;padding:1.1rem;border:1px solid #e3e8f0;overflow-x:auto}
+  .dark .mermaid{background:#0f1320;border-color:#222a3d}
+
+  /* Code anchor pill */
+  .anchor{font-family:ui-monospace,Menlo,Consolas,monospace}
+
+  /* Focus ring (designed, not default) */
+  :focus-visible{outline:3px solid #ffc220;outline-offset:2px;border-radius:.4rem}
+
+  .tab-underline{transition:transform .35s var(--ease-out-expo), opacity .25s ease}
+
+  /* subtle top progress accent */
+  .accent-rule{background:linear-gradient(90deg,#0053e2,#ffc220 65%,#ea1100)}
+
+  @media (prefers-reduced-motion: reduce){
+    *{transition:none!important;animation:none!important}
+    html{scroll-behavior:auto}
+  }
+  /* dark surfaces */
+  .dark body{background:#0b0e16}
+</style>
+</head>
+<body class="bg-[#fbfcfe] text-gray-160 dark:bg-[#0b0e16] dark:text-gray-10 antialiased">
+
+<a href="#main" class="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:top-3 focus:left-3 focus:bg-spark-100 focus:text-wmblue-130 focus:px-4 focus:py-2 focus:rounded-lg focus:font-bold">Skip to content</a>
+
+<!-- ===================== HEADER ===================== -->
+<header class="relative overflow-hidden bg-wmblue-130 text-white">
+  <div aria-hidden="true" class="absolute inset-0 opacity-[0.18]" style="background:radial-gradient(60rem 30rem at 85% -10%, #0053e2 0%, transparent 60%), radial-gradient(40rem 24rem at 0% 120%, #002e80 0%, transparent 55%)"></div>
+  <div class="relative max-w-6xl mx-auto px-5 sm:px-8 pt-10 pb-12">
+    <div class="flex items-start justify-between gap-4">
+      <p class="inline-flex items-center gap-2 text-spark-100 font-semibold uppercase text-[0.7rem] sm:text-xs tracking-[0.18em]">
+        <span class="inline-block w-6 h-px bg-spark-100"></span>
+        Anshul Garg · CPerf / Luminate · Principal-level drill
+      </p>
+      <button id="themeToggle" aria-label="Toggle dark mode" title="Toggle theme"
+        class="shrink-0 grid place-items-center w-10 h-10 rounded-xl bg-white/10 hover:bg-white/20 active:scale-95 transition ring-1 ring-white/15">
+        <span id="themeIcon" class="text-lg leading-none">🌙</span>
+      </button>
+    </div>
+    <h1 class="mt-4 text-3xl sm:text-5xl font-black tracking-tight leading-[1.04]">
+      Drill-Down Chains, Role-Play<br class="hidden sm:block" />
+      <span class="text-spark-100">&amp; System Design</span>
+    </h1>
+    <p class="mt-5 max-w-3xl text-white/85 text-[0.98rem] sm:text-lg leading-relaxed">
+      A 10-year principal interviewer doesn't ask a question — they ask a <b class="text-spark-100">chain</b> that drills each answer to the floor.
+      Every card here is <b class="text-white">code-anchored</b> against the real source. The rhythm to internalize:
+      <span class="font-semibold text-white">concede → mechanism → fix → cite the line.</span>
+    </p>
+    <dl class="mt-7 flex flex-wrap gap-x-8 gap-y-3 text-sm">
+      <div><dt class="text-white/50 uppercase tracking-wide text-[0.65rem]">Chains</dt><dd class="text-2xl font-bold text-spark-100">13</dd></div>
+      <div><dt class="text-white/50 uppercase tracking-wide text-[0.65rem]">Transcripts</dt><dd class="text-2xl font-bold text-spark-100">12</dd></div>
+      <div><dt class="text-white/50 uppercase tracking-wide text-[0.65rem]">Design steps</dt><dd class="text-2xl font-bold text-spark-100">12</dd></div>
+      <div><dt class="text-white/50 uppercase tracking-wide text-[0.65rem]">Drill Qs</dt><dd class="text-2xl font-bold text-spark-100">25</dd></div>
+    </dl>
+  </div>
+  <div class="accent-rule h-1 w-full" aria-hidden="true"></div>
+</header>
+
+<!-- ===================== STICKY NAV ===================== -->
+<nav aria-label="Sections" class="sticky top-0 z-30 bg-white/90 dark:bg-[#0b0e16]/90 backdrop-blur-md border-b border-gray-50/80 dark:border-white/10">
+  <div class="max-w-6xl mx-auto px-2 sm:px-6 flex gap-1 overflow-x-auto" role="tablist">
+    <button role="tab" data-tab="chains"    aria-controls="tab-chains"  aria-selected="true"  class="tab-btn whitespace-nowrap px-3 sm:px-4 py-3.5 text-sm font-semibold border-b-2 border-wmblue-100 text-wmblue-100 dark:text-spark-100 dark:border-spark-100">🎭 Role-Play Chains</button>
+    <button role="tab" data-tab="scripts"   aria-controls="tab-scripts" aria-selected="false" class="tab-btn whitespace-nowrap px-3 sm:px-4 py-3.5 text-sm font-semibold border-b-2 border-transparent text-gray-100">📝 Full Transcripts</button>
+    <button role="tab" data-tab="design"    aria-controls="tab-design"  aria-selected="false" class="tab-btn whitespace-nowrap px-3 sm:px-4 py-3.5 text-sm font-semibold border-b-2 border-transparent text-gray-100">🧨 System Design</button>
+    <button role="tab" data-tab="drill"     aria-controls="tab-drill"   aria-selected="false" class="tab-btn whitespace-nowrap px-3 sm:px-4 py-3.5 text-sm font-semibold border-b-2 border-transparent text-gray-100">🎯 Mock Drill</button>
+    <button role="tab" data-tab="rhythm"    aria-controls="tab-rhythm"  aria-selected="false" class="tab-btn whitespace-nowrap px-3 sm:px-4 py-3.5 text-sm font-semibold border-b-2 border-transparent text-gray-100">🥁 Rhythm &amp; Scorecard</button>
+  </div>
+</nav>
+
+<main id="main" class="max-w-6xl mx-auto px-4 sm:px-8">
+
+  <!-- panels injected/static below -->
+  <section id="tab-chains"  role="tabpanel" aria-label="Role-Play Chains" class="py-8 sm:py-10 space-y-4"></section>
+  <section id="tab-scripts" role="tabpanel" aria-label="Full Transcripts" class="py-8 sm:py-10 space-y-5 hidden"></section>
+  <section id="tab-design"  role="tabpanel" aria-label="System Design" class="py-8 sm:py-10 hidden"></section>
+  <section id="tab-drill"   role="tabpanel" aria-label="Mock Drill" class="py-8 sm:py-10 hidden"></section>
+  <section id="tab-rhythm"  role="tabpanel" aria-label="Rhythm and Scorecard" class="py-8 sm:py-10 hidden"></section>
+
+</main>
+
+<footer class="mt-8 border-t border-gray-50 dark:border-white/10 bg-wmblue-130 text-white/75">
+  <div class="max-w-6xl mx-auto px-5 sm:px-8 py-7 text-sm flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+    <p>Built for the Walmart loop · pairs with docs <b class="text-spark-100">15, 18, 19, 20</b> · every claim code-verified against the real source.</p>
+    <p class="text-white/45">Two systems, never mixed: <span class="anchor text-white/70">AUDIT</span> · <span class="anchor text-white/70">NRTI</span>.</p>
+  </div>
+</footer>
+
+<!-- ===================== DATA: CHAINS (doc 18) ===================== -->
+<script>
+// 13 chains. Each: title, tag, grade (what they learn), optional mermaid diagram, ladder [PE, You] x N levels.
+const CHAINS = [
+{ id:'c1', title:'CHAIN 1 — "Walk me through the audit pipeline."', tag:'Audit · durability', sys:'AUDIT',
+  grade:'Do you understand your design is a CHOICE with a cost, can you name the exact line where loss becomes invisible, and will you separate "designed" from "inherited"?',
+  diagram:`sequenceDiagram
+    participant C as Supplier
+    participant F as LoggingFilter (Tomcat thread)
+    participant A as @Async pool (bounded 6/10/100)
+    participant S as audit-api-logs-srv
+    participant P as ExecutorPoolService (UNBOUNDED)
+    participant K as Kafka (Avro)
+    C->>F: API call
+    F->>F: build 18-field payload (request thread)
+    F->>A: sendAuditLogRequest (@Async — returns instantly)
+    F-->>C: response (customer DONE)
+    A->>S: signed WebClient POST
+    S-->>A: 204 (before Kafka)
+    S->>P: executeTaskInThreadPool(task)
+    P->>K: kafkaPrimaryTemplate.send() (try/catch logs only)
+    Note over P,K: broker down -> logged -> record LOST silently`,
+  qa:[
+    ['Walk me through what happens when a supplier calls an audited API.',
+     'A servlet <b>LoggingFilter</b> in the shared <span class="anchor">dv-api-common-libraries</span> wraps request+response in ContentCaching wrappers, builds an 18-field payload <b>on the request thread</b>, and <span class="anchor">@Async</span>-POSTs it to <span class="anchor">audit-api-logs-srv</span>. That controller returns <b>204 immediately</b>, hands work to a pool, then a producer serializes to Avro and <span class="anchor">send()</span>s to Kafka. A Kafka <b>Connect</b> sink filters by country header → per-country GCS Parquet → BigQuery external tables.',
+     'LoggingFilter.java:37,111 → AuditLoggingController.java:58 (204) → KafkaProducerService.java:47'],
+    ['You said 204 immediately. After what, exactly? Last thing on the customer\'s thread?',
+     'Two <b>different</b> pools. Capture side: a <b>bounded</b> ThreadPoolTaskExecutor — core 6 / max 10 / queue 100. That\'s what the customer thread submits to, then it\'s done. Producer side, inside audit-srv: the controller returns 204 and a <b>separate, unbounded</b> <span class="anchor">newCachedThreadPool</span> runs the Avro serialize + <span class="anchor">kafkaPrimaryTemplate.send()</span>. Customer never waits on signing, network, or Kafka.',
+     'AuditLogAsyncConfig.java:19-24 · ExecutorPoolService.java:10-14 · AuditLoggingController.java:58-61'],
+    ['Broker is down. What does the customer see?',
+     'Still 204. The send is fire-and-forget in a <span class="anchor">try/catch</span> that only logs — it doesn\'t observe the returned future, so an <i>async</i> broker failure isn\'t even caught; only a synchronous throw is. Customer is fully decoupled from audit durability. Deliberate trade: audit must never degrade the supplier call.',
+     'KafkaProducerService.java:44-52 (send at :47, no callback on the future)'],
+    ['So it can silently drop records and nobody knows. Compliance context — defend or fix.',
+     'Scope first: this is a supplier-debugging <b>convenience</b> feed replacing Splunk — the store of record is GCS Parquet + BigQuery, not Kafka — so best-effort is acceptable. The real problem is "silent," not "lossy." Cheap fix: attach <span class="anchor">.whenComplete()</span>, emit an <span class="anchor">audit_publish_failed</span> counter, alert on rate, add a producer DLQ. Removes the "find out from a data gap" mode without touching the customer path.',
+     'fix lands at KafkaProducerService.java:47 · [NOT IN REPO — proposed]'],
+    ['You mentioned acks — the CCM yml declares one. So it\'s not really acks=1, is it?',
+     'It <i>declares</i> one but it never takes effect — a subtle real trap. <span class="anchor">KafkaProducerConfig.populateConfigProperties</span> only wires bootstrap/serializers/schema/SSL; it never reads an acks getter off the <span class="anchor">@ManagedConfiguration</span> interface. A declared-but-unread property is dead config, so effective acks = client default = <b>1</b>.',
+     'KafkaProducerConfig.java:85-119 (no ACKS_CONFIG line)'],
+    ['An outbox adds latency to every call. Fast or durable — pick one.',
+     'Correct, it\'s a CAP-style trade. The resolution is moving durability off the <b>network</b> path: write to a local append-only <b>WAL on the pod</b> synchronously (microseconds, no network) and a separate shipper drains it to Kafka. Durable AND off the hot path. Today we picked latency because the requirement was convenience-audit.',
+     '[NOT IN REPO — proposed; WAL/outbox shipper does not exist today]'],
+    ['Be honest — considered trade-off, or did nobody think about it?',
+     'A bit of both. The <b>async / off-hot-path</b> shape is clearly intentional — ExecutorPoolService, the 204, the @Async filter. The <b>silent-loss</b> part (unobserved future, acks=1, declared-but-unread acks) reads more like accretion — there\'s no comment saying "we accept loss here." So: the latency posture was designed; the durability posture was inherited and never hardened. Senior move: make the trade explicit — a one-paragraph design note + the failure metric.',
+     'the honest split: designed vs inherited']
+  ]},
+
+{ id:'c2', title:'CHAIN 2 — "<5ms P99. Prove it."', tag:'Numbers · boundary conditions', sys:'AUDIT',
+  grade:'Do you know the BOUNDARY CONDITIONS of your own number, and do you proactively separate "latency added to the caller" from "freshness of the data"?',
+  qa:[
+    ['You claim <5ms P99 overhead. How did you measure it, and overhead on what?',
+     'It\'s the <i>added</i> P99 on the <b>audited endpoint</b>, audit-on vs audit-off — not end-to-end freshness. The only synchronous hot-path work is wrapping in ContentCaching wrappers, building the payload, and the @Async submit; the network POST and Kafka send are off-thread. I would <b>not</b> name a specific perf tool unless I can point to the suite.',
+     'LoggingFilter.java:83-89 (wrappers), :111 (@Async hand-off)'],
+    ['Building the payload copies bodies into memory. For a 5MB response, still <5ms?',
+     'Honestly, no. ContentCaching wrappers buffer the full body via <span class="anchor">getContentAsByteArray()</span>, and <span class="anchor">copyBodyToResponse()</span> re-copies it — so capture cost scales with body size and there\'s <b>no size cap</b>. KB-scale inventory JSON is sub-ms; a large/multipart endpoint blows the budget and pressures heap.',
+     'LoggingFilter.java:83-89, 93-102, 113'],
+    ['So <5ms is only true for small payloads. What stops a 50MB upload endpoint from OOMing you?',
+     'Only config discipline. Audit is <b>opt-in per endpoint</b> via a CCM allow-list — <span class="anchor">shouldNotFilter</span> skips unless the path matches <span class="anchor">enabledEndpoints()</span>. So we don\'t enable it on large-body endpoints. But that\'s tribal knowledge, not enforced — and I should state that boundary rather than let "<5ms" stand unqualified.',
+     'LoggingFilter.java:124-128'],
+    ['How do you stop a future engineer from adding a file-upload endpoint to that allow-list?',
+     'Today: nothing automated — a config-discipline gap. The fix makes safety a code property: a guard in <span class="anchor">doFilterInternal</span> that skips capture (and emits a metric) above a configurable body-size threshold. Then it\'s safe regardless of who edits the allow-list, and we still see it happened.',
+     'guard goes at LoggingFilter.java:82 · [NOT IN REPO — proposed]'],
+    ['Forget overhead. A record I audit right now — when can I query it in BigQuery? Also <5ms?',
+     'No — and this is the number people <b>conflate</b>. Hot-path overhead (<5ms) and end-to-end <b>freshness</b> are different claims. Freshness is <b>minutes</b>, gated by the sink flush policy: a Parquet object flushes on the first of <span class="anchor">flush.size=50MB</span> / <span class="anchor">flush.count=5000</span> / <span class="anchor">flush.interval=600s</span>. At our volume the <b>10-minute interval dominates</b>. Overhead to the caller is sub-5ms; time-to-queryable is up to ~10 minutes.',
+     'env_properties.yaml:181-183 (sink flush, NOT producer)']
+  ]},
+
+{ id:'c3', title:'CHAIN 3 — "Active/active with zero data loss."', tag:'NRTI · semantics', sys:'NRTI',
+  grade:'Do you understand WHY exactly-once is impossible in your topology (per-cluster transactions), and can you state the precise durability envelope instead of the resume phrase?',
+  diagram:`flowchart TB
+    A["cp-nrti EUS2"] -->|primary acks=all| B[("Kafka EUS2")]
+    A -.->|.exceptionally -> handleFailure| C[("Kafka SCUS")]
+    D["cp-nrti SCUS"] -->|primary| C
+    D -.-> B
+    B --> E[Downstream consumers]
+    C --> E
+    E --> F{dedup on messageId / tripId}
+    F -->|new| G[process]
+    F -->|seen| H[drop]
+    IAC["IAC: NULL key — MESSAGE_ID header only"] -.->|round-robin| B`,
+  qa:[
+    ['Scope guard first — is active/active audit or NRTI?',
+     'NRTI only. Audit-srv has a <span class="anchor">kafkaSecondaryTemplate</span> bean but it\'s <b>dead code</b> — the publish path only ever calls primary; nothing invokes the secondary. So active/active is true for NRTI and <b>false</b> for audit.',
+     'KafkaProducerConfig.java:60-63 (bean) vs KafkaProducerService.java:47 (only primary)'],
+    ['Explain your active/active failover for NRTI.',
+     'Each region writes to its local cluster as primary with acks=all; the secondary points at the other region (broker URLs swapped per region in CCM). <span class="anchor">send()</span> returns a CompletableFuture; in <span class="anchor">.exceptionally</span> I re-send to the other region via <span class="anchor">handleFailure</span>, and for IAC I <span class="anchor">.join()</span> so the HTTP response reflects the real outcome.',
+     'NrtKafkaProducerServiceImpl.java:69, 84-89, 159-175'],
+    ['"Zero data loss." Show me the config.',
+     'acks=all + RF3 + retries=10 → an acknowledged record is replicated to in-sync replicas before ack. But <span class="anchor">enable.idempotence=false</span> is an explicit getter value (the json literally has "false"), so it\'s <b>at-least-once</b>, not exactly-once. I reframe "zero loss" to <b>"no loss of an acknowledged event under single-region failure."</b>',
+     'NrtKafkaProducerConfig.java:114-121 · nrtKafkaConfig.json (acks=all, retries=10, idempotence=false)'],
+    ['acks=all with idempotence off. Give me a sequence where you lose ordering.',
+     'For <b>DSC</b> (which has a key): with max.in.flight>1 + retries, batch 1 fails and retries while batch 2 (sent later) lands first; then batch 1\'s retry lands — out of order. Idempotence would pin it with PID + per-partition sequence numbers. But for <b>IAC the premise is moot</b> — IAC has a <b>null partition key</b>, so there\'s no stable per-partition stream to reorder.',
+     'DscServiceHelper.java:264 (KEY) · IAC null key: IacServiceHelper.java:188-189'],
+    ['Your messageId dedup — where does it run, and what\'s its failure mode?',
+     'Consumer-side, downstream — we\'re producer-only. The <span class="anchor">messageId</span> is <b>client-supplied</b> (straight off the request), so two distinct events with a colliding ID → a consumer wrongly drops a legit one. Mitigation: namespace the key (<span class="anchor">supplierId + messageId</span>) or mint it server-side.',
+     'IacServiceHelper.java:73 (messageId from request), :189 (MESSAGE_ID header)'],
+    ['You don\'t own the consumers. How do you KNOW dedup happens?',
+     'I can\'t claim a guarantee I don\'t own. I own the <b>producer contract</b>: stable messageId + at-least-once. Whether dedup is correct is a cross-team contract I\'d verify with a consumer integration test + a documented idempotency requirement — not assume.',
+     'no consumer class in cp-nrti-apis (producer-only)'],
+    ['Then why not exactly-once?',
+     'Because EOS isn\'t available in this topology. Kafka EOS (idempotent + transactional producer) is <b>per-cluster</b>. On failover we write to two <i>independent</i> clusters; a transaction can\'t span them. So end-to-end EOS was off the table the moment we chose dual-cluster active/active. Alternatives: at-least-once + idempotent consumers (standard), or MirrorMaker2 with offset translation (trades my sub-second failover for platform replication). I chose dual-write for failover speed + control.',
+     'two broker lists in nrtKafkaConfig.json; selected at NrtKafkaProducerConfig.java:108-110'],
+    ['Strongest TRUE statement you can make about NRTI durability?',
+     '"Under a single-region Kafka failure, an <b>acknowledged</b> IAC event is re-sent to the surviving region and surfaces an <b>HTTP 500</b> to the caller if both regions fail (NrtiUnavailableException = INTERNAL_SERVER_ERROR; arguably should be 503 + Retry-After). An unacknowledged event is the caller\'s to retry; duplicates/reordering are possible and must be tolerated downstream." I will NOT say "exactly-once" or "guaranteed zero loss end-to-end."',
+     'NrtiUnavailableException.java:14 (INTERNAL_SERVER_ERROR)']
+  ]},
+
+{ id:'c4', title:'CHAIN 4 — "The .join() on the Tomcat thread."', tag:'NRTI · concurrency takedown', sys:'NRTI',
+  grade:'Can you reason about your system UNDER LOAD and PARTIAL FAILURE with real numbers (Little\'s Law, the 5-min timeout), and separate a correct intent from a flawed mechanism?',
+  diagram:`flowchart LR
+    R["300 req/s"] --> T["Tomcat = 200 threads (default)"]
+    T -->|".join() on Kafka"| K["Kafka primary"]
+    K -. "slow: 2s/send" .-> T
+    N["Little's Law: 300 x 2s = 600 needed > 200 -> SATURATION -> 503s"]`,
+  qa:[
+    ['Your IAC publish calls .join(). What thread, and why IAC but not DSC?',
+     'The <b>Tomcat worker thread</b> handling the HTTP request. IAC .join()s deliberately to <b>surface failure to the caller</b> — it\'s a system-of-record mutation. DSC is fire-and-forget (no join) because it\'s best-effort.',
+     'NrtKafkaProducerServiceImpl.java:89 (.join), 102-133 (DSC, no join)'],
+    ['So the request thread blocks on Kafka. Tomcat max threads?',
+     'The Spring Boot default, ~200 — and I checked: <span class="anchor">application.properties</span> only sets <span class="anchor">mbeanregistry.enabled=true</span>, <b>not</b> threads.max. So it\'s the default unless KaaS/CCM overrides at deploy. I won\'t assert a hard 200 as if it\'s in my config.',
+     'application.properties:7 (no threads.max override)'],
+    ['Primary degrades to 2s/send. You\'re at 300 req/s. Do the math out loud.',
+     'Little\'s Law: concurrent threads = arrival × service time = 300 × 2s = <b>600 needed</b>, I have 200 → pool saturates, requests queue, then 503s and timeouts. HTTP availability is now coupled to Kafka latency because IAC blocks on .join().',
+     'Little\'s Law on the servlet pool'],
+    ['request.timeout.ms is 5 min. Worst case a thread is stuck for?',
+     'Up to <b>5 minutes</b> — <span class="anchor">request.timeout.ms=300000</span>. A <b>black-hole</b> primary (accepts connections, never acks) doesn\'t fail fast; the future stays pending up to 5 min before .exceptionally fires. So failover is bounded by <b>request.timeout.ms, not by my .exceptionally</b>. The service falls over long before failover triggers — that\'s the real bug.',
+     'NrtKafkaProducerConfig.java:119 · nrtKafkaConfig.json:7'],
+    ['You designed this. Why didn\'t you catch it before prod?',
+     'Happy path and <i>fast</i>-fail (connection refused → instant) both look fine in testing; the <b>black-hole / slow-primary</b> case only shows under a partial network fault we didn\'t game-day. Fixes: <span class="anchor">future.orTimeout(2s)</span> to bound failover; a circuit breaker so a sick primary trips fast; a <b>bulkhead</b> (separate bounded pool) so Kafka latency can\'t drain the servlet pool. None exist in the repo today.',
+     'fixes wrap NrtKafkaProducerServiceImpl.java:76/69 · [NOT IN REPO — proposed]'],
+    ['Breaker opens — where do events go?',
+     'Straight to the secondary region — the breaker\'s fallback is my existing <span class="anchor">handleFailure</span> path. Both open → fail fast with 503 so the supplier retries, instead of holding a thread 5 min. The breaker converts a slow cascade into a fast clean failure — strictly better for availability.',
+     'NrtKafkaProducerServiceImpl.java:159-175'],
+    ['Even with all that — IAC blocks the request thread by design. Right architecture at all?',
+     'Right <b>semantics</b> (caller must know if an SoR write failed) on the <b>wrong substrate</b> (a blocking servlet thread). End-state: return 202 + a status the caller polls, or move IAC onto reactive/non-blocking publish so a slow broker consumes a bounded async resource, not the request pool. I defend the intent and concede the mechanism (.join() on Tomcat) is a thread-occupancy liability I\'d redesign.',
+     'the intent/mechanism split']
+  ]},
+
+{ id:'c5', title:'CHAIN 5 — "You \'led\' the Spring Boot 3 migration."', tag:'Migration · ownership', sys:'NRTI',
+  grade:'Did you DO the migration (the wrong-200 enum bug, the ListenableFuture→CompletableFuture reshape, the javax/jakarta hazard) or ride along — and do you know the canary\'s exact numbers and blind spots?',
+  diagram:`flowchart LR
+    A["SB 2.7 / Java 11"] --> B["javax -> jakarta rename"]
+    A --> C["Hibernate 6 strict typing"]
+    A --> D["spring-kafka ListenableFuture -> CompletableFuture"]
+    B --> E["SB 3.5.14 / Java 17"]
+    C --> E
+    D --> E`,
+  qa:[
+    ['Hardest single bug in the migration?',
+     'A <b>Hibernate 6 enum mapping</b>. Hibernate 5 read it fine; H6\'s strict type system mapped it differently → reads came back <b>wrong — a wrong-200, not an exception</b>. Fixed with <span class="anchor">@JdbcTypeCode(SqlTypes.NAMED_ENUM)</span> → native Postgres enum.',
+     'ParentCompanyMapping.java:127,135'],
+    ['Your canary gate is 5xx-rate. It would have promoted that wrong-200. How\'d you catch it?',
+     'Exactly the limit of a 5xx-only gate (<span class="anchor">threshold:1</span>, stepWeight 10 → maxWeight 50, 2m interval). A wrong-200 produces zero 5xx, so the gate is blind. It was caught earlier — in <b>stage</b>, by R2C contract tests comparing response bodies, before canary. That\'s why I credit the staged soak + contract tests for "zero customer impact," not the canary.',
+     'kitt.yml:727-748 (5xx PromQL only)'],
+    ['So your canary is blind to correctness. Why canary?',
+     'It defends a different axis — <b>infra/availability</b> regressions (5xx, crashes, latency) on real prod traffic stage can\'t reproduce. Correctness is caught earlier in the test pyramid. Complementary layers; expecting the canary to catch a logic bug is the wrong model. To close the latency blind spot I\'d add a P99 gate — goldenSignalMetrics is already imported.',
+     'kitt.yml:14 (goldenSignal import) · :732 (extension point)'],
+    ['spring-kafka send() return type changed. From what to what, and what of YOUR code broke?',
+     '<span class="anchor">ListenableFuture → CompletableFuture</span>. My failover used <span class="anchor">addCallback(onSuccess,onFailure)</span>; I rewrote it to <span class="anchor">.thenAccept(...).exceptionally(...).join()</span>. The migration directly reshaped the failover logic — a concrete change, not a version I watched. No ListenableFuture/addCallback left in the repo.',
+     'NrtKafkaProducerServiceImpl.java:67,76-89'],
+    ['Your JAR is javax.servlet, the app is jakarta. How does a javax.servlet.Filter load in a jakarta container?',
+     'It <b>wouldn\'t</b> if registered as a container filter — <span class="anchor">javax.servlet.Filter ≠ jakarta.servlet.Filter</span>. It works only because the app doesn\'t register that JAR\'s filter — it supplies its own jakarta filters, uses only the non-servlet pieces, and <b>EXCLUDES the JAR\'s webflux starter</b> so the old reactive stack doesn\'t leak. The JAR is SB 2.7.11/Java 11; the app is SB 3.5.14/Java 17/Jakarta. Correct fix is a jakarta rebuild; current coexistence is fragile tech debt.',
+     'LoggingFilter.java:15-17 · common pom.xml:17-18,30 · cp-nrti pom.xml:470-474 (dep 0.0.61 + webflux exclusion)']
+  ]},
+
+{ id:'c6', title:'CHAIN 6 — "Geo-routing in the sink."', tag:'Residency · design judgment', sys:'AUDIT',
+  grade:'Can you point to the SINGLE LINE (noneMatch catch-all) that turns a missing header into a residency leak, and adjudicate two competing principles with a requirement?',
+  diagram:`flowchart TB
+    T[("One topic api_logs_audit_prod")] --> U["US connector — AuditLogSinkUSFilter (catch-all)"]
+    T --> CA["CA connector — strict (inherits base)"]
+    T --> MX["MX connector — strict"]
+    U --> UB[("audit-api-logs-us-prod")]
+    CA --> CB[("audit-api-logs-ca-prod")]
+    MX --> MB[("audit-api-logs-mx-prod")]
+    X["record with NO wm-site-id"] -.->|passes US catch-all| UB`,
+  qa:[
+    ['Why filter by country in the sink, not at produce time?',
+     'One immutable topic keeps the producer dead simple; residency is enforced at the <b>storage boundary</b> where the per-country buckets live. Three Connect connectors, each <span class="anchor">tasks.max=1</span>, each an SMT filtering its country on <span class="anchor">wm-site-id</span>.',
+     'kc_config.yaml:63 (US), :81 (CA), :99 (MX)'],
+    ['Three connectors read the whole topic. 3x egress. Justify it.',
+     'Each connector is its own consumer group, so the topic is read <b>3× (3× read amplification)</b> by design. Buys per-country isolation (one country can lag/pause independently) + dead-simple config. Acceptable at current volume; at ~10× I\'d collapse to one branching connector to kill amplification.',
+     'kc_config.yaml:66,84,102 (tasks.max:1)'],
+    ['Record with no wm-site-id — which bucket, and is that a residency violation?',
+     '<b>US bucket</b>. The base filter is strict (<span class="anchor">anyMatch</span> header==site-id else drop); CA/MX inherit it. But the <b>US filter overrides verifyHeader</b> to add a catch-all: <span class="anchor">|| noneMatch(header missing)</span> → header missing passes to US. So a non-US service that forgot the header leaks into the US bucket. Yes — a residency leak. The exact line to change is <span class="anchor">AuditLogSinkUSFilter.java:48-49</span>.',
+     'BaseAuditLogSinkFilter.java:40-44,52-56 · AuditLogSinkUSFilter.java:42-49'],
+    ['Your residency depends on every producer remembering a header. That\'s a hope. Make it structural.',
+     'Agreed, best-effort. (a) per-country <b>topics at produce time</b> so the topic IS the boundary; (b) make the header <b>mandatory</b> — quarantine header-less records instead of defaulting to US; (c) <b>derive country server-side</b> from the authenticated supplier. (c) is strongest — removes client trust entirely.',
+     'three structural options · [NOT IN REPO — proposed]'],
+    ['Option (a) = topic per country, but you praised "one topic." Your instincts contradict. Which wins?',
+     'Tie-breaker is the <b>requirement</b>, not a favorite principle. One-topic optimizes producer simplicity; per-country optimizes enforcement + kills amplification. Residency here is <b>legal/compliance</b> → enforcement dominates → per-country topics win, and I accept the extra topics. If it were a soft preference, simplicity wins. The skill is knowing which requirement is load-bearing.',
+     'requirement-driven adjudication']
+  ]},
+
+{ id:'c7', title:'CHAIN 7 — Sniper round (do you actually know the framework)', tag:'Framework internals · speed', sys:'BOTH',
+  grade:'Speed and precision — can you produce the mechanism in ONE sentence without hedging? These separate "used the annotation" from "understands the proxy."',
+  qa:[
+    ['Your @Async bean — JDK proxy or CGLIB, and how would I tell?',
+     'CGLIB by default in Spring Boot (<span class="anchor">proxyTargetClass=true</span>). Check <span class="anchor">bean.getClass().getName()</span> for <span class="anchor">$$SpringCGLIB$$</span> (older: <span class="anchor">$$EnhancerBySpringCGLIB$$</span>).', ''],
+    ['Mark the @Async method final. What happens?',
+     'CGLIB can\'t override a final method → the advice doesn\'t apply → it runs <b>synchronously, silently, no error</b>. Same hazard kills @Transactional on final methods.', ''],
+    ['Call your @Async method from another method in the same class. Async?',
+     'No — self-invocation goes through <span class="anchor">this</span>, not the proxy, so the advice is bypassed. Runs on the caller thread.', ''],
+    ['Where does the JDBC connection live during a @Transactional method?',
+     'Bound to the thread via <span class="anchor">TransactionSynchronizationManager</span> (a ThreadLocal). That\'s why a transaction doesn\'t cross an @Async thread hop — the new thread has no bound connection.', ''],
+    ['ThreadPoolTaskExecutor core 6, max 10, queue 100 — when does it create thread #7?',
+     'Only after the queue (100) is <b>full</b>. Order is <b>core → queue → max → reject</b>. Most people say core → max → queue (wrong). Threads 7–10 only appear once 100 tasks are queued; task 111 hits AbortPolicy.',
+     'AuditLogAsyncConfig.java:20-22'],
+    ['That pool sets no RejectedExecutionHandler. What happens at saturation?',
+     'Spring\'s default is <b>AbortPolicy</b> → throws RejectedExecutionException on the caller (the audited request thread) once core+queue+max are full → the audit log is <b>silently dropped</b> for that request.',
+     'AuditLogAsyncConfig.java:17-26 (no setRejectedExecutionHandler)'],
+    ['Your filter is OncePerRequestFilter. When would a plain Filter run twice?',
+     'On internal forward/include and async dispatch the request re-enters the chain; the base class uses a request-attribute flag to dedupe so audit isn\'t double-recorded.',
+     'LoggingFilter.java:37'],
+    ['@Order(LOWEST_PRECEDENCE) on the filter — why last?',
+     'So every other filter (auth, XSS, CORS) has run and the response is fully formed before audit captures it; capturing first would record a half-built response.',
+     'LoggingFilter.java:35'],
+    ['Why a Filter, not a HandlerInterceptor, for body capture?',
+     'Only a Filter sees the raw servlet request early enough to wrap it in <span class="anchor">ContentCachingRequestWrapper</span>; the body stream is read-once and an interceptor runs after it\'s already consumed.',
+     'LoggingFilter.java:83-89'],
+    ['Avro value, String key — why isn\'t the key Avro too?',
+     'The key (<span class="anchor">serviceName + "/" + endpoint</span>) is a routing/partitioning token needing determinism, not schema evolution. Avro on the key adds registry overhead for no benefit.',
+     'AuditKafkaPayloadKey.java:26-27 · KafkaProducerConfig.java:89-90'],
+    ['enable.idempotence=true — what does the broker do differently?',
+     'The producer gets a <b>PID</b> + per-partition <b>sequence numbers</b>; the broker rejects duplicates and out-of-order sequences, dedups retries, pins order, caps in-flight at 5. NRTI has it <b>off</b>.',
+     'NrtKafkaProducerConfig.java:121'],
+    ['acks=all — all of what?',
+     'All <b>in-sync replicas</b> (min.insync.replicas), not all replicas. If ISR shrinks below min.insync the producer gets an error instead of a false ack. NRTI sets acks=all; audit-srv is acks=1 (no acks line).',
+     'NrtKafkaProducerConfig.java:116 vs KafkaProducerConfig.java:85-119']
+  ]},
+
+{ id:'c8', title:'CHAIN 8 — "What keeps you up at night?" (the two-pool trap)', tag:'Ownership · closer', sys:'AUDIT',
+  grade:'Can you keep TWO failure modes straight without conflating them, and turn "I know a gap" into "I drive the fix" instead of blaming the backlog?',
+  qa:[
+    ['What\'s the thing about this system that keeps you up at night?',
+     'The audit silent-drop surface — precise because it\'s <b>two different pools, two repos, two failure modes</b>. <b>(A) audit-srv</b> ExecutorPoolService = <span class="anchor">newCachedThreadPool()</span> — <b>unbounded, no rejection policy</b>; under a burst it grows threads without bound → OOM. <b>(B) common-libraries</b> @Async pool — core 6/max 10/queue 100, <b>no RejectedExecutionHandler</b> → default <b>AbortPolicy</b> → silently drops on saturation. "AbortPolicy on an unbounded pool" would be self-contradictory; the unbounded one has no policy at all. On top, send failures are only logged.',
+     'ExecutorPoolService.java:10 · AuditLogAsyncConfig.java:17-26'],
+    ['You knew. Why isn\'t it fixed?',
+     'Honestly — it\'s never failed in prod, so it stayed below the line vs feature work. Classic "works until it doesn\'t." Each fix is small and currently doesn\'t exist: bound (A) + a RejectedExecutionHandler; explicit handler + dropped-audit metric on (B); observe the producer future. ~half a day that removes a silent-data-loss + OOM class of failure.',
+     '[NOT IN REPO — proposed]'],
+    ['Which one keeps you up more, and which is the half-day PR?',
+     'Pool (A)\'s unbounded growth scares me more — a silent drop loses one record; an OOM takes the whole pod down and <i>then</i> drops everything in flight, region-wide. The half-day PR is bounding (A) with a fixed pool + <span class="anchor">CallerRunsPolicy</span> (back-pressure onto the submitter instead of OOM) and adding the metric.',
+     'bounded-with-back-pressure converts an availability-killer into a measurable slowdown'],
+    ['Half-day fix, serious risk, not done. Whose prioritization failure?',
+     '<b>Partly mine.</b> Knowing a cheap fix and not making the case loudly enough is on me, not "the backlog." Senior move: <b>quantify the blast radius</b> (silent compliance-data loss + region-wide OOM) so the team can decide, and write the one-day fix as a <b>ready-to-merge PR</b> so "no time" stops being valid. I\'d own driving it.',
+     'turn "I know a gap" into "I drive the fix"']
+  ]},
+
+{ id:'c9', title:'CHAIN 9 — "How many partitions?" (the ops/sizing trap)', tag:'Ops · sizing-by-formula', sys:'AUDIT',
+  grade:'Do you know the BOUNDARY of your own knowledge — what\'s in your code vs provisioned externally — and can you size with a defensible formula instead of fabricating a number?',
+  qa:[
+    ['How many partitions does your audit topic have?',
+     'I don\'t have that in my repo, and I won\'t guess. Partition count, RF, min.insync, and retention are <b>KaaS-provisioned</b> topic properties, external to the service code — none appear in either repo. What I CAN give you is the value I\'d <b>request</b> and the formula. (Saying "I think it\'s 12" is the fastest way to get caught.)',
+     'KaaS-provisioned — not in repo'],
+    ['Fine. What would you request, and how did you decide?',
+     'Formula: <span class="anchor">partitions = max(ceil(target_peak_eps / per_partition_ceiling), desired_consumer_parallelism)</span>. Throughput is never binding here — sub-KB Avro at modest eps is ~MB/s, one partition clears it. What binds is consumer parallelism (a group can\'t exceed partition count; 3 sink connectors with room to raise tasks.max) and broker spread for RF3. I\'d request <b>6</b> — even spread on 3 brokers + headroom, because repartitioning a <i>keyed</i> topic reshuffles key→partition and breaks ordering.',
+     'partition key = AuditKafkaPayloadKey.java:26-27'],
+    ['RF and min.insync — same answer?',
+     'Same provenance (KaaS, not in repo). I\'d request <b>RF=3 / min.insync=2</b> — broker DNS fronts a 3-broker-per-region cluster, so RF3 survives one broker loss with quorum. Caveat I volunteer: for <b>audit</b>, min.insync=2 is <i>moot today</i> because the producer runs acks=1 — min.insync only gates writes under acks=all. For <b>NRTI</b> it\'s load-bearing (acks=all).',
+     'NRTI acks=all at NrtKafkaProducerConfig.java:116'],
+    ['Scale me to 100×. What breaks first?',
+     'Not the brokers — the <b>sink</b>. The 3× read amplification becomes the dominant cost, and small Parquet files inflate BigQuery scan cost. I\'d (1) collapse to one branching connector to kill amplification, (2) raise partitions + tasks.max for parallelism, (3) tune flush so Parquet objects stay large. The producer side barely notices; the storage/query side is where 100× hurts.',
+     'cost concentrates in the sink + BigQuery scan'],
+    ['You sized a system from numbers you can\'t see. Why should I trust any of it?',
+     'Because I\'m explicit about the line between <b>measured</b> and <b>requested</b>. Everything in my code I quote by file:line. For KaaS topic settings I tell you they\'re not in my repo and defend a value with a formula tied to things I CAN see: the 3-broker topology, the consumer-group count, the event size, the key cardinality. A senior answer isn\'t "I memorized 12"; it\'s "here\'s how I\'d derive it and the failure mode if I got it wrong."',
+     'measured vs requested — the honesty line']
+  ]},
+
+{ id:'c10', title:'CHAIN 10 — "What does this cost?" (read amplification + BigQuery)', tag:'Cost · 3x amplification', sys:'AUDIT',
+  grade:'Do you connect architecture to DOLLARS (read egress, columnar scan, file size) and know the CROSSOVER where a simplifying choice flips to a costly one?',
+  qa:[
+    ['Your audit pipeline — where does the money actually go?',
+     'Three places: (1) Kafka <b>read egress</b> — the topic is read <b>3×</b> because the 3 sink connectors are 3 separate consumer groups; (2) <b>GCS storage</b> of Parquet; (3) <b>BigQuery scan</b> cost on the external tables. The compute (producer, HPA min4/max8 @60% CPU for audit prod) is the cheap part.',
+     'kc_config.yaml:63,81,99'],
+    ['That 3× read — is it 3× the bytes off disk, or 3× the network?',
+     'Effectively both per consume: each connector independently fetches the full partition set, so the brokers serve the topic\'s bytes three times. A deliberate trade for per-country isolation, but at scale it\'s pure waste — two of the three reads discard most records (CA/MX strictly drop; US is the catch-all).',
+     'AuditLogSinkUSFilter.java:42-49 · BaseAuditLogSinkFilter.java:40-44'],
+    ['BigQuery bills on bytes scanned. What makes scans expensive, and what makes them cheap?',
+     'Cheap: data is <b>Parquet</b> (columnar — scans only referenced columns) and <b>partitioned on disk</b> by <span class="anchor">service_name, _header.date, endpoint_name</span> via KCQL PARTITIONBY, so date-bounded, service-scoped queries prune hard. Expensive: <b>small files</b> — if flush trips flush.count=5000 long before the 10-min interval, per-file overhead + poor compression inflate scanned bytes. The lever is flush tuning — keep objects large.',
+     'KCQL STOREAS PARQUET, PARTITIONBY; flush 50MB/5000/600s'],
+    ['How would you cut the bill by half without losing the per-country guarantee?',
+     'Kill the amplification: replace the 3 single-task connectors with <b>one</b> connector whose SMT/router branches to the three per-country GCS sinks — one read, three write destinations. Removes 2 of the 3 reads (the dominant egress). Then enforce large Parquet objects so BigQuery scans fewer, denser files. Residency is unchanged because routing still keys on wm-site-id; I\'ve only de-duplicated the read.',
+     'one branching connector · [NOT IN REPO — proposed]'],
+    ['You designed 3 connectors knowing it\'s 3× the read. Was that a mistake?',
+     'At our volume, no — it bought operational simplicity (independent per-country lag/pause/retry, dead-simple config) for a read cost that\'s negligible on a low-throughput feed. It <i>becomes</i> a mistake at ~10×, which is why I have the single-branching-connector design ready. Honest framing: right call for <b>today\'s</b> scale, wrong call for <b>tomorrow\'s</b> — and knowing the exact crossover is the engineering judgment, not "always minimize reads."',
+     'the crossover is the judgment']
+  ]},
+
+{ id:'c11', title:'CHAIN 11 — "Is this even a Spring Boot starter?"', tag:'Abstraction-honesty trap', sys:'AUDIT',
+  grade:'Do you use framework terms PRECISELY (library vs starter, the auto-config mechanism), and will you right-size your own resume claim before the interviewer does?',
+  qa:[
+    ['You call dv-api-common-libraries a "starter." Walk me through how a consumer auto-configures it.',
+     'I\'ll correct the word first: it\'s a <b>shared Maven library, not a true Spring Boot starter</b>. A real starter ships auto-configuration that activates on the classpath. This JAR does NOT — there\'s no <span class="anchor">META-INF/spring.factories</span> and no <span class="anchor">AutoConfiguration.imports</span>; it has no <span class="anchor">src/main/resources</span> at all. So nothing auto-wires.',
+     'no spring.factories / AutoConfiguration.imports in the JAR'],
+    ['Then how does a consumer actually pick up the filter and beans?',
+     'Manually. The consuming app must <span class="anchor">@ComponentScan com.walmart.dv.*</span> to discover the @Component/@Configuration classes, and it must provide its own <span class="anchor">WebClient</span> bean because the JAR\'s AuditHttpServiceImpl depends on one but the JAR doesn\'t supply it. So "drop the dependency and it works" is false.',
+     'LoggingFilter.java:36 @Component · AuditLogAsyncConfig.java:13-15 @Configuration'],
+    ['That sounds fragile. What concretely goes wrong if a consumer forgets a step?',
+     'Two failure modes. (1) Forget the component scan → the filter never registers → audit <b>silently does nothing</b> (no error, no data). (2) The <b>version skew</b> — the JAR is SB 2.7.11/Java 11/javax.servlet but consumed by a SB3/Jakarta app, so the consumer must <b>exclude the JAR\'s webflux starter</b> and avoid registering the javax filter, or the old reactive stack and incompatible servlet types leak in. Works today by careful exclusions, not by design.',
+     'cp-nrti pom.xml:470-474 · common pom.xml:17-18,30'],
+    ['Also — your library copies request headers into the audit log. All of them?',
+     'Yes, and this is a real PII/secret-leak finding. The capture path copies headers <b>including WM_SEC.* / Authorization unmasked</b> (<span class="anchor">mask.enable=false</span>) — credentials can end up in the audit store. The <i>producer</i> side restricts to an allow-list (wm_consumer.id, wm_qos.correlation_id, wm_svc.*, wm-site-id), but the upstream capture in the common library is permissive. Highest-severity item in the whole system.',
+     'AuditLogFilterUtil.getServiceHeaders:94-108 (all headers) vs KafkaProducerService.java:92-98 (allow-list)'],
+    ['So you\'ve been calling a manually-wired, version-skewed, PII-leaking JAR a "starter." Is the resume wrong?',
+     'The <b>word</b> oversells it; the <b>work</b> is real. What I own is a reusable cross-cutting audit-capture library adopted by multiple services — genuine leverage. But "starter" implies auto-configuration this doesn\'t have, so the precise claim is "a shared audit/observability <b>library</b> with a manual integration contract." I\'d rather be unassailable than get dismantled on spring.factories — and the version skew + unmasked secrets are tech debt I name as the roadmap.',
+     'right-size the claim before they do']
+  ]},
+
+{ id:'c12', title:'CHAIN 12 — "You led DC inventory end-to-end." (attribution probe)', tag:'Attribution · senior signal', sys:'NRTI',
+  grade:'Under an attribution probe, do you COLLAPSE (over-claimed, can\'t defend) or HOLD (credit the team, own a real slice, defend it at depth)? This is the genre most likely to sink a strong-on-paper candidate.',
+  qa:[
+    ['You say you led the DC inventory feature end-to-end. Walk me through the controller.',
+     '<span class="anchor">DcInventoryController</span> exposes <span class="anchor">POST /dc/inventory/status</span>, @ResponseStatus(OK) (200), takes a DcInventoryStatusRequest (dcNbr + item list) + optional itemIdentifier, validates via NrtBusinessValidatorService, resolves the supplier mapping, dedups item numbers, calls dcInventoryService. The downstream Enterprise Inventory call is an unusual <b>GET-with-body</b> over reactive WebClient with <span class="anchor">.timeout(10s)</span> + <span class="anchor">Retry.backoff(3,100ms,2s)</span> + <span class="anchor">.block()</span>.',
+     'DcInventoryController.java:104-151 · HttpServiceImpl.java:71-94'],
+    ['git blame shows Keshav Gatla and Ambiorix Cruz Angeles wrote most of that controller. What was YOURS?',
+     'Fair, and I\'ll be precise. The DC controller was largely authored by <b>Keshav and Ambiorix</b> — I credit them. My real slice: the <b>OpenAPI design-first process</b> and the codegen path for the items-assortment surface (the DC controller is hand-written; only items-assortment is generated), the <b>multi-site CCM config</b> wiring (US/CA/MX = same artifact per region + config, SiteIdCCMConfig — there\'s no *Factory class, it\'s config-driven), and review/integration. So "led end-to-end" is collaborative; my owned contributions are the design-first/codegen process, the multi-site config, and the producer/Kafka path.',
+     'attribution: Keshav Gatla & Ambiorix Cruz Angeles on the DC controller'],
+    ['So "end-to-end" is an overstatement. Doesn\'t that undercut the whole resume?',
+     'It <b>tightens</b> it, it doesn\'t undercut it. The defensible version: "drove the design-first API process and multi-site config, and built the Kafka publish path, alongside Keshav and Ambiorix who owned the DC controller internals." That\'s still substantial ownership — and it\'s <i>credible</i> because I can name what was mine and what wasn\'t. The candidate who claims every line gets caught on the first git-blame question.',
+     'credit the team, own a real slice'],
+    ['Why should I believe you contributed anything real if you just handed credit to two engineers?',
+     'Because I can defend my slice at the same depth I defend theirs. Ask me about the multi-site config: same artifact per region with CCM-driven SiteIdCCMConfig, <b>no factory class</b>, because the variation is data not code. Ask me about the Kafka path: I\'ll walk the IAC null-key / DSC-tripId asymmetry, the acks/idempotence config, the .join()/500 vs fire-and-forget/201 contract split — line by line. Owning a <b>real slice deeply</b> beats claiming a <b>whole I can\'t defend</b>.',
+     'depth on my own piece is the proof']
+  ]},
+
+{ id:'c13', title:'CHAIN 13 — "Your DSC returns 201 even when it lands nowhere."', tag:'Contract-asymmetry takedown', sys:'NRTI',
+  grade:'Can you read the EXACT code paths where two siblings diverge (throw CompletionException vs return null), tell a deliberate trade-off from an under-specified one, and fix the contract rather than defend a misleading status code?',
+  qa:[
+    ['IAC and DSC are both NRTI publishes. Same thing on total failure?',
+     'No — and the asymmetry is the most interview-defensible "real smell." <b>IAC</b> .join()s and throws <span class="anchor">NrtiUnavailableException</span> → <b>HTTP 500</b> if both regions fail (annotated INTERNAL_SERVER_ERROR; arguably should be 503 + Retry-After). <b>DSC</b> is fire-and-forget — returns <b>201 regardless</b>, even if both regions fail. (Note: IAC success is actually 200 — the 201 is only in the Swagger annotation.)',
+     'NrtKafkaProducerServiceImpl.java:87-92 · NrtiUnavailableException.java:14 · IacControllerV1.java:121 (Swagger 201) vs :123 (@ResponseStatus OK)'],
+    ['Show me exactly where DSC swallows the failure.',
+     'The DSC primary send attaches <span class="anchor">.exceptionally</span> → calls handleFailure → <b>returns null</b> (no join, no rethrow). And DSC\'s handleFailure attaches another .exceptionally that only <b>logs</b> and returns null. Contrast IAC\'s handleFailure, which on secondary failure <span class="anchor">throw</span>s <span class="anchor">CompletionException(NrtiUnavailableException)</span> so the outer .join() propagates to a 500. IAC\'s failure is surfaced; DSC\'s is swallowed.',
+     'NrtKafkaProducerServiceImpl.java:121-126,135-151 (DSC, null) vs 159-175 (IAC, throws)'],
+    ['So a DSC supplier can get a 201 for an event that landed nowhere. Defend or fix.',
+     'Defensible <i>only</i> as an explicit best-effort contract with a reconciliation SLA — DSC is a freight notification, not an inventory mutation. But a <b>201 that means "accepted, maybe persisted"</b> is a lying status code if it isn\'t documented. Fix: align DSC\'s semantics — either surface failure like IAC (join + map to 5xx), or keep it async but return <b>202 Accepted</b> + a DLQ + a published reconciliation contract. Returning 201 for something that may not exist is the part I\'d change.',
+     '202 + DLQ makes the contract honest'],
+    ['Was this asymmetry a decision or an accident?',
+     'The <b>direction</b> is a decision — IAC (SoR) must surface failure, DSC (notification) can be best-effort; that matches the two-topic criticality split. But the <b>expression</b> — DSC returning 201 with a silently-swallowed secondary failure and no documented SLA — looks like an accident, because nothing says "this is intentionally best-effort." Right instinct, under-specified contract. The senior fix is cheap and converts a "lying 201" smell into a clear, intentional API contract.',
+     'deliberate direction, under-specified expression']
+  ]}
+];
+</script>
+
+<!-- ===================== DATA: TRANSCRIPTS (doc 19) ===================== -->
+<script>
+// 12 full transcripts. Each: id, title, sys, optional diagram, turns [PE, You, optional anchor],
+// grading (what they're secretly scoring), move (the one sentence that saved it).
+const TRANSCRIPTS = [
+{ id:'t1', title:'TRANSCRIPT 1 — The 204 / Data-Loss Corner', sys:'AUDIT',
+  diagram:`sequenceDiagram
+    participant C as Supplier (client)
+    participant F as LoggingFilter (Tomcat thread)
+    participant A as @Async pool (bounded 6/10/100)
+    participant S as audit-api-logs-srv
+    participant P as ExecutorPoolService (unbounded)
+    participant K as Kafka (Avro)
+    C->>F: API call
+    F->>F: doFilterInternal — build AuditLogPayload (request thread)
+    F->>A: sendAuditLogRequest (@Async — returns instantly)
+    F-->>C: response (customer is DONE here)
+    A->>S: signed WebClient POST
+    S-->>A: saveApiLog -> 204 (before Kafka)
+    S->>P: executeTaskInThreadPool(task)
+    P->>K: kafkaPrimaryTemplate.send() (try/catch logs only)
+    Note over P,K: broker down -> caught + logged -> record LOST silently`,
+  turns:[
+    ['Walk me through what happens when a supplier hits an audited API.',
+     'A servlet filter — <span class="anchor">LoggingFilter</span> in the shared <span class="anchor">dv-api-common-libraries</span>, registered <span class="anchor">@Order(LOWEST_PRECEDENCE)</span> so it runs closest to the controller and sees the final response — wraps request and response in <span class="anchor">ContentCachingRequest/ResponseWrapper</span>, builds the payload <i>on the request thread</i>, then hands it to an <span class="anchor">@Async</span> method. The customer\'s response returns the instant that @Async call is submitted. On a pool thread we sign and WebClient-POST to <span class="anchor">audit-api-logs-srv</span>, which returns <b>204 No Content</b> immediately and <i>then</i>, on its own pool, publishes an Avro LogEvent to Kafka.',
+     'LoggingFilter.java:35 (@Order LOWEST), :37 (OncePerRequestFilter), :83-86 (wrappers), :111 (sendAuditLogRequest)'],
+    ['You said 204 immediately. After <i>what</i>? What\'s the last thing on the customer\'s thread, and which pool is it?',
+     'Two <i>different</i> pools — I want to be precise because they\'re often blurred. <b>Capture side</b>, in the common library: a <b>bounded</b> ThreadPoolTaskExecutor — core 6, max 10, queue 100, prefix Audit-log-executor-. That\'s the pool the customer\'s thread submits to and is then done. <b>Producer side</b>, inside audit-api-logs-srv: the controller returns 204 and a <i>separate, unbounded</i> <span class="anchor">newCachedThreadPool</span> runs the Avro serialize + kafkaPrimaryTemplate.send(). The customer never waits on signing, the network POST, or Kafka.',
+     'AuditLogAsyncConfig.java:19-24 (core6/max10/queue100) · ExecutorPoolService.java:10-14 · AuditLoggingController.java:58-61 (204)'],
+    ['So the customer gets a 204 before the record is on Kafka. Broker\'s down. What does the customer see?',
+     'Still success. The producer send is genuinely fire-and-forget: a <span class="anchor">try/catch</span> that only logs "Send failure falling into exception and Auditing" — it doesn\'t observe the returned future, so an <i>async</i> broker failure isn\'t even caught there; only a synchronous throw from .send() is. The customer\'s call is completely decoupled from audit durability. That\'s the deliberate trade: audit must never degrade the supplier\'s actual API call.',
+     'KafkaProducerService.publishMessageToTopic:44-52 (send at :47, future discarded)'],
+    ['So your "audit logging system" can silently drop records and nobody knows. Compliance context — defend or fix.',
+     'Scope first: this feed is supplier <b>debugging convenience</b> replacing Splunk — the system of record is GCS Parquet + BigQuery, not Kafka. For that, best-effort is acceptable. But you\'re right that the real problem is "silent," not "lossy." Cheap fix: attach <span class="anchor">.whenComplete()</span> to the send future, emit an <span class="anchor">audit_publish_failed</span> counter, alert on the rate, add a producer-side DLQ. Removes the "find out from a data gap" failure mode without touching the customer path.',
+     'fix lands at KafkaProducerService.java:47 · [NOT IN REPO — proposed]'],
+    ['An outbox/durable write adds latency to every call. You said the whole point was zero latency impact. Fast or durable — pick one.',
+     'Correct, and the resolution isn\'t "both for free" — it\'s moving durability off the <i>network</i> critical path. If durability became a hard requirement I\'d write to a <b>local append-only log on the same pod</b> synchronously — microseconds, no network round-trip, so the customer still doesn\'t pay — and a separate shipper drains that WAL to Kafka asynchronously. Durable <i>and</i> off the hot path. The current design picked latency because the requirement was convenience-audit.',
+     '[NOT IN REPO — proposed; WAL/outbox shipper does not exist today]']
+  ],
+  grading:'Do you understand your design is a <i>choice with a cost</i>, and can you name the two distinct pools without blurring them?',
+  move:'Separating the bounded capture pool from the unbounded producer pool <i>before</i> being asked — that\'s the line that proves you read the code, not the diagram.' },
+
+{ id:'t2', title:'TRANSCRIPT 2 — The "<5ms" Boundary Interrogation', sys:'AUDIT',
+  turns:[
+    ['You claim <5ms P99 overhead. How\'d you measure it?',
+     'Audited endpoint, audit-on vs audit-off, P99 delta in stage. The only hot-path work is building the payload and the @Async submit — everything else is on a pool thread — so the delta is small. I won\'t name a specific perf tool unless I can point to the suite.',
+     'hot-path = LoggingFilter.doFilterInternal up to :111 (@Async); network POST + Kafka send are off-thread'],
+    ['Building the payload copies the request and response bodies into memory. 5MB response — still <5ms?',
+     'No, honestly. <span class="anchor">ContentCachingRequest/ResponseWrapper</span> buffer the full body, and getServiceHeaders plus the byte-length calls touch the whole thing — so capture cost scales with body size, and there\'s <b>no size cap</b>. For typical inventory JSON (kilobytes) it\'s sub-millisecond. For a 5MB or multipart body it would blow the budget and pressure heap.',
+     'LoggingFilter.java:83-86 (wrappers) · :93-95 (getContentAsByteArray) · AuditLogFilterUtil.java:85-86'],
+    ['So the claim only holds for small payloads. What\'s your P99 when someone uploads 50MB to an audited endpoint?',
+     'Far worse, and under concurrency it could OOM. The mitigating fact: audit is <b>opt-in per endpoint</b> via a CCM allow-list — we don\'t enable it on large-body endpoints. So the claim is true for the endpoints we audit, but I should state that scope, not imply it\'s universal.',
+     'LoggingFilter.shouldNotFilter:123-128 (enabledEndpoints allow-list)'],
+    ['Convenient scoping. How do you stop the next engineer from flipping audit on for a file-upload endpoint and taking the service down?',
+     'Today, nothing automated — it\'s config discipline, a real weakness. The fix makes safety a property of the code: a guard in <span class="anchor">doFilterInternal</span> that skips capture above a configurable body-size threshold and emits an <span class="anchor">audit_skipped_large_body</span> metric. Then it fails safe regardless of who toggles the flag, and we still see it happened.',
+     'guard goes in LoggingFilter.java:82 · [NOT IN REPO — proposed]'],
+    ['Your supplier queries the audit data 30 seconds after the call and it\'s not there. Explain.',
+     'Right — and this is the distinction I should never let slide. The <b><5ms is hot-path overhead</b> I add to the audited call, <i>not</i> end-to-end freshness. The sink batches to GCS on a 600-second flush interval, so the record isn\'t queryable in BigQuery for up to ~10 minutes. Two completely different numbers; the moment someone hears "<5ms" as freshness, I\'ve mis-sold it.',
+     'env_properties.yaml:183 (flush.interval=600) · :182 (flush.count=5000) · :181 (flush.size≈50MB)']
+  ],
+  grading:'Do you know the <i>boundary conditions</i> of your own number, or did you memorize a resume stat?',
+  move:'Volunteering the freshness-vs-overhead split with the <span class="anchor">flush.interval=600</span> anchor — proves "<5ms" is a measured scope, not a slogan.' },
+
+{ id:'t3', title:'TRANSCRIPT 3 — Exactly-Once Is Impossible In Your Topology', sys:'NRTI',
+  diagram:`flowchart TB
+    A["cp-nrti-apis EUS2"] -->|primary acks=all| B[("Kafka EUS2")]
+    A -.->|.exceptionally -> handleFailure| C[("Kafka SCUS")]
+    D["cp-nrti-apis SCUS"] -->|primary acks=all| C
+    D -.-> B
+    B --> E[Downstream consumers]
+    C --> E
+    E --> F{dedup on messageId / tripId}
+    F -->|new| G[process]
+    F -->|seen| H[drop]
+    IAC["IAC: NULL Kafka key"] -.->|round-robin / sticky| B`,
+  turns:[
+    ['What\'s your IAC partition key?',
+     'There isn\'t one. <span class="anchor">IacServiceHelper.prepareIacActionKafkaMessage</span> sets KafkaHeaders.TOPIC and a MESSAGE_ID <i>custom</i> header, but it never sets KafkaHeaders.KEY. So IAC records go out with a <b>null key</b> — sticky/round-robin partitioner, <b>no per-key ordering at the broker at all</b>. DSC <i>does</i> key, on tripId. So for IAC the whole idempotence-and-reorder discussion is academic — there\'s no ordering contract to break.',
+     'IacServiceHelper.java:188 (TOPIC), :189 (MESSAGE_ID header, NOT KEY) vs DscServiceHelper.java:264 (KEY=tripId)'],
+    ['Fine. Now explain the failover, and show me the config that guarantees "zero data loss."',
+     'Each region writes to its <i>local</i> Kafka as primary with acks=all. <span class="anchor">send()</span> returns a CompletableFuture; in <span class="anchor">.exceptionally</span> I call handleFailure, which re-sends to the <i>other</i> region\'s secondary template, and for IAC I .join() so the HTTP response reflects the real outcome. acks=all + RF3 + retries=10 means an acknowledged record is replicated to in-sync replicas before ack. But <span class="anchor">enable.idempotence=false</span>, so it\'s <b>at-least-once</b>, not exactly-once. I\'d reframe to "no loss of an <i>acknowledged</i> event under single-region failure."',
+     'NrtKafkaProducerConfig.java:116 (ACKS), :120 (RETRIES), :121 (IDEMPOTENCE) · failover chain NrtKafkaProducerServiceImpl.java:76-89'],
+    ['acks=all with idempotence off. Give me a concrete sequence where you lose ordering — for DSC, since IAC has no key anyway.',
+     'With max.in.flight defaulting to 5 and retries=10: batch 1 for a tripId fails transiently and is queued for retry; batch 2, sent after, succeeds and is written first; then batch 1\'s retry lands — out of order on the partition. <span class="anchor">enable.idempotence=true</span> would prevent that with a PID and per-partition sequence numbers; we don\'t have it, so consumers must be order-tolerant.',
+     'enable.idempotence=false NrtKafkaProducerConfig.java:121 · retries=10 :120'],
+    ['Your dedup — where does it run, and how does it fail?',
+     'Consumer-side, downstream — we\'re producer-only, no @KafkaListener in cp-nrti-apis. Failure mode: <span class="anchor">messageId</span> is <b>client-supplied</b> (straight off the request), so two genuinely different events with a colliding ID would make a consumer drop a legitimate one. Mitigation: namespace the dedup key by <span class="anchor">supplierId + messageId</span>, or mint it server-side.',
+     'IacServiceHelper.java:73 (messageId from request), :189; no consumer class in repo'],
+    ['You don\'t own the consumers. So how do you actually <i>know</i> dedup happens? Maybe downstream double-counts inventory.',
+     'Fair — I can\'t claim a guarantee I don\'t own. What I own is the producer contract: a stable messageId and at-least-once delivery. Whether dedup is correct is a cross-team contract; the honest move is to <i>verify</i> it with a consumer integration test and a documented idempotency requirement, not assume it. End-to-end "zero loss" is only as strong as that downstream contract.',
+     'producer contract is mine; consumer dedup is a cross-team contract'],
+    ['Then why build at-least-once plus shaky dedup instead of exactly-once?',
+     'Because exactly-once isn\'t available in this topology. Kafka EOS — idempotent plus transactional producer — is <b>per-cluster</b>. We\'re writing to two <i>independent</i> clusters on failover (EUS2 and SCUS), and a transaction can\'t span two clusters. So end-to-end EOS was off the table the moment we chose dual-cluster active/active. The realistic alternatives were at-least-once + idempotent consumers, or MirrorMaker2 with offset translation — which gives platform-managed replication but trades away my sub-second in-app failover. I chose dual-write for failover speed and control.',
+     'two broker lists in nrtKafkaConfig.json; selected by primaryServer flag at NrtKafkaProducerConfig.java:108-110']
+  ],
+  grading:'Do you understand <i>why</i> exactly-once is impossible here, and do you lead with the null-key fact instead of theorizing about reordering?',
+  move:'"There isn\'t one — IAC has a null key" in sentence one. It collapses the entire ordering debate for IAC and shows you read <span class="anchor">IacServiceHelper</span> line by line.' },
+
+{ id:'t4', title:'TRANSCRIPT 4 — The Load-Math Takedown', sys:'NRTI',
+  diagram:`flowchart LR
+    R["300 req/s"] --> T["Tomcat pool = 200 (default)"]
+    T -->|".join() on Kafka :89"| K["Kafka primary"]
+    K -. "slow: 2s/send" .-> T
+    N["Little's Law: 300 x 2s = 600 needed > 200 -> SATURATION -> 503s"]`,
+  turns:[
+    ['Your IAC publish calls .join(). What thread is that on?',
+     'The <b>Tomcat worker thread</b> handling the HTTP request. <span class="anchor">IacControllerV1.createInventoryActions</span> → handleInventoryActionsEvent → publishIacKafkaMessage, which .join()s the send future synchronously. So the publish is synchronous from the request\'s point of view.',
+     'NrtKafkaProducerServiceImpl.java:76-89 (.thenAccept/.exceptionally/.join), invoked at NrtiStoreServiceImpl.java:409, called from IacControllerV1.java:153'],
+    ['So the request thread blocks on Kafka. What\'s your Tomcat max threads?',
+     '200 — the Spring Boot default server.tomcat.threads.max. To be precise, that\'s a <i>default</i>, not a value set in our repo, so I\'d verify it in the running config, but 200 is what we\'d inherit.',
+     'Spring Boot default; NOT set in cp-nrti-apis config'],
+    ['Primary Kafka degrades to 2 seconds per send. You\'re at 300 req/s. Do the math, out loud.',
+     'Little\'s Law — concurrent threads needed = arrival rate × service time: 300 × 2s = <b>600 threads</b>. I have 200. So the pool saturates, new requests queue, the queue backs up, and we start returning 503s and timing out. HTTP availability is now coupled to Kafka latency — a Kafka slowdown becomes a full outage.',
+     'Little\'s Law on the servlet pool'],
+    ['And request.timeout.ms is 5 minutes. Worst case, a thread is stuck for how long?',
+     'Up to 5 minutes. On a <b>black-hole</b> failure — no TCP reset — the send future doesn\'t complete exceptionally until that timeout, so .exceptionally/failover can\'t even <i>fire</i> for 5 minutes, and each stuck request holds a thread the whole time. The service falls over long before failover triggers. That\'s the real defect: failover latency is bounded by <span class="anchor">request.timeout.ms</span>, not by my .exceptionally.',
+     'request.timeout.ms=300000 NrtKafkaProducerConfig.java:119 · blocking .join() NrtKafkaProducerServiceImpl.java:89'],
+    ['You designed this. Why didn\'t you catch it?',
+     'Because both the happy path and the <i>fast</i>-fail path — connection refused completes instantly — look fine in testing. The black-hole/slow-primary case only appears under a partial network fault, which we didn\'t game-day. Three fixes: <span class="anchor">future.orTimeout(2, SECONDS)</span> to bound failover; a Resilience4j <b>circuit breaker</b> so a sick primary trips fast; and a <b>bulkhead</b> — a separate bounded pool for publishing — so Kafka latency can never consume the servlet pool.',
+     'orTimeout wraps NrtKafkaProducerServiceImpl.java:76; bulkhead replaces the implicit "publish on Tomcat thread" at :69 · [NOT IN REPO]'],
+    ['Circuit breaker opens. You\'re not writing to primary. Where do those events go?',
+     'Straight to the secondary region — the breaker\'s fallback is exactly my existing <span class="anchor">handleFailure</span> path. If both breakers are open, fail fast with 503 so the supplier retries, instead of holding a thread for 5 minutes. The breaker converts a slow cascading failure into a fast clean one — strictly better for availability.',
+     'existing fallback NrtKafkaProducerServiceImpl.handleFailure:159-175 (re-sends via secondary)']
+  ],
+  grading:'Can you reason about your system <i>under load and partial failure with real numbers</i>, or only on the happy path?',
+  move:'Naming that failover latency is bounded by <span class="anchor">request.timeout.ms=300000</span>, not by your .exceptionally — the non-obvious bug a happy-path engineer never finds.' },
+
+{ id:'t5', title:'TRANSCRIPT 5 — Did You Actually Do The Migration?', sys:'NRTI',
+  turns:[
+    ['First, set the stage — what version did you migrate to?',
+     'I\'ll be precise because my resume rounds it. cp-nrti-apis is on Spring Boot parent <b>3.5.14</b> / BOM 3.5.7 / <b>Java 17</b> / Jakarta. So the honest framing: I led the 2.7→3.x jump and stayed current to 3.5. And to pre-empt two traps — there\'s <b>no RestTemplate</b> (it already uses WebClient), so I\'d never claim a "RestTemplate→WebClient migration," and there\'s <b>no Spring Security</b> in the repo; auth is gateway WM_SEC.* headers plus custom servlet filters.',
+     'parent/BOM in cp-nrti-apis/pom.xml; no RestTemplate, no spring-boot-starter-security in src'],
+    ['Hardest single bug in the migration?',
+     'A <b>Hibernate 6 enum mapping</b>. Under Hibernate 5 the enum persisted and read fine. Hibernate 6 rewrote its type system to be strict about JDBC types, and the enum started mapping differently — reads came back wrong. Not an exception — a <i>wrong 200</i>. Fixed with <span class="anchor">@JdbcTypeCode(SqlTypes.NAMED_ENUM)</span> so it maps to the native Postgres enum type explicitly.',
+     'ParentCompanyMapping.java:127,135'],
+    ['A wrong-200. Your canary gate is 5xx-rate. So the canary would have happily promoted that bug to 100%. How did you actually catch it?',
+     'Exactly the limitation. The Flagger canary in kitt.yml has exactly one metric — a 5xx-rate check, <span class="anchor">threshold: 1</span> (1% over a 2-minute window), stepWeight 10, maxWeight 50 before promoting to 100%. There is <b>no latency metric and no semantic/contract metric</b>. So it\'s structurally blind to a wrong-200. It was caught in <b>stage</b>, before canary, by R2C contract tests comparing response bodies. That\'s why I attribute "zero customer impact" to the staged soak and contract tests, not the canary.',
+     'kitt.yml:727 (stepWeight 10), :728 (maxWeight 50), :729 (interval 2m), :734-735 (5xx, threshold 1); PromQL :736-748 is pure 5xx ratio'],
+    ['So your canary is blind to correctness. Why canary at all?',
+     'Because canary defends a different axis — infra and availability regressions, 5xx spikes, crashes — on <i>real production traffic</i> that stage can\'t fully reproduce. Correctness is caught earlier in the test pyramid. They\'re complementary layers; expecting the canary to catch a logic bug is the wrong mental model. If I wanted it to catch latency regressions too, I\'d add a request-duration metric to canaryAnalysis — it isn\'t there today.',
+     'kitt.yml canaryAnalysis has no request-duration / body check today'],
+    ['Spring Kafka\'s send() return type changed in 3.x. From what to what, and what of <i>your</i> code broke?',
+     '<span class="anchor">ListenableFuture → CompletableFuture</span>. My failover was written in the old <span class="anchor">addCallback(onSuccess, onFailure)</span> style. I rewrote it to the functional chain — <span class="anchor">.thenAccept(...).exceptionally(...).join()</span>. So the migration directly reshaped the failover logic; a concrete thing I changed, not a version number I watched go by.',
+     'current CompletableFuture chain NrtKafkaProducerServiceImpl.java:67, :76-89'],
+    ['The Jakarta rename. Your common-libraries JAR is still javax.servlet, the app is jakarta. How does a javax.servlet.Filter even load in a jakarta container? Be precise or tell me you don\'t know.',
+     'It wouldn\'t, if it were registered as a container filter — <span class="anchor">javax.servlet.Filter ≠ jakarta.servlet.Filter</span>. And the deeper reason it\'s fragile: dv-api-common-libraries is <b>Spring Boot 2.7.11, Java 11</b> — the one outlier — and LoggingFilter still imports javax.servlet.*. It works only because the consuming app does not register that JAR\'s filter — it provides its own jakarta filters, uses only the non-servlet pieces, and <b>excludes the JAR\'s webflux starter</b> so the old reactive stack doesn\'t leak. The correct fix is a jakarta-targeted rebuild. I\'d flag it as tech debt.',
+     'common pom parent 2.7.11, java 11; LoggingFilter.java:15-18 imports javax.servlet.* · cp-nrti pom webflux exclusion :470-474'],
+    ['While we\'re on that JAR — you call it a "common starter." Is it actually a Spring Boot starter?',
+     'No, and I should be careful with the word. It\'s a shared Maven library, not a true auto-configuring starter — there\'s <b>no src/main/resources at all</b>, so no spring.factories and no AutoConfiguration.imports. Consumers can\'t just add the dependency; they have to <span class="anchor">@ComponentScan com.walmart.dv.*</span> and provide their own WebClient bean. There\'s also a real PII hazard: the capture util copies <b>every</b> request header — no allow-list, no masking — so WM_SEC.* and Authorization go in unmasked. And version drift: the JAR is 0.0.45 in-repo but consumed at 0.0.61.',
+     'no src/main/resources (no spring.factories); AuditLogFilterUtil.getServiceHeaders:94-108 copies all headers unmasked; in-repo version pom.xml:7 (0.0.45)']
+  ],
+  grading:'Did you <i>do</i> the migration (specific bug, specific type change, specific compatibility hazard), and do you correct your own resume\'s "3.2" and "starter" before being caught?',
+  move:'Pre-empting the false-claim traps — "no RestTemplate, no Spring Security, not a real starter" — turns a potential gotcha into a credibility deposit.' },
+
+{ id:'t6', title:'TRANSCRIPT 6 — Residency Is A Hope, Not A Guarantee', sys:'AUDIT',
+  diagram:`flowchart TB
+    T[("Topic: api_logs_audit_prod")] --> U["US connector — AuditLogSinkUSFilter (catch-all)"]
+    T --> CA["CA connector — strict (inherits base)"]
+    T --> MX["MX connector — strict"]
+    U --> UB[("audit-api-logs-us-prod")]
+    CA --> CB[("audit-api-logs-ca-prod")]
+    MX --> MB[("audit-api-logs-mx-prod")]
+    X["record with NO wm-site-id"] -.->|passes US catch-all| UB
+    X -.->|dropped strict| CB
+    X -.->|dropped strict| MB`,
+  turns:[
+    ['Why filter by country in the sink instead of at produce time?',
+     'One immutable topic keeps the producer dead simple, and residency is enforced at the storage boundary where the per-country GCS buckets live. There are <b>three connector instances</b>, each on Kafka Connect, each tasks.max=1, each with an SMT chain: InsertRollingRecordTimestampHeaders then a country Filter on the <span class="anchor">wm-site-id</span> header.',
+     'kc_config.yaml:63-115 — three connectors, each tasks.max:1, transforms InsertRollingRecordTimestamp + FilterUS|CA|MX'],
+    ['Three connectors each read the whole topic. That\'s 3x broker read traffic. Justify it.',
+     'Each connector is effectively its own consumer group, so the topic is read three times — <b>3x read amplification</b>, by design. It buys isolation — one country can lag or be paused without affecting the others — and dead-simple per-country config. At our current volume the egress cost is acceptable. At roughly 10x I\'d collapse it to a single connector that branches to per-bucket sinks.',
+     'three independent connectors kc_config.yaml:63/81/99, each tasks.max:1'],
+    ['Record arrives with no wm-site-id. Which bucket, and is that a residency violation?',
+     '<b>US bucket</b> — and this is the gotcha where you read the code, not the Javadoc. The base filter <span class="anchor">BaseAuditLogSinkFilter.verifyHeader</span> is <b>strict</b>: an anyMatch that the header exists <i>and</i> equals the country\'s site-id, else drop. The US subclass <b>overrides</b> verifyHeader to add <span class="anchor">|| noneMatch(header missing)</span> — i.e. it also passes header-<i>less</i> records. CA and MX only override getHeaderValue; they inherit the strict base. So a non-US service that forgot the header silently lands in the US bucket — a residency leak. The CA/MX Javadoc <i>claims</i> "passed if the header is missing," but the code doesn\'t. The comment is lying; the base class is the truth.',
+     'BaseAuditLogSinkFilter.java:52-64 (strict) · AuditLogSinkUSFilter.java:42-49 (catch-all) · AuditLogSinkCAFilter.java:23-26 (inherits strict, Javadoc :8-11 lies)'],
+    ['So your residency guarantee depends on every producer remembering a header. That\'s a hope. Make it structural.',
+     'Agreed — header-driven routing is best-effort. Three structural options. One: route to <b>per-country topics at produce time</b>, so the topic itself is the boundary. Two: make the header <b>mandatory</b> — quarantine header-less records to a dedicated bucket instead of defaulting to US, so a mistake fails loud. Three, strongest: <b>derive the country server-side</b> from the authenticated supplier identity, so we never trust a client header. I\'d favor three.',
+     'three structural options · [NOT IN REPO — proposed]'],
+    ['Option one means a topic per country. Earlier you praised "one immutable topic." Your two instincts contradict. Which principle wins, and why?',
+     'They optimize different things, and the tie-breaker is the <b>requirement</b>, not a favorite principle. "One topic" optimizes producer simplicity and operational surface. "Topic per country" optimizes residency enforcement and removes the read amplification. Residency here is a <i>legal/compliance</i> constraint — real money and legal risk — so enforcement dominates simplicity, and per-country topics win. If residency were a soft preference, simplicity would win. The skill isn\'t holding one principle; it\'s knowing which requirement is load-bearing.',
+     'requirement-driven adjudication']
+  ],
+  grading:'Can you hold two competing principles and adjudicate with a requirement, and do you know the override-vs-base behavior cold?',
+  move:'"The comment is lying; the base class is the truth" — citing the US <span class="anchor">verifyHeader</span> override against the inherited strict base. The difference between reading the README and reading the code.' },
+
+{ id:'t7', title:'TRANSCRIPT 7 — The Ownership Closer', sys:'AUDIT',
+  turns:[
+    ['What about this system keeps you up at night?',
+     'The audit producer\'s silent-drop path. The producer service uses an <i>unbounded</i> <span class="anchor">newCachedThreadPool</span>, and the capture library uses an @Async pool whose rejection policy is the <b>default — AbortPolicy, never overridden</b> in AuditLogAsyncConfig. Send failures are only logged. So under a real burst the unbounded pool can grow threads until it OOMs, <i>and</i> the bounded capture pool — core 6, max 10, queue 100 — silently rejects once saturated. Either way we\'d discover it from a gap in the data, not an alert.',
+     'ExecutorPoolService.java:10 (newCachedThreadPool) · AuditLogAsyncConfig.java:19-24 (no setRejectedExecutionHandler) · KafkaProducerService.java:48-51 (log-only)'],
+    ['You knew that. Why isn\'t it fixed?',
+     'Honestly, because it\'s never failed in prod, so it stayed below the line against feature work — classic "works until it doesn\'t." That\'s exactly the kind of latent risk I\'d rather retire proactively than post-incident. Bounding the producer pool, adding an explicit RejectedExecutionHandler + dropped-audit metric on the capture pool, and observing the send future is roughly a half-day change that eliminates a whole class of failure — silent data loss plus OOM.',
+     'half-day change · [NOT IN REPO — proposed]'],
+    ['If it\'s a half-day fix for a serious risk and you know exactly what to do, the fact that it\'s not done is a prioritization failure. Whose?',
+     '<b>Partly mine.</b> Knowing a cheap fix for a real risk and not making the case loudly enough is on me, not "the backlog." The senior move isn\'t spotting the gap — it\'s quantifying the blast radius (silent compliance-data loss + an OOM that takes the pod down) so the team can make an informed call, and writing the one-day fix as a <b>ready-to-merge PR</b> so "no time" stops being a valid reason. I\'d own driving it.',
+     'PR touches ExecutorPoolService.java:10 (bound) · AuditLogAsyncConfig.java:24 (RejectedExecutionHandler + metric) · KafkaProducerService.java:47 (observe future)']
+  ],
+  grading:'Do you take responsibility and turn "I know a gap" into "I drive the fix," or blame the backlog?',
+  move:'Naming <i>both</i> failure modes — unbounded pool OOM <i>and</i> default-AbortPolicy drop on the bounded pool — with the precise "never overridden" caveat so you don\'t imply AbortPolicy was a deliberate choice.' },
+
+{ id:'t8', title:'TRANSCRIPT 8 — Sniper Round (Rapid Fire)', sys:'BOTH',
+  note:'No chains — single shots that instantly reveal depth. The bar is <b>answer in one breath, with the mechanism.</b>',
+  turns:[
+    ['Your @Async bean — JDK proxy or CGLIB, and how would I tell?',
+     'CGLIB by default in Spring Boot (proxyTargetClass=true). Check bean.getClass().getName() — you\'ll see <span class="anchor">$$SpringCGLIB$$</span> (older: $$EnhancerBySpringCGLIB$$).', ''],
+    ['Mark the @Async method final. What happens?',
+     'CGLIB can\'t override a final method, so the advice doesn\'t apply — it runs <b>synchronously, silently, no error</b>. Worst kind of bug.',
+     'target = AuditLogService.sendAuditLogRequest, advised by @EnableAsync in AuditLogAsyncConfig.java:14'],
+    ['Call your @Async method from another method in the <i>same</i> class. Async?',
+     'No — self-invocation goes through <span class="anchor">this</span>, not the proxy, so the advice is bypassed. Runs on the caller thread.', ''],
+    ['Where does the JDBC connection live during a @Transactional method?',
+     'Bound to the thread via <span class="anchor">TransactionSynchronizationManager</span> — a ThreadLocal. That\'s exactly why a transaction doesn\'t follow an @Async thread hop.', ''],
+    ['ThreadPoolTaskExecutor core 6, max 10, queue 100 — when does it create thread #7?',
+     'Only after the queue (100) is full. Order is <b>core → queue → max → reject</b>. Most people say core → max → queue, which is wrong. So with our config, threads 7–10 only appear once 100 tasks are queued; task 111 hits AbortPolicy.',
+     'AuditLogAsyncConfig.java:20-22'],
+    ['Your filter is OncePerRequestFilter. When would a plain Filter run twice?',
+     'On internal forward/include dispatches and async dispatches, the request re-enters the chain. The base class uses a request-attribute flag to dedupe, so we don\'t double-record the audit.',
+     'LoggingFilter.java:37'],
+    ['Why a Filter and not a HandlerInterceptor for body capture?',
+     'Only a Filter sees the raw servlet request early enough to wrap it in <span class="anchor">ContentCachingRequestWrapper</span>. The body stream is read-once; a HandlerInterceptor runs after the body\'s already consumed.',
+     'LoggingFilter.java:83-86 wraps before filterChain.doFilter'],
+    ['Avro value, String key — why isn\'t the key Avro too?',
+     'The key is a routing/partitioning token — <span class="anchor">serviceName + "/" + endpoint</span> for audit. It needs determinism, not schema evolution. Avro on the key adds Schema Registry overhead for zero benefit.',
+     'audit key via AuditKafkaPayloadKey.getKafkaKey, String on KafkaHeaders.KEY KafkaProducerService.java:89'],
+    ['enable.idempotence=true — what does the broker do differently?',
+     'The producer gets a PID and per-partition sequence numbers; the broker rejects duplicates and out-of-order sequences, dedups retries and pins order, and caps in-flight at 5. We have it <b>off</b> in NRTI, which is why we\'re at-least-once.',
+     'NrtKafkaProducerConfig.java:121 (false in nrtKafkaConfig.json)'],
+    ['acks=all — all of <i>what</i>?',
+     'All <b>in-sync replicas</b> (min.insync.replicas), not all replicas. If the ISR shrinks below min.insync, the producer gets an error instead of a false ack. NRTI sets acks=all; the audit producer never sets acks, so it\'s at the client default <b>acks=1</b>.',
+     'NRTI acks=all NrtKafkaProducerConfig.java:116; audit sets none KafkaProducerConfig.java:85-119']
+  ],
+  grading:'Speed and precision — can you produce the mechanism in one sentence without hedging?',
+  move:'On the final-@Async and self-invocation questions: saying "silently, no error" / "bypasses the proxy" instantly. Those separate "used the annotation" from "understands the proxy."' },
+
+{ id:'t9', title:'TRANSCRIPT 9 — The DSC/IAC Asymmetry (own the smell)', sys:'NRTI',
+  turns:[
+    ['Same producer service, two paths. IAC fails hard on total failure but DSC returns 201 on total failure. Show me where, and tell me if that\'s intentional.',
+     'It\'s real and asymmetric, and I\'ll own it as a smell. The IAC publish is <i>blocking</i>: publishIacKafkaMessage builds <span class="anchor">.thenAccept(...).exceptionally(...).join()</span>, and the secondary-failure path inside handleFailure rethrows <span class="anchor">CompletionException(NrtiUnavailableException)</span>, which the outer catch converts to NrtiUnavailableException → <b>HTTP 500</b> (annotated INTERNAL_SERVER_ERROR — so the literal failure status is <b>500, not 503</b>). The DSC publish has <b>no .join()</b> — it fires .thenAccept(...).exceptionally(...) and returns immediately, and handleDscEvent wraps it in a try/catch that only logs. So DSC returns <b>201 Created regardless</b>, even if both regions are down.',
+     'IAC: NrtKafkaProducerServiceImpl.java:89 (.join), :90-92 (catch), :173 (throw CompletionException) · NrtiUnavailableException.java:14 · DSC: :113-126 (no join), swallowed NrtiStoreServiceImpl.java:784-788, 201 at NrtiStoreControllerV1.java:451/483'],
+    ['Hold on — your IAC controller says @ResponseStatus(HttpStatus.OK), not 201. Which is it?',
+     'Good catch, another resume-vs-code gap I\'ll correct. The IAC controller actually returns <b>200 OK</b> (@ResponseStatus(HttpStatus.OK)); the 201 is only in the Swagger @ApiResponse annotation, which is documentation, not runtime status. The <i>failure</i> status is <b>500</b> via NrtiUnavailableException — not 503, though I\'d argue it <i>should</i> be 503 + Retry-After. DSC genuinely returns 201. So precisely: IAC = 200 success / 500 on failure (blocking), DSC = 201 success / still 201 on failure (fire-and-forget).',
+     'IacControllerV1.java:121 (Swagger 201) vs :123 (@ResponseStatus OK) · failure NrtiUnavailableException.java:14'],
+    ['So a freight notification can be lost and the caller is told "Created." Defend or fix.',
+     'I won\'t fully defend it — it\'s a contract bug. The weak defense: IAC is an inventory mutation where a silent loss corrupts on-hand counts, so it\'s correctly blocking-with-failover, whereas DSC is a best-effort freight notification where we chose availability over delivery confirmation. But "201 on total failure" misrepresents the contract. The fix: make DSC\'s semantics <i>explicit</i> — either also .join() and surface failure, or — better for an async notification — return <b>202 Accepted</b> backed by a DLQ + retry, so the status honestly means "queued, not confirmed delivered." Right now the 201 is writing a check the system doesn\'t cash.',
+     '202 + DLQ makes the contract honest'],
+  ],
+  grading:'Will you own a genuine design smell in your own code, and do you know the <i>actual</i> status codes (200 success / 500 on failure vs 201) rather than the Swagger annotations?',
+  move:'"The 201 is writing a check the system doesn\'t cash" — naming the missing .join() on the DSC future as the root cause, then proposing 202+DLQ to make the contract honest.' },
+
+{ id:'t10', title:'TRANSCRIPT 10 — The Ops / Sizing Takedown', sys:'AUDIT',
+  note:'The round that catches people who <i>coded</i> the producer but never thought about the <i>topic</i>. Every topic property lives in <b>KaaS</b>, not the repo. The senior answer is a formula, never an invented number.',
+  turns:[
+    ['How many partitions does api_logs_audit_prod have?',
+     'I have to be honest about the boundary first: partition count is <b>not in either repo</b>. Partitions, replication factor, min.insync.replicas, and retention are provisioned through Walmart Kafka-as-a-Service, external to the service code — my repos only set producer-client tuning, the topic name, and broker URLs. So I won\'t invent a number. What I <i>can</i> give you is the value I\'d request and the formula: <span class="anchor">partitions = max(ceil(target_peak_eps / per_partition_ceiling), desired_consumer_parallelism)</span>. Audit runs ~23 eps average, low hundreds at peak, sub-KB Avro — throughput needs one partition. So the binding constraint is consumer parallelism: I\'d request <b>6</b>, because a group can\'t exceed partition count and I want room to raise tasks.max later without a repartition that would reshuffle a keyed topic and break ordering.',
+     'I quote file:line for code; for KaaS topic properties I quote the formula, not a number'],
+    ['Replication factor and min.insync.replicas?',
+     'Also KaaS topic properties, not in repo. But the broker DNS gives a strong inference: each region\'s broker list has <b>3 hostnames</b>, so the cluster is 3 brokers and RF is almost certainly 3. I\'d request <b>RF=3, min.insync.replicas=2</b> — survives one broker loss with quorum. The nuance: for NRTI that pairing matters because the producer explicitly sets acks=all, so min.insync=2 makes "acknowledged" mean "on two replicas." For the <b>audit</b> producer it\'s currently moot — that producer never sets acks, so it runs at the client default <b>acks=1</b>. That acks=1 is the #1 gap I\'d fix on the audit side.',
+     '3 broker hostnames per region in nrtKafkaConfig.json; NRTI acks=all :116; audit sets none KafkaProducerConfig.java:85-119'],
+    ['Retention? And don\'t tell me "seven days" without justifying it.',
+     'KaaS topic config, not in repo. I\'d request <b>3–7 days</b>, reasoning that Kafka is a <i>transient buffer</i> here, not the source of truth — the source of truth is GCS Parquet plus BigQuery, and the sink lands data within ~10 minutes by flush.interval=600. Seven days lets me replay a full week if a sink connector breaks. The disk math: ~230 eps peak × ~2KB × 86400s × 7 days × RF3 ≈ <b>0.8 TB</b> cluster-wide — trivial. For NRTI I\'d size retention to the worst plausible downstream outage window plus replay margin.',
+     'env_properties.yaml:183 (flush.interval=600); retention is KaaS, quoted as a formula'],
+    ['How many consumers on the audit topic, and what\'s the read pattern?',
+     'Three — and this is in my repo so I\'ll be exact. The sink is Kafka Connect with <b>three connector instances</b>, each tasks.max=1, each effectively its own consumer group: US (catch-all), CA (strict), MX (strict). So the topic is read <b>three times</b> — 3x read amplification, deliberate, for per-country isolation and three separate GCS buckets. The consumer is throttled with <span class="anchor">consumer.max.poll.records=50</span>, and the sink runs <span class="anchor">errors.tolerance=all</span> with a DLQ and a GCS-write retry policy of max.retries=5.',
+     'kc_config.yaml:63/81/99 (3 connectors, tasks.max:1), :49 (poll.records 50), :69-72 (errors.tolerance all, RETRY, max.retries 5)'],
+    ['Your prod HPA. Numbers.',
+     'NRTI prod is <b>min 6 / max 12 at 60% CPU</b> — and I\'ll correct a sloppy number: a min4/max8 profile exists but that\'s the <i>stage</i> tier, not prod. Audit-srv prod HPA is min 4 / max 8 at 60% CPU. Both scale on CPU, which is fine for the audit producer but slightly wrong for IAC, where the real pressure under a slow primary is <i>thread-pool occupancy</i>, not CPU — so CPU-based scaling would lag the actual failure mode (the Transcript 4 problem).',
+     'NRTI prod HPA kitt.yml:485-487 (min6/max12/cpu60) and :593-594; stage tier :157-159 (min4/max8)']
+  ],
+  grading:'Do you know the boundary between service config and platform-provisioned topic config, and can you defend a sized value with a formula?',
+  move:'"I won\'t invent a number — here\'s the formula and the value I\'d request" plus correcting the min6/max12-is-prod vs min4/max8-is-stage mix-up before being caught.' },
+
+{ id:'t11', title:'TRANSCRIPT 11 — System-Design Whiteboard', sys:'AUDIT',
+  note:'"Design a system that records every API call across our supplier platform — millions a day — for self-serve debugging, with per-country residency." Answer it as the person who shipped it once.',
+  turns:[
+    ['Before you draw anything — what\'s the one question you ask me?',
+     'Is this the compliance <b>system of record</b>, or a debugging <b>convenience</b> feed? Because the answer flips the entire durability design. System of record → synchronous durable capture, WAL or outbox, and I accept latency. Convenience → async fire-and-forget, and latency is the thing I protect. I\'ll assume convenience, which is what unlocks everything else.',
+     'the SoR-vs-convenience pivot drives durability'],
+    ['Convenience. Go. Estimate first.',
+     'Say 5M events/day ≈ 58 eps average, bursty so I design for ~10x peak ≈ 600 eps. Request+response ≈ 5KB. Raw ≈ 25 GB/day; columnar Parquet ~5x ≈ 5 GB/day at rest; 90-day retention ≈ 450 GB. The insight I\'d voice immediately: <b>storage is not the hard part</b> — object storage laughs at 5 GB/day. The hard constraints are (a) not slowing the customer\'s API and (b) routing by residency cleanly.',
+     'estimate to find the real constraint, not storage'],
+    ['Draw the tiers.',
+     'Three tiers. <b>Capture:</b> a servlet filter in a shared library, buffering body via ContentCaching wrappers, building the payload on the request thread, then @Async-POSTing to a central service — customer response returns at the submit. <b>Transport:</b> the central service publishes one Avro LogEvent to a single immutable Kafka topic, keyed <span class="anchor">serviceName/endpoint</span> so each API\'s trail is ordered. <b>Sink:</b> Kafka Connect with a per-country Filter SMT on a wm-site-id header, writing Parquet to per-country GCS buckets, with BigQuery external tables on top.',
+     'real topology: audit-api-logs-srv + audit-api-logs-gcs-sink; key KafkaProducerService.java:89; KCQL STOREAS PARQUET PARTITIONBY env_properties.yaml:157-158'],
+    ['Where\'s the bottleneck, and where would this fall over in prod?',
+     'Two places I\'ve actually hit. One: the capture pool. If unbounded it OOMs under burst; if bounded with default AbortPolicy it silently drops — so I\'d bound it <i>and</i> emit a drop metric, never silent. Two: residency is only as strong as the header. If a producer omits wm-site-id, a catch-all filter sends it to the US bucket — a leak. So for a <i>real</i> residency requirement I\'d derive country server-side from the authenticated identity, or route to per-country topics at produce time.',
+     'unbounded ExecutorPoolService.java:10; AbortPolicy AuditLogAsyncConfig.java:19-24; catch-all AuditLogSinkUSFilter.java:42-49'],
+    ['Freshness SLA?',
+     'Minutes, not seconds, and that\'s a deliberate batching trade. The sink flushes on size/count/interval — <span class="anchor">flush.interval=600</span> — so the data is queryable in BigQuery within ~10 minutes. That\'s fine for debugging. The capture overhead on the audited call is single-digit ms; those are two different numbers and I keep them separate.',
+     'env_properties.yaml:181-183'],
+    ['Scale it 100x. What breaks first?',
+     'Read amplification. At 100x the three-connector design (each reading the full topic) is 3x egress I no longer want to pay. I\'d collapse to one connector branching to per-bucket sinks, raise partitions for consumer parallelism (sizing by the max(throughput, parallelism) formula), and consider compaction/tiered storage if any consumer needs longer replay. The capture and produce tiers scale horizontally as-is.',
+     'collapse to one branching connector at ~100x']
+  ],
+  grading:'Do you drive requirements (SoR vs convenience), estimate to find the <i>real</i> constraint, and know where your own design breaks?',
+  move:'Opening with the SoR-vs-convenience question and immediately declaring "storage is not the hard part" — that reframes the whole problem and signals you\'ve shipped it.' },
+
+{ id:'t12', title:'TRANSCRIPT 12 — Behavioral: A Hard Tradeoff / Disagreement', sys:'NRTI',
+  note:'Grounded in real code, not a story. The interviewer wants: a <i>concrete</i> tradeoff, your <i>actual</i> position, and how you handled disagreement without steamrolling or caving.',
+  turns:[
+    ['Tell me about a hard technical tradeoff you made or disagreed with.',
+     'The DSC publish path returning <b>201 Created on total Kafka failure</b> while the IAC path blocks and returns 500. Same producer service, opposite contracts. I argued the asymmetry was a latent correctness bug — DSC tells the caller "Created" even when both regions are down, because the DSC future is never .join()\'d and the service-layer call swallows the exception. The counter-position was that DSC is an intentionally best-effort freight notification, so availability over delivery-confirmation was the <i>deliberate</i> choice, and blocking it like IAC would couple a low-criticality path to Kafka latency.',
+     'DSC fire-and-forget NrtKafkaProducerServiceImpl.java:113-126, swallowed NrtiStoreServiceImpl.java:784-788, 201 NrtiStoreControllerV1.java:451/483; IAC → 500 :89/:173 + NrtiUnavailableException.java:14'],
+    ['So who was right?',
+     'Both, partially — which is why it was worth slowing down. They were right that DSC <i>should</i> be async and shouldn\'t block on Kafka like IAC. I was right that returning <b>201</b> is a misrepresentation — "Created" should mean the record exists. The disagreement wasn\'t actually about blocking-vs-async; it was about what the <b>status code promises</b>. Once we framed it that way, the resolution was obvious: keep DSC async, but change the contract to <b>202 Accepted</b> backed by a DLQ and retry, so the status honestly means "queued, not yet confirmed." Nobody had to lose the "best-effort" position; we just stopped lying in the response code.',
+     'reframe blocking-vs-async into what-the-status-code-promises'],
+    ['How did you actually drive that, given it wasn\'t your call alone?',
+     'I didn\'t win it by arguing louder. I wrote it up as a small contract document — current behavior with the exact line numbers, the failure scenario (both regions down → caller told 201), and the 202+DLQ proposal as a ready-to-review change — and let the line numbers do the persuading. That\'s the same pattern I\'d apply to the audit producer\'s silent-drop risk: quantify the blast radius, propose the cheap fix as a near-mergeable PR, and make "no time" the only remaining objection. Disagreement resolves fastest when you turn it from opinion-vs-opinion into code-vs-contract.',
+     'code-vs-contract beats opinion-vs-opinion']
+  ],
+  grading:'Is the tradeoff <i>concrete and yours</i>, do you steel-man the other side, and do you resolve disagreement with evidence rather than volume?',
+  move:'Reframing "blocking vs async" into "what does the status code promise" — that dissolves the false dichotomy and lets both positions win.' }
+];
+</script>
+
+<!-- ===================== DATA: SYSTEM DESIGN (docs 20 + 07) ===================== -->
+<script>
+// 11 design steps + a BigQuery schema code block + an alternatives table.
+// Each step: n, title, body (HTML), optional diagram (mermaid).
+const DESIGN_INTRO = '<b>The prompt:</b> "Design a system that records every API call across our supplier platform — millions a day — so suppliers can self-serve debug their requests, with per-country data residency." This is the round where the system I shipped at Walmart Data Ventures (Luminate Channel Performance) <i>is</i> the textbook answer. Drive requirements → estimate → high-level → deep dives → delivery semantics → 10x/100x → alternatives → wrap.';
+
+const DESIGN = [
+{ n:'0', title:'Canonical numbers + provenance (set the honest tone up front)',
+  body:`Before designing anything, pin the numbers and <b>where each comes from</b> — half the senior signal here is knowing which numbers are in my code, which are derived, and which are platform-provisioned.
+  <div class="overflow-x-auto mt-4"><table class="w-full text-sm border-collapse">
+    <thead><tr class="text-left border-b-2 border-wmblue-100/30">
+      <th class="py-2 pr-4 font-bold">Figure</th><th class="py-2 pr-4 font-bold">Value</th><th class="py-2 font-bold">Provenance / honesty</th></tr></thead>
+    <tbody class="align-top">
+      <tr class="border-b border-gray-50/60 dark:border-white/10"><td class="py-2 pr-4">Volume</td><td class="py-2 pr-4"><b>~2M+ events/day ≈ 23 eps avg</b>, peak ~100–230 eps</td><td class="py-2">Derived from fleet request volume. NOT a metered counter.</td></tr>
+      <tr class="border-b border-gray-50/60 dark:border-white/10"><td class="py-2 pr-4">Event size</td><td class="py-2 pr-4">Avro ~500B–2KB</td><td class="py-2">Estimate. At 500B: 23 × 500 ≈ 11.5 KB/s avg.</td></tr>
+      <tr class="border-b border-gray-50/60 dark:border-white/10"><td class="py-2 pr-4">Kafka retention</td><td class="py-2 pr-4">transient buffer, request 3–7 days</td><td class="py-2">Kafka is NOT the store of record — GCS Parquet + BigQuery is.</td></tr>
+      <tr class="border-b border-gray-50/60 dark:border-white/10"><td class="py-2 pr-4">Partitions / RF / min.insync / retention</td><td class="py-2 pr-4"><b>NOT in my repo</b></td><td class="py-2"><b>KaaS-provisioned.</b> Defend with a formula + the value I requested. RF almost certainly 3 (3 broker hostnames/region), framed as a sized request.</td></tr>
+      <tr><td class="py-2 pr-4">"<5ms P99"</td><td class="py-2 pr-4"><b>overhead</b> added to the audited API</td><td class="py-2">NOT freshness. Freshness is minutes, driven by <span class="anchor">flush.interval=600s</span>. Never conflate the two.</td></tr>
+    </tbody></table></div>` },
+
+{ n:'1', title:'Drive the requirements (don\'t wait to be told)',
+  body:`<b>Functional:</b> capture every API call (caller, endpoint, request/response body, status, latency, error — the 19-field <span class="anchor">log.avsc</span> contract); suppliers query their own calls via SQL, no human in the loop; per-country residency US/CA/MX in separate GCS buckets/BigQuery datasets; replace Splunk.<br><br>
+  <b>Non-functional:</b> negligible <i>added overhead</i> on audited APIs (single-digit ms, not freshness); high throughput, bursty (~10x business-hours peak); freshness in minutes is fine → unlocks batching; cost must beat Splunk per-GB indexing.<br><br>
+  <b>The senior move — the SoR pivot:</b> I explicitly ask <i>"is this the legal/compliance system of record, or a debugging convenience?"</i> The answer flips durability. <b>Convenience</b> → async fire-and-forget, acks=1-class produce, minutes-fresh — what we built. <b>SoR</b> → synchronous durable capture: transactional outbox + acks=all + min.insync.replicas=2 + enable.idempotence=true. I designed for convenience because the durable store of record is GCS/BigQuery downstream and Kafka is just replayable transport.` },
+
+{ n:'2', title:'Back-of-envelope estimation (grounded, not invented)',
+  body:`<b>Volume:</b> ~2M/day ÷ 86,400 = ~23 eps avg; design for 5–10x peak ⇒ ~100–230 eps.<br>
+  <b>Bytes/sec:</b> at 500B, 23 × 500 ≈ 11.5 KB/s avg — <i>nothing</i>; one partition handles MB/s to tens of MB/s.<br>
+  <b>Kafka disk:</b> <span class="anchor">eps × avg_size × retention_sec × RF</span> = 23 × 500 × 259,200 × 3 ≈ 8.6 GB at 3-day RF3 — trivial. Kafka is a 3–7 day replay buffer, not cold storage.<br>
+  <b>GCS object math (the number that matters):</b> the sink flushes a Parquet object on the first of <span class="anchor">flush.size=50MB</span> / <span class="anchor">flush.count=5000</span> / <span class="anchor">flush.interval=600s</span>. At this volume no country/region hits 50MB or 5000 records in 10 min ⇒ the <b>600s timer dominates</b> ⇒ 86,400/600 = 144 objects/day/country/region, ~864/day total — caps object count, keeps files MB-sized, dodges the small-file problem.<br>
+  <b>BigQuery scan:</b> Parquet (columnar) + <span class="anchor">PARTITIONBY service_name,_header.date,endpoint_name</span> ⇒ a date+service-scoped query partition-prunes to a single prefix — scans MBs, not the table. That's the lever vs Splunk's per-GB index cost.<br><br>
+  <b>The insight to voice:</b> "The hard constraint isn't volume — storage and one partition both laugh at 11 KB/s. The two things I optimize for are (a) not slowing the customer's API, and (b) routing by residency cleanly without making the producer geo-aware."` },
+
+{ n:'3', title:'High-level architecture (three tiers)',
+  diagram:`flowchart LR
+    subgraph App["Audited service (e.g. cp-nrti-apis)"]
+      FILT["Tier 1 Capture: LoggingFilter (OncePerRequestFilter)<br/>ContentCaching + @Async pool 6/10/100"]
+    end
+    FILT -->|signed POST off-thread| PROD["Tier 2 Produce: audit-api-logs-srv<br/>saveApiLog returns 204, then publishes (unbounded pool)"]
+    PROD -->|Avro + Schema Registry<br/>key=serviceName/endpoint<br/>header=wm-site-id| TOPIC[("Kafka topic api_logs_audit_prod<br/>RF requested 3 (KaaS)")]
+    TOPIC --> SINK["Tier 3 Sink: Kafka Connect (NOT Spring)<br/>Lenses GCPStorageSinkConnector x3, tasks.max=1 each"]
+    SINK --> USB[("GCS audit-api-logs-us-prod")]
+    SINK --> CAB[("GCS audit-api-logs-ca-prod")]
+    SINK --> MXB[("GCS audit-api-logs-mx-prod")]
+    USB --> BQ["BigQuery external tables<br/>partition-pruned by service/date/endpoint"]
+    CAB --> BQ
+    MXB --> BQ
+    BQ --> SUP["Supplier self-service SQL"]`,
+  body:`<b>1. Capture (in-process, async)</b> — adds ~zero latency, runs off-thread on an @Async pool; a shared library so every team gets it as config, not code. <b>2. Transport (Kafka)</b> — decouples capture from storage, absorbs the 10x burst with retention as a buffer, replayable. <b>3. Sink + Serve (Connect → GCS Parquet → BigQuery)</b> — cheap columnar storage + SQL self-service; Connect means no consumer code (declarative KCQL gets batching, Parquet, offsets, retry, DLQ for free).` },
+
+{ n:'4', title:'Deep dive — the capture path (latency-critical)',
+  diagram:`sequenceDiagram
+    participant T as Tomcat request thread
+    participant W as ContentCaching wrappers
+    participant Pool as @Async pool (6/10/100, AbortPolicy)
+    participant Prod as audit-api-logs-srv
+    T->>W: wrap request + response
+    T->>T: filterChain.doFilter (controller runs)
+    T->>T: build payload (read bodies + headers + MDC HERE)
+    T->>Pool: executor.submit(task)
+    T-->>T: copyBodyToResponse + return to client (DONE)
+    Pool->>Prod: sign 4 WM_SEC headers + WebClient POST (off-thread)
+    Note over Prod: returns 204, then its own newCachedThreadPool fires the Kafka send`,
+  body:`<b>Why a servlet Filter, not an interceptor?</b> Only a filter (<span class="anchor">@Order(LOWEST_PRECEDENCE)</span>) wraps the raw request early enough to make the read-once body re-readable via ContentCaching wrappers; it must call <span class="anchor">copyBodyToResponse()</span> or the client gets an empty body.<br>
+  <b>Why build the payload on the request thread?</b> ThreadLocals — request attributes, MDC trace IDs, the servlet request — don't survive the @Async hop, and the request is recycled after commit. Read everything thread-bound <i>first</i>, then hand a plain immutable payload across.<br>
+  <b>Why a bounded pool (6/10/100, AbortPolicy)?</b> The off-thread hop is the latency win; bounded so a burst can't grow threads unboundedly. Little's Law: L = 23 × 0.03 ≈ 0.7 threads avg, ~7 at 10x peak — core6/max10 covers it. <b>AbortPolicy is correct here</b>: queue fills → drop the audit event, protect the business request. (Contrast: Tier 2's <span class="anchor">newCachedThreadPool</span> is unbounded — the wrong pattern.)<br>
+  <b>Why opt-in per endpoint?</b> Keeps audit off large-body endpoints where ContentCaching buffering (memory ∝ body × concurrency) is expensive; teams flip it on with no redeploy.` },
+
+{ n:'5', title:'Deep dive — transport & serialization (Kafka + Avro) + the CCM trap',
+  body:`<b>Why Kafka:</b> decouples producer from consumer speed, absorbs the 10x peak, replayable, multiple independent consumers off one immutable stream.<br>
+  <b>Why Avro + Schema Registry (not JSON):</b> compact binary (5-byte magic + schema-id, no field names on the wire); <span class="anchor">auto.register.schemas=false</span> means a drifting producer cannot silently fork the contract — schema changes go through governed BACKWARD-compatible promotion; client caches schema-ids in-process. <i>Caveat:</i> Schema Registry is a shared SPOF on both ends.<br>
+  <b>Partition key:</b> <span class="anchor">serviceName + "/" + endpoint</span> → per-(service,endpoint) ordering, mirrors the sink's KCQL PARTITIONBY. <i>Hot-partition caveat:</i> adding partitions does NOT fix a concentrating key — salt the dominant service. <i>Ordering caveat:</i> with retries>0, idempotence=false, max.in.flight=5, a retried earlier batch can land after a later one — turning on idempotence preserves ordering.<br><br>
+  <b>The CCM trap (the most code-specific honesty point):</b> the NON-PROD CCM yml <i>declares</i> acks=all, retries=10, lz4, linger.ms=20, batch.size=8192, request.timeout.ms=300000, max.request.size=10MB — <b>but</b> the <span class="anchor">AuditLogsKafkaCCMConfig @ManagedConfiguration</span> interface only exposes brokerUrls/topic/schemaUrl/sslEnabled, so those tuning keys are <b>never read and do not take effect</b>. PROD CCM doesn't even declare them. Effective config = Kafka client defaults: <b>acks=1, default retries, idempotence off</b>. Honest framing: "those numbers are intended tuning captured in CCM that still needs wiring into the producer factory — a two-line fix and the single highest-value reliability change."<br><br>
+  <b>Residency rides a header, not the key:</b> the producer copies <span class="anchor">wm-site-id</span> into a Kafka header (whitelist alongside wm_consumer.id, wm_svc.*, wm_qos.correlation_id). Encoding country in the key would give only 3 hot partitions.` },
+
+{ n:'5.5', title:'Deep dive — platform & security model (KaaS / KCaaS + mTLS at Istio)',
+  body:`<b>KaaS:</b> brokers run by a platform team — we <i>request</i> a topic (name, partitions, RF, retention) and get broker URLs + secrets via CCM. <b>This is precisely why partitions/RF/min.insync/retention are not in my repo</b> — my config carries only the topic <i>name</i>. For headroom I'd request 6 partitions, RF=3, min.insync=2.<br>
+  <b>KCaaS:</b> the sink is a managed Kafka Connect worker cluster — I ship a plugin JAR (Lenses GCPStorageSinkConnector + my 3 SMT filter classes) and a kc_config.yaml. <b>Not a Spring Boot app</b> (no main()).<br>
+  <b>Cluster + regions:</b> <span class="anchor">kafka-v2-luminate-core-{stg|prod}</span>, port 9093, two Azure regions EUS2 + SCUS, active/active.<br>
+  <b>mTLS at the Istio mesh:</b> the app and Connect speak <span class="anchor">security.protocol=PLAINTEXT</span> to their local Istio sidecar; the sidecar does SPIFFE-based auto-rotating mTLS to the brokers. The in-app JKS keystore branch is a fallback behind a CCM flag, off in prod. Mesh-level, not Kafka-client-level — I'm precise about that.` },
+
+{ n:'6', title:'Deep dive — the residency sink (the clever + risky bit)',
+  diagram:`flowchart TB
+    T[("One topic api_logs_audit_prod")] -->|consumer group US| FU["SMT: timestamp -> AuditLogSinkUSFilter (PERMISSIVE catch-all)"]
+    T -->|consumer group CA| FC["SMT: timestamp -> Base filter (CA strict)"]
+    T -->|consumer group MX| FM["SMT: timestamp -> Base filter (MX strict)"]
+    FU -->|Parquet flush 50MB/5000/600s| US[("audit-api-logs-us-prod")]
+    FC --> CA[("audit-api-logs-ca-prod")]
+    FM --> MX[("audit-api-logs-mx-prod")]`,
+  body:`<b>Topology:</b> Kafka Connect, Lenses <span class="anchor">GCPStorageSinkConnector</span>, 3 connector instances each tasks.max=1 ⇒ 3 consumers ⇒ topic read <b>3x (3x read amplification)</b> by design, for per-country isolation: US (permissive catch-all, also passes header-less via noneMatch), CA strict, MX strict.<br>
+  <b>SMT chain (order matters):</b> (1) <span class="anchor">InsertRollingRecordTimestampHeaders</span> (date.format yyyy-MM-dd, GMT) writes _header.date — runs FIRST; (2) <span class="anchor">AuditLogSink{US|CA|MX}Filter</span> — apply(r) = verifyHeader(wm-site-id) ? r : null. verifyHeader is fail-closed (any exception → drop, never stall the task).<br>
+  <b>KCQL + flush:</b> INSERT INTO &lt;bucket&gt; SELECT * FROM api_logs_audit_prod PARTITIONBY service_name,_header.date,endpoint_name STOREAS PARQUET PROPERTIES(flush.size=50000000, flush.count=5000, flush.interval=600, key.suffix=_eus2|_scus). The 600s timer dominates. Freshness = minutes by design.<br>
+  <b>Error handling — two non-overlapping mechanisms:</b> <span class="anchor">error.policy=RETRY</span> (max.retries=5, retry.interval=5000ms) handles transient SINK-side failures (GCS 5xx); <span class="anchor">errors.tolerance=all</span> + DLQ <span class="anchor">api_logs_audit_prod_DLQ</span> handles per-RECORD failures (Avro/SMT). All 3 connectors share ONE DLQ, per-country attribution via context headers. Alert on DLQ depth.<br>
+  <b>Why 3 connectors, not one branching?</b> Geo isolation + per-country operability (separate offsets, lag, RETRY, failure domains); the Lenses sink can't cleanly fan one record to 3 buckets in one task. Cost = 3x fetch ≈ ~70 reads/sec — negligible; revisit single-connector-with-routing only at ~100x.` },
+
+{ n:'6.5', title:'Deep dive — serving layer + the data model (with the dedup view)',
+  body:`<b>Storage:</b> GCS project <span class="anchor">wmt-dv-luminate-prod</span>, three buckets audit-api-logs-{us|ca|mx}-prod; BigQuery <b>external tables</b> over the Parquet prefixes — suppliers run SQL with no second copy and no human pulling logs.<br>
+  <b>Partition pruning:</b> PARTITIONBY service_name, _header.date, endpoint_name means a query filtered to one service/date/endpoint scans only that prefix. Trade vs native BQ: slightly slower scans, you own partition hygiene (hence large flush thresholds).<br>
+  <b>Dedup view (because the pipeline is at-least-once):</b> expose suppliers a deduped view, not the raw external table — see the schema/SQL below.<br>
+  <b>AuthZ gap to volunteer:</b> buckets isolate by <i>country, not by supplier</i> — supplier isolation must be enforced at the query layer (row-level scoping / per-supplier authorized views keyed on supplier_company/consumer_id).<br>
+  <b>The #1 upstream finding I volunteer:</b> Tier-1 capture copies <b>all</b> request headers — including WM_SEC.* and Authorization — <b>unmasked</b> (mask.enable=false) into the record's headers field. A real secret/PII leak. Top hardening item: mask sensitive headers at capture, before they leave the service.`,
+  code:`-- BigQuery external table over the Parquet prefixes, deduped for suppliers.
+-- The pipeline is AT-LEAST-ONCE (Connect commits offsets AFTER a successful
+-- GCS flush), so a crash mid-flush re-delivers a batch -> duplicate rows.
+-- Expose a deduped VIEW, never the raw external table.
+
+-- The 19-field log.avsc maps 1:1 to Parquet columns:
+--   source_request_id STRING, created_ts TIMESTAMP, consumer_id STRING,
+--   service_name STRING, endpoint_name STRING, http_method STRING,
+--   status_code INT64, latency_ms INT64, error_reason STRING,
+--   wm_site_id STRING, headers STRING, request_body STRING,
+--   response_body STRING, _header.date DATE  (partition column) ...
+
+CREATE OR REPLACE VIEW \`wmt-dv-luminate-prod.us_dv_audit_log_prod.api_logs_deduped\` AS
+SELECT * EXCEPT(rn) FROM (
+  SELECT *, ROW_NUMBER() OVER (
+    PARTITION BY source_request_id
+    ORDER BY created_ts
+  ) AS rn
+  FROM \`wmt-dv-luminate-prod.us_dv_audit_log_prod.api_logs\`
+  WHERE _header.date BETWEEN @from AND @to   -- partition-prune: scans MBs, not TBs
+) WHERE rn = 1;` },
+
+{ n:'7', title:'Delivery semantics & failure modes (where they\'ll push)',
+  diagram:`flowchart LR
+    C["Capture: fire-and-forget (AbortPolicy drops on burst)"] -->|best effort| P["Producer: effective acks=1 (CCM trap)"]
+    P -->|"durable ONLY with acks=all + min.insync>=2 (NOT current)"| K[("Topic, RF requested 3")]
+    K -->|at-least-once, commit-AFTER-flush| S["Connect sink"]
+    S --> G[("GCS Parquet")]
+    G --> BQ["BigQuery: dedup on source_request_id"]`,
+  body:`<b>End-to-end semantic, precisely:</b> <b>best-effort-once on produce today</b> (effective acks=1 → a leader failure between ack and replication loses the record), <b>at-least-once into GCS</b> (Connect commits offsets after a successful flush → a crash mid-flush re-delivers → duplicate Parquet rows), <b>deduped in BigQuery</b> on source_request_id. <b>NOT exactly-once.</b> 204 = "accepted into the in-process queue," not durability.<br><br>
+  <b>Weakest links (own them before they're found):</b><br>
+  • Tier-1 capture drops under burst (AbortPolicy) — correct trade, but add a dropped-audit metric.<br>
+  • Tier-2 producer is effective acks=1 (the CCM trap).<br>
+  • Tier-2 unbounded <span class="anchor">newCachedThreadPool</span> — the real stability liability: under a downstream slowdown, sends back up, threads spawn without limit → OOM. <b>Worst part: invisible to CPU-based HPA</b> because threads are blocked, not burning CPU. Fix: copy the Tier-1 bounded template.<br>
+  • The log-only try/catch wraps an <i>async</i> .send() — catches sync errors but not broker-side failures. Fix: whenComplete callback → metric + app DLQ.<br><br>
+  <b>Hardening list to convert to SoR:</b> (1) bound the Tier-2 pool + RejectedExecutionHandler + drop metric; (2) wire CCM tuning into the producer factory (acks=all + min.insync=2 + idempotence + bounded retries/delivery.timeout); (3) observe the send future; (4) mask WM_SEC.*/Authorization at capture; (5) hard residency = produce-time per-country topics or server-side identity; (6) true SoR = a transactional outbox.` },
+
+{ n:'7.5', title:'Active/active + failover (pre-empt "where\'s your failover?")',
+  body:`<b>Deployment:</b> active/active across EUS2 + SCUS. Broker lists are swapped per region via CCM configOverrides. Both regions' Connect workers write to the <b>same shared GCS buckets</b>, de-conflicted by KCQL <span class="anchor">key.suffix=_eus2|_scus</span> + separate index objects — distinct names, no collisions.<br>
+  <b>Honest finding on the audit producer:</b> KafkaProducerConfig builds <i>both</i> kafkaPrimaryTemplate and kafkaSecondaryTemplate and KafkaProducerService autowires both — but the send path <b>only ever calls primary</b>. The secondary template is <b>dead code</b>: there is <b>no in-service failover in audit-srv</b>. On a primary-region outage, EUS pods log-and-drop while the unbounded pool backs up.<br>
+  <b>Where the REAL failover lives:</b> <span class="anchor">cp-nrti-apis NrtKafkaProducerServiceImpl</span> — send() returns a CompletableFuture; .exceptionally() → handleFailure() re-sends to the other region's secondary template; .join() blocks until primary-or-secondary resolves; total failure throws NrtiUnavailableException. I attribute failover <i>there</i>, honestly; the audit-srv fix is "port that pattern — the secondary template is already wired, it just needs the fallback call on the send-future's failure callback."` },
+
+{ n:'8', title:'Scaling story — what breaks first at 10x / 100x',
+  body:`<b>Partition-count formula (KaaS, defended not invented):</b> <span class="anchor">partitions = max(ceil(target_peak_eps / per_partition_ceiling), desired_consumer_parallelism)</span>. Throughput needs ~1 partition. What drives the count: future consumer parallelism, broker spread for RF3, and headroom — repartitioning a <i>keyed</i> topic reshuffles key→partition and <b>breaks ordering</b>. So request <b>6</b> (room to raise tasks.max later, 2 leaders/broker on 3 brokers). Don't over-partition (more partitions = more open Parquet files = smaller objects).
+  <div class="overflow-x-auto mt-4"><table class="w-full text-sm border-collapse">
+    <thead><tr class="text-left border-b-2 border-wmblue-100/30">
+      <th class="py-2 pr-4 font-bold">Lever</th><th class="py-2 pr-4 font-bold">At 1x (today)</th><th class="py-2 pr-4 font-bold">At 10x</th><th class="py-2 font-bold">At 100x</th></tr></thead>
+    <tbody class="align-top">
+      <tr class="border-b border-gray-50/60 dark:border-white/10"><td class="py-2 pr-4">Capture pool</td><td class="py-2 pr-4">bounded 6/10/100</td><td class="py-2 pr-4">fine; ensure drop metric</td><td class="py-2">same; already correct</td></tr>
+      <tr class="border-b border-gray-50/60 dark:border-white/10"><td class="py-2 pr-4">Tier-2 pool</td><td class="py-2 pr-4"><b>unbounded (liability)</b></td><td class="py-2 pr-4"><b>first thing to fix</b> — OOM under burst</td><td class="py-2">bounded mandatory</td></tr>
+      <tr class="border-b border-gray-50/60 dark:border-white/10"><td class="py-2 pr-4">Producer durability</td><td class="py-2 pr-4">effective acks=1 (CCM trap)</td><td class="py-2 pr-4">wire acks=all + idempotence before scaling</td><td class="py-2">mandatory</td></tr>
+      <tr class="border-b border-gray-50/60 dark:border-white/10"><td class="py-2 pr-4">Topic partitions</td><td class="py-2 pr-4">request 6 (KaaS)</td><td class="py-2 pr-4">watch lag; raise partitions + tasks.max together (breaks ordering on repartition — over-provision up front)</td><td class="py-2">genuine throughput lever</td></tr>
+      <tr class="border-b border-gray-50/60 dark:border-white/10"><td class="py-2 pr-4">Sink fan-out</td><td class="py-2 pr-4">3 connectors (~70 reads/s)</td><td class="py-2 pr-4">still negligible</td><td class="py-2"><b>3x amplification now matters</b> → one demuxing connector or per-country topics</td></tr>
+      <tr><td class="py-2 pr-4">Serve</td><td class="py-2 pr-4">BigQuery external + deduped view</td><td class="py-2 pr-4">partition + cluster tables</td><td class="py-2">materialized rollups</td></tr>
+    </tbody></table></div>
+  <p class="mt-3"><b>What breaks <i>first</i> at 10x:</b> the Tier-2 unbounded pool (OOM), not Kafka. Do reliability + observability before raw scaling. <b>Kafka partition count is the LAST lever, not the first.</b></p>` }
+];
+
+// Alternatives table (STEP 9) — rendered separately under the steps.
+const DESIGN_ALTERNATIVES = [
+  ['Kafka backbone','Direct DB write / SQS / direct-to-GCS per service','Decoupling + burst absorption + replay + multi-consumer fan-out. Direct-to-GCS would put creds/retry/Parquet-batching in every service and couple a GCS hiccup into the request path.'],
+  ['Avro + Schema Registry','JSON / Protobuf','Compact + governed evolution (auto.register=false) at millions/day. JSON is 3–10x bigger, no enforced compat. Protobuf comparable but Avro is the Walmart streaming default + first-class in Connect\'s AvroConverter. Cost = SR is a shared SPOF.'],
+  ['Kafka Connect (Lenses) sink','Hand-written Spring @KafkaListener consumer','Connect gives offsets/rebalance/retry/DLQ/Parquet-batching for free; I own ~75 lines of SMT instead of a whole consumer service. Knowing what NOT to build is the senior move.'],
+  ['3 SMT connectors (sink-side geo)','Produce-time per-country topics / 1 branching connector','Simplicity + isolated per-country failure domains now. 3x read amplification ≈ 70 reads/s is negligible — revisit at ~100x. Flip to per-country topics for HARD residency enforcement.'],
+  ['Async fire-and-forget','Synchronous durable (transactional outbox)','The latency requirement. Would flip the instant this became a compliance system of record — outbox + acks=all + idempotence.'],
+  ['GCS Parquet + BigQuery','Splunk / Elasticsearch','Cost + self-service. Columnar Parquet + partition-pruned external tables beats per-GB log indexing; suppliers query in place. Splunk was expensive and not supplier-visible.'],
+  ['Connect SMT routing','Kafka Streams / ksqlDB','Routing is a stateless per-record header filter — exactly an SMT\'s job. Streams/ksqlDB would add a stateful app to deploy/monitor for zero benefit.'],
+  ['Active/active per-region clusters','MirrorMaker2 / Brooklin cross-region mirror','App-layer failover (cp-nrti .exceptionally→secondary) covers new writes; broker-layer mirroring is platform-managed and I don\'t claim it. MM2 would be the platform answer if needed.'],
+  ['Kafka + KaaS','GCP Pub/Sub','Tempting given the GCS/BigQuery sink, but the org standard is Kafka + KaaS/KCaaS + Schema Registry; Pub/Sub would fragment the platform and lose replay/ordering + the Connect ecosystem.']
+];
+
+const DESIGN_WRAP = `"It's a three-tier async pipeline. <b>Tier one</b> captures every call in a servlet LoggingFilter, builds the payload on the request thread — because ThreadLocals and the request object don't survive the async hop — then ships it off-thread on a <b>bounded</b> @Async pool with AbortPolicy, so the customer's request never pays for audit. <b>Tier two</b>, audit-api-logs-srv, returns 204 instantly, then publishes a compact Avro record keyed by service/endpoint with a wm-site-id header, on Kafka for decoupling, burst absorption, and replay; mTLS is terminated at the Istio mesh and topic-level settings are KaaS-provisioned, so I size partitions with a formula and request RF3. <b>Tier three</b> is Kafka Connect — Lenses GCS connectors, three of them, each with an SMT chain that stamps a GMT date then geo-filters on wm-site-id and writes Parquet to per-country buckets, with BigQuery external tables on top for supplier self-service — which is how we kill the Splunk bill.<br><br>
+The honest trade-offs: it's <b>best-effort-once on produce today</b> because the producer's tuning is declared in CCM but never read — so effective acks=1 — and <b>at-least-once into GCS, deduped in BigQuery on source_request_id</b>; it is <b>not</b> exactly-once. If this became a compliance system of record I'd wire acks=all + min.insync.replicas=2 + idempotence, bound the Tier-2 unbounded pool with a dropped-audit metric, observe the send future instead of a log-only catch, mask WM_SEC.*/Authorization at capture so secrets never reach the store, and move residency enforcement to produce-time topics or server-side identity rather than trusting a client header. I optimized for customer latency and cost, and I know exactly the handful of config lines and the outbox I'd add to buy durability the day the requirement changes."`;
+</script>
+
+<!-- ===================== DATA: MOCK DRILL (doc 15) ===================== -->
+<script>
+// 25 drill questions as click-to-reveal cards.
+// Each: id, q (front), trap (one-line), answer (HTML, the ladder/floor), followup, reflex (one-line), sys.
+const DRILL = [
+{ id:'d1', sys:'BOTH', q:'Q1. "You claim near-zero / zero data loss — show me the producer durability config."',
+  trap:'Answering "acks=all, zero loss" flat, as if one config covers both systems. There are TWO producers with OPPOSITE postures.',
+  answer:`<b>Audit:</b> sets <b>no</b> durability config — <span class="anchor">KafkaProducerConfig.populateConfigProperties()</span> puts only bootstrap, serializers, schema URL, auto.register=false. No acks key → client default <b>acks=1</b> exactly. A leader failure before replication loses that record.<br>
+  <b>The CCM nuance (say unprompted):</b> the NON-PROD yml declares acks=all/retries=10/lz4, but the @ManagedConfiguration interface only exposes brokerUrls/topic/schemaUrl/sslEnabled — those keys are <b>never read</b>, do not take effect. PROD doesn't even declare them.<br>
+  <b>NRTI:</b> <i>does</i> set acks=all, retries=10, but enable.idempotence=false → <b>at-least-once</b>, not exactly-once.<br>
+  <b>FLOOR:</b> "Zero data loss" is true only as <i>no loss of an acknowledged event</i>, only on NRTI, assuming min.insync=2 (a KaaS property). Audit is genuinely acks=1 today — my #1 reliability gap, a two-line fix.`,
+  followup:'"So which one would you fix first, and how many lines?" → Audit: expose the CCM props and put them in configProps. Two lines.',
+  reflex:'Name the two services separately; audit default is EXACTLY acks=1, and I have the file:line (KafkaProducerConfig:85-119).' },
+
+{ id:'d2', sys:'BOTH', q:'Q2. "Prove the end-to-end guarantee is not exactly-once — and walk me through a sequence where you lose ordering."',
+  trap:'Waving at "at-least-once" without producing the concrete reorder sequence or explaining why EOS is structurally impossible.',
+  answer:`<b>L1:</b> Can't be exactly-once. NRTI has enable.idempotence=false; the audit sink commits offsets <i>after</i> GCS delivery → a crash mid-flush re-delivers a batch → duplicate Parquet rows. Both at-least-once.<br>
+  <b>The reorder sequence (say it as a sequence):</b> with idempotence=false, retries=10, default max.in.flight=5: batch 1 fails and is retried while batch 2 (sent after) succeeds first → batch 2 sits <i>before</i> batch 1; then batch 1's retry lands. enable.idempotence=true would pin order with a PID + per-partition sequence numbers at no throughput cost.<br>
+  <b>Dedup contract:</b> consumer-side on a stable <span class="anchor">messageId</span> — which is client-supplied, so colliding IDs make a consumer drop a legit event. Namespace by supplierId+messageId, or mint server-side.<br>
+  <b>FLOOR (why EOS is impossible here):</b> Kafka EOS is <b>per-cluster</b>. Active/active writes to two independent clusters; a transaction can't span them. So at-least-once + idempotent consumers is the only achievable pattern under dual-write.`,
+  followup:'"What\'s the alternative to dual-write?" → MirrorMaker2 with offset translation — trades my sub-second failover for platform-managed replication.',
+  reflex:'EOS is per-cluster; dual-write makes it structurally impossible. I can produce the reorder sequence on demand.' },
+
+{ id:'d3', sys:'AUDIT', q:'Q3. "Walk me through the audit pipeline. … You said 204 immediately — what\'s the last thing that runs on the customer\'s thread?"',
+  trap:'Describing the happy path and missing that the customer is told "success" before the record is durable.',
+  answer:`<b>L1:</b> Filter captures body → @Async POST → controller returns <b>204</b> → Avro serialize → produce → 3 Connect connectors filter by country → Parquet on GCS → BigQuery.<br>
+  <b>Thread granularity:</b> the 204 is returned by <span class="anchor">AuditLoggingController.saveApiLog:58-60</span> <i>before</i> any Kafka work. The last thing on the customer's thread is <span class="anchor">ExecutorPoolService.executeTaskInThreadPool</span> — pool.execute(task) at :13 against newCachedThreadPool (:10). Avro serialize + send() run on a pool thread.<br>
+  <b>Consequence:</b> broker down → customer still gets 204 (fire-and-forget); record lost, failure only logged, no DLQ. Deliberate: audit must never affect the customer's call.<br>
+  <b>FLOOR (fast AND durable):</b> an outbox adds a DB write to every call — kills zero-latency. Instead write to a local append-only <b>WAL on the pod</b> synchronously (microseconds, no network) and a shipper drains it to Kafka. Durable AND off the critical path.`,
+  followup:'"Why not just synchronous produce?" → Couples customer latency + availability to Kafka. CAP-style choice; today tuned for latency.',
+  reflex:'204 at AuditLoggingController:58-60 precedes the produce; broker-down still returns 204.' },
+
+{ id:'d4', sys:'AUDIT', q:'Q4. "The audit send() is async and the catch only logs — how do you know a broker publish failed?"',
+  trap:'Claiming the try/catch protects you. It doesn\'t — it\'s around the submit, on the wrong thread.',
+  answer:`<b>L1 (honest gap):</b> Today I don't reliably. The send future is unobserved, no app-level DLQ, the caller already has its 204.<br>
+  <b>The precise mechanism:</b> the try/catch around an <i>async</i> .send() runs on the calling thread, so it only catches synchronous serialization/buffer-alloc errors. Broker-side failures and timeouts complete the future <i>later</i>, on an I/O thread, and slip past the catch entirely. A false sense of safety.<br>
+  <b>Contrast (proves I know the right pattern):</b> NRTI does it correctly — <span class="anchor">NrtKafkaProducerServiceImpl</span> attaches .thenAccept(...).exceptionally(...) to the CompletableFuture (76-89), so it observes the outcome. Audit just logs in a sync catch.<br>
+  <b>FLOOR:</b> attach whenComplete/addCallback, emit a failure metric, route hard failures to a DLQ topic, and bound the pool so a backed-up broker can't spawn unbounded threads. Converts a silent-drop into an alert.`,
+  followup:'"How would the metric look?" → audit_publish_failed counter, alert on rate; DLQ depth alert separately.',
+  reflex:'The catch is around the submit on the calling thread — async broker failures land on the future, unobserved.' },
+
+{ id:'d5', sys:'AUDIT', q:'Q5. "Show me the spring.factories / AutoConfiguration.imports that makes this a starter."',
+  trap:'The word "starter" on the resume. There is no auto-configuration.',
+  answer:`<b>L1:</b> There is none — no <span class="anchor">src/main/resources</span> in dv-api-common-libraries at all, so no spring.factories, no AutoConfiguration.imports. A shared <b>library</b>, not an auto-configured starter.<br>
+  <b>How it's actually wired:</b> consumers must <span class="anchor">@ComponentScan com.walmart.dv.*</span> to pick up the LoggingFilter/services, and they must <b>provide their own WebClient bean</b> — the library doesn't define one. "Starter" is loose resume wording; the real win is reuse, not auto-config.<br>
+  <b>FLOOR:</b> to make it a true starter I'd add an @AutoConfiguration class behind AutoConfiguration.imports, gate it on @ConditionalOnProperty/@ConditionalOnMissingBean, ship the WebClient + filter as opt-out beans. Half a day of work — the honest difference between "library" and "starter."`,
+  followup:'"What breaks if a consumer forgets the scan?" → The filter never registers → audit silently does nothing. No error, no data.',
+  reflex:'No src/main/resources → library, not starter; consumers @ComponentScan + supply WebClient.' },
+
+{ id:'d6', sys:'AUDIT', q:'Q6. "This JAR is SB 2.7.11 / Java 11 / javax.servlet but consumers are SB3 / Java 17 / jakarta — how does it load?"',
+  trap:'Hand-waving "it just works." Be precise about why the incompatible Filter doesn\'t blow up.',
+  answer:`<b>L1:</b> The one cross-version outlier — library is SB 2.7.11 / Java 11 with javax.servlet imports; consumers (cp-nrti-apis) are SB3 / Java 17 / jakarta.<br>
+  <b>The type-incompatibility floor:</b> a <span class="anchor">javax.servlet.Filter</span> <b>cannot</b> load as a container filter in a jakarta container — the types are flatly incompatible (javax.servlet.Filter ≠ jakarta.servlet.Filter). It works <i>only</i> because the consumer <b>never registers the JAR's filter</b>. The consumer provides its own jakarta filters, uses the library's non-servlet pieces, and <b>excludes the JAR's spring-boot-starter-webflux</b> so the old reactive stack doesn't leak and it can supply its own WebClient.<br>
+  <b>FLOOR:</b> the most fragile compat surface in the system. The correct fix is a <b>jakarta-targeted rebuild</b> (multi-release jar or a 3.x branch). I'd flag the coexistence as scheduled tech debt, not pretend it's clean.`,
+  followup:'"What version is consumed?" → 0.0.61 consumed vs 0.0.45 in-repo — real version drift.',
+  reflex:'Incompatible Filter types; works only because the consumer doesn\'t register the JAR\'s filter and excludes the webflux starter.' },
+
+{ id:'d7', sys:'AUDIT', q:'Q7. "You copy all request headers with masking off — including Authorization / WM_SEC.* — isn\'t that a secret/PII leak?"',
+  trap:'Getting defensive. This is a real leak; volunteer it.',
+  answer:`<b>L1 (concede immediately):</b> Yes, and I'll raise it proactively — a genuine security gap, not a feature.<br>
+  <b>Mechanism:</b> the capture path copies <b>every</b> request header into the audit payload, and CCM <span class="anchor">mask.enable=false</span>, so Authorization and the WM_SEC.* signature headers go into Kafka → Parquet → BigQuery <b>unmasked</b>. Anyone with BigQuery read on the audit dataset can read live auth material.<br>
+  <b>FLOOR:</b> fix at <b>capture time</b>, not downstream: an allow-list of headers (or a deny-list for Authorization/WM_SEC.*/cookies) and mask.enable=true so secrets never enter the payload. At capture makes safety a code property, not tribal config. Also rotate any keys that may have been exposed.`,
+  followup:'"Where does masking belong — producer or capture?" → Capture. The producer allow-list helps, but capture is upstream where secrets first enter.',
+  reflex:'mask off + copy-all-headers = unmasked secrets in BigQuery; fix at capture, allow-list (AuditLogFilterUtil.getServiceHeaders:94-108).' },
+
+{ id:'d8', sys:'NRTI', q:'Q8+Q9 (FUSED). "request.timeout.ms=300000 (5 min) AND IAC does .join() on the Tomcat thread. Under a slow/black-hole primary at 10x load, what happens — and how is failover still fast?"',
+  trap:'Treating them as two shallow questions. They\'re the SAME failure mode — the highest-signal NRTI chain.',
+  answer:`<b>What thread:</b> the .join() at <span class="anchor">NrtKafkaProducerServiceImpl:89</span> blocks the <b>Tomcat worker thread</b> until primary-or-secondary resolves.<br>
+  <b>Pool size:</b> Tomcat default server.tomcat.threads.max=200 (a default, not set in repo).<br>
+  <b>The math:</b> Little's Law — concurrent = arrival × service time = 300 × 2s = <b>600 threads</b>; I have 200 → pool saturates, requests queue, then cascading 503s. HTTP availability now coupled to Kafka latency.<br>
+  <b>The fused insight (the real bug):</b> request.timeout.ms=300000 means a <b>black-hole</b> primary (hung socket, not connection-refused) holds each thread up to <b>5 minutes</b> before the future completes exceptionally and failover fires. So failover speed is bounded by <b>request.timeout.ms, not by my .exceptionally</b>. A <i>fast</i> fail (connection refused) is caught instantly by the synchronous try/catch — sub-second. Only the slow/black-hole case is deadly — needs a partial network fault we didn't game-day.<br>
+  <b>FLOOR:</b> (1) <span class="anchor">future.orTimeout(2s)</span> to bound failover regardless of failure mode; (2) a circuit breaker so a sick primary trips fast — fallback is the existing handleFailure secondary-send (159-175); both open → fail fast 503; (3) a <b>bulkhead</b> (separate bounded pool) so Kafka latency can't consume the servlet pool.`,
+  followup:'"What about the EI read?" → Same .block() risk on the WebClient (.timeout(10s) + Retry.backoff(3,100ms,2s)) — ~200/10 = 20 concurrent EI-bound requests before the pool fills.',
+  reflex:'.join() at :89 is on the Tomcat thread; failover bounded by request.timeout.ms=300000, not .exceptionally. 300×2s=600>200 → cascade.' },
+
+{ id:'d10', sys:'NRTI', q:'Q10. "DSC returns HTTP 201 even when both regions fail and the event is dropped — defend or admit."',
+  trap:'Defending a misleading status code.',
+  answer:`<b>L1 (admit):</b> A genuine inconsistency versus IAC's block-and-fail.<br>
+  <b>Mechanism, contrast with IAC:</b> DSC's publishDscKafkaMessage (<span class="anchor">NrtKafkaProducerServiceImpl:104-133</span>) attaches .thenAccept(...).exceptionally(...handleFailure...) but <b>never .join()s</b> — fire-and-forget. The service catch swallows the exception and the controller returns <b>201 unconditionally</b>. IAC by contrast .join()s at :89 and throws NrtiUnavailableException → HTTP 500 on total failure (Swagger annotates 201 — a doc/behavior mismatch; the real IAC success is 200).<br>
+  <b>FLOOR:</b> as best-effort freight telemetry the fire-and-forget is tolerable, but the <b>201 is the lie</b> — it claims durability we didn't achieve. Fix without breaking the latency SLA: a transactional <b>outbox</b> (persist a failed DSC to the existing Postgres, relay in the background) + a failure metric + DLQ. Then 201 means "durably accepted," or use <b>202 Accepted</b>.`,
+  followup:'"Why is IAC different?" → IAC is an SoR inventory mutation — silent loss corrupts on-hand counts, so it must surface failure. DSC is a notification.',
+  reflex:'DSC has no .join() (104-133) → 201 regardless; IAC .join()s at :89 → 500. The 201 is the smell.' },
+
+{ id:'d11', sys:'NRTI', q:'Q11. "Your resume says Spring Boot 3.2 but the pom shows 3.5.14 / BOM 3.5.7 — which is it?"',
+  trap:'Dodging the discrepancy.',
+  answer:`<b>L1 (correct up front):</b> I led the 2.7→3.x major jump and we stayed <b>current to 3.5.x</b>. The resume "3.2" is stale wording.<br>
+  <b>Parent vs BOM, which wins:</b> the spring-boot-starter-parent is 3.5.14; the spring-boot-dependencies BOM is 3.5.7. For effective transitive versions the <b>BOM wins</b> — it's the managed dependency baseline. I state both numbers confidently rather than dodge.<br>
+  <b>FLOOR:</b> the concrete things the jump changed in <i>my</i> code: <span class="anchor">ListenableFuture → CompletableFuture</span> in Spring Kafka (reshaped the failover code), Hibernate 6 strict typing on enums, javax → jakarta. A real migration, not a version bump I watched.`,
+  followup:'"What broke in Hibernate 6?" → A wrong-200 enum mapping bug; fixed with @JdbcTypeCode(SqlTypes.NAMED_ENUM).',
+  reflex:'Lead with the correction; BOM (3.5.7) governs effective versions.' },
+
+{ id:'d12', sys:'NRTI', q:'Q12. "Show me your WebSecurityConfigurerAdapter → SecurityFilterChain migration."',
+  trap:'Assumes Spring Security exists. It doesn\'t.',
+  answer:`<b>L1 (defuse):</b> There's <b>no Spring Security in the repo</b> — zero matches. No Security 5→6 migration to do here, and I won't claim one.<br>
+  <b>What auth actually is:</b> gateway-side via <span class="anchor">WM_SEC.*</span> signature headers, plus custom <b>servlet filters</b> in cp-nrti-apis — RequestFilter, XssFilter, NrtCorsFilter — not SecurityFilterChain beans. Tenant scoping is an AOP <span class="anchor">SiteIdFilterAspect</span> toggling a Hibernate filter, driven by SiteIdCCMConfig.<br>
+  <b>FLOOR:</b> if we <i>did</i> adopt Spring Security I'd put the WM_SEC verification in a OncePerRequestFilter registered in a SecurityFilterChain bean and keep the gateway as the first line — a design I'd propose, not something I did.`,
+  followup:'"So how is a request authenticated?" → Gateway validates WM_SEC.* signature headers before it reaches the service; filters enforce XSS/CORS.',
+  reflex:'No Spring Security in repo; auth = gateway WM_SEC.* + custom servlet filters.' },
+
+{ id:'d13', sys:'NRTI', q:'Q13. "Your Flagger gate is 5xx-only — what regression slips past it, and how was the worst migration bug actually caught?"',
+  trap:'Crediting the canary for catching a correctness bug it\'s structurally blind to.',
+  answer:`<b>L1:</b> Semantic <b>wrong-200</b> bugs and <b>latency</b> regressions slip past — the gate is a PromQL 5xx-rate over Envoy with threshold <b>1%</b>, stepWeight 10 → maxWeight 50 → promote 100. A 200-with-wrong-data never trips it.<br>
+  <b>The concrete bug + why the canary was blind:</b> a <b>Hibernate 6 enum mapping</b> bug — under H5 it read fine; H6's strict type system mapped it differently → reads came back wrong, a <b>wrong-200, not an exception</b>. Fixed with <span class="anchor">@JdbcTypeCode(SqlTypes.NAMED_ENUM)</span>. The 5xx canary would have promoted it to 100%.<br>
+  <b>What actually caught it:</b> <b>stage</b>, by R2C contract tests comparing response bodies (threshold 80, Active) + Automaton perf — <i>before</i> canary. That's why I credit the staged soak + contract tests, not the canary, for "zero customer impact."<br>
+  <b>FLOOR:</b> complementary layers — the canary protects infra/availability on real prod traffic stage can't replicate; correctness is a test-pyramid job caught earlier. I'd still add latency + error-content SLOs so the gate isn't purely 5xx-blind.`,
+  followup:'"How would you close the latency blind spot?" → Add a request-duration metric to canaryAnalysis; goldenSignalMetrics is already imported.',
+  reflex:'5xx gate is blind to wrong-200 + latency; the enum bug was caught in stage by R2C, not the canary (kitt.yml:727-748).' },
+
+{ id:'d14', sys:'NRTI', q:'Q14. "Show me the factory class for US/CA/MX."',
+  trap:'The word "factory" on the resume. There is no GoF factory.',
+  answer:`<b>L1 (defuse):</b> There is no <span class="anchor">*Factory</span> — grep factory returns only framework factories (DefaultKafkaProducerFactory, MapStruct Mappers.getMapper, Spring beans.factory). "Factory" is loose resume wording.<br>
+  <b>What multi-site actually is:</b> the <b>same artifact deployed per region</b> with region-specific <b>CCM</b> config — <span class="anchor">SiteIdCCMConfig</span> (the wm-site-id), EiApiCCMConfig (country code) — and an AOP SiteIdFilterAspect, plus a *-INTL companion in sr.yaml. Config + DI variant selection at deploy time, not a runtime GoF factory.<br>
+  <b>FLOOR:</b> if we needed <i>runtime</i> multi-tenancy in a single deployment, a real factory would be a <b>site-keyed strategy/client registry</b> selecting per-region EI clients in one process. That's the consolidation I'd build; today it's per-region deploy because that's all the requirement needed.`,
+  followup:'"Why per-region deploy and not one process?" → Variation is data, not code — config-driven is simpler and the requirement never needed runtime multi-tenancy.',
+  reflex:'No *Factory; multi-site = per-region deploy + CCM (SiteIdCCMConfig/EiApiCCMConfig) + SiteIdFilterAspect.' },
+
+{ id:'d15', sys:'NRTI', q:'Q15. "If it\'s design-first with codegen, show me the generated DC controller."',
+  trap:'Over-crediting codegen. The DC controller is hand-written.',
+  answer:`<b>L1 (precise scope):</b> Only the <b>items-assortment</b> endpoint is codegen'd via the spring generator. The DC and store controllers are <b>hand-written</b> — <span class="anchor">DcInventoryController</span> → POST /dc/inventory/status → HTTP <b>200</b> (it's a read with body). The openapi generator merely <i>bundles</i> the spec; it doesn't generate the DC server.<br>
+  <b>So what is design-first:</b> a <b>process</b> — we locked the OpenAPI contract so consumers built against generated clients/mocks <b>in parallel</b> (that's the ~30% critical-path compression estimate), backed by R2C contract tests for DC, not server codegen.<br>
+  <b>FLOOR:</b> I don't over-credit codegen — the published api-spec.yaml even drifted (plural /stores, no /dc); the maintained source is openapi.json. That drift is exactly why the contract-test discipline matters more than the generator. The 30% is an engineering estimate, not an instrumented A/B.`,
+  followup:'"Who wrote the DC controller?" → Largely Keshav Gatla & Ambiorix Cruz Angeles; my slice = design-first process, multi-site config, the Kafka path.',
+  reflex:'spring generator only for items-assortment; DcInventoryController is hand-written, POST /dc/inventory/status → 200.' },
+
+// Sniper round (Part 2) — single-shot reveal cards
+{ id:'d16', sys:'BOTH', q:'Sniper. "Your @Async bean — JDK proxy or CGLIB, and how would I tell?"', trap:'',
+  answer:'CGLIB (Spring Boot proxyTargetClass=true); check bean.getClass().getName() for <span class="anchor">$$SpringCGLIB$$</span> / $$EnhancerBySpringCGLIB$$.',
+  followup:'', reflex:'Answer in one breath — the mechanism, no hedging.' },
+{ id:'d17', sys:'BOTH', q:'Sniper. "Mark the @Async method final. What happens?"', trap:'',
+  answer:'CGLIB can\'t override a final method → advice doesn\'t apply → it runs <b>synchronously, silently, no error</b>. Worst kind of bug.',
+  followup:'', reflex:'"Silently, no error" — instantly.' },
+{ id:'d18', sys:'BOTH', q:'Sniper. "Call your @Async method from another method in the same class — async?"', trap:'',
+  answer:'No. Self-invocation goes through <span class="anchor">this</span>, bypasses the proxy → runs on the caller thread.',
+  followup:'', reflex:'"Bypasses the proxy" — instantly.' },
+{ id:'d19', sys:'AUDIT', q:'Sniper. "ThreadPoolTaskExecutor core 6 / max 10 / queue 100 — when does thread #7 get created?"', trap:'',
+  answer:'Only <b>after the queue (100) is full</b>. Order is <b>core → queue → max → reject</b>. Most people say core → max → queue (wrong).',
+  followup:'', reflex:'core → queue → max → reject.' },
+{ id:'d20', sys:'AUDIT', q:'Sniper. "That pool\'s rejection policy?"', trap:'',
+  answer:'Default <b>AbortPolicy</b> → throws RejectedExecutionException → the audit event is <b>silently dropped</b> under saturation (the second drop surface, distinct from the producer\'s unbounded newCachedThreadPool).',
+  followup:'', reflex:'Default AbortPolicy, never overridden — silent drop.' },
+{ id:'d21', sys:'BOTH', q:'Sniper. "acks=all — all of what?"', trap:'',
+  answer:'All <b>in-sync replicas</b> (gated by min.insync.replicas), <b>not</b> all replicas. If ISR shrinks below min.insync the producer gets an error instead of a false ack — that\'s the durability point.',
+  followup:'', reflex:'In-sync replicas, not all replicas.' },
+{ id:'d22', sys:'BOTH', q:'Sniper. "enable.idempotence=true — what does the broker do differently?"', trap:'',
+  answer:'Producer gets a <b>PID</b> + per-partition <b>sequence numbers</b>; broker rejects duplicates and out-of-order sequences, dedups retries, pins order, caps in-flight at 5.',
+  followup:'', reflex:'PID + per-partition sequence numbers.' },
+
+// Ops & capacity (Part 3)
+{ id:'d23', sys:'NRTI', q:'Q16. "What\'s the partition key for each topic — including the inventory-action events?"',
+  trap:'Assuming IAC keys on messageId. It doesn\'t — IAC has a NULL partition key.',
+  answer:`<b>Audit:</b> <span class="anchor">serviceName + "/" + endpoint</span> (AuditKafkaPayloadKey.getKafkaKey, set on KafkaHeaders.KEY). Per-(service,endpoint) ordering; mirrors KCQL PARTITIONBY.<br>
+  <b>DSC:</b> <span class="anchor">tripId</span> (vendorId_deliveryDate_storeNbr_minPackNbr), set on KafkaHeaders.KEY in DscServiceHelper. Per-trip ordering.<br>
+  <b>IAC: NULL key.</b> IacServiceHelper.prepareIacActionKafkaMessage (182-212) sets KafkaHeaders.TOPIC (:188) and a MESSAGE_ID <b>header</b> (:189) — but <b>never</b> KafkaHeaders.KEY. So the sticky partitioner spreads IAC across partitions → <b>no broker-level ordering</b>. messageId is a dedup token, not the partition key.<br>
+  <b>FLOOR:</b> a real finding I'd flag and fix: set KafkaHeaders.KEY = storeNbr (or store+item) so same-store actions co-partition and order. Until then the honest statement is "IAC is at-least-once <i>with no ordering</i>; consumers must be order-independent and idempotent."`,
+  followup:'"Does that matter for IAC correctness?" → Only if downstream assumes ordering. It must not — at-least-once + unordered is the contract.',
+  reflex:'IAC sets MESSAGE_ID header at IacServiceHelper:189, no KafkaHeaders.KEY → null key → no ordering. DSC keys tripId.' },
+
+{ id:'d24', sys:'AUDIT', q:'Q18. "How many partitions for the audit topic — and how did you decide?"',
+  trap:'Inventing a provisioned number.',
+  answer:`<b>FLOOR (formula, not a number):</b> <b>Not in my repo — KaaS-provisioned</b>; my config carries only the topic <i>name</i>. Throughput needs ~1 (23 eps avg). Formula: <span class="anchor">partitions = max(ceil(target_peak_eps / per_partition_ceiling), desired_consumer_parallelism)</span>. Even 10 KB/event at 230 eps is ~2.3 MB/s, well under one partition. So I'd <b>request 6</b>, driven by (1) future consumer parallelism (a group can't exceed partition count), (2) even broker spread (2 leaders/broker on 3 brokers), (3) headroom — because <b>repartitioning a keyed topic reshuffles key→partition and breaks ordering</b>. I won't fabricate the provisioned value.`,
+  followup:'"RF and min.insync?" → Both KaaS too. Request RF=3 / min.insync=2 (3 broker hostnames → 3-broker cluster). min.insync only bites NRTI today (audit is acks=1).',
+  reflex:'Throughput needs ~1; consumer parallelism + headroom drive the request of 6. Never invent the provisioned number.' },
+
+{ id:'d25', sys:'NRTI', q:'Q24. "Size the HPA — and why is CPU the wrong signal for NRTI?"',
+  trap:'Quoting min4/max8 as prod for NRTI (that\'s the stage tier).',
+  answer:`<b>Audit-srv prod:</b> min <b>4</b> / max <b>8</b> @ 60% CPU. <b>NRTI prod:</b> the committed kitt.yml is <b>min 6 / max 12</b> — the min4/max8 profile is <b>stage</b>; I state that honestly. <b>Why min 4–6:</b> 2-region × 2-pod redundancy so a region/AZ drain still serves baseline. <b>Why 60%:</b> 40% headroom to absorb a burst during the ~30–60s a new pod takes to become ready.<br>
+  <b>FLOOR:</b> CPU is the <b>wrong</b> primary signal for NRTI because its threads sit <b>blocked</b> on .join()/.block(), not burning CPU — so an unbounded newCachedThreadPool blowup is <i>invisible</i> to a CPU HPA. Better signals: Tomcat thread-pool utilization, in-flight request count, or RPS via KEDA, with CPU as a backstop. We already export tomcat_sessions_*, jvm_threads_*, hikaricp_connections_*. That's why NRTI's min was doubled vs audit — blocked threads need more pods than pure CPU math suggests.`,
+  followup:'"How would you fix the signal?" → KEDA on in-flight requests / thread-pool occupancy; CPU as a backstop only.',
+  reflex:'NRTI prod = min6/max12 (stage is min4/max8); CPU is blind to blocked-thread occupancy.' }
+];
+</script>
+
+<!-- ===================== RENDER + WIRING ===================== -->
+<script>
+(function(){
+  'use strict';
+
+  // ---------- tiny helpers ----------
+  const $  = (sel, root) => (root || document).querySelector(sel);
+  const $$ = (sel, root) => Array.from((root || document).querySelectorAll(sel));
+  const el = (tag, cls, html) => {
+    const n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (html != null) n.innerHTML = html;
+    return n;
+  };
+  const sysBadge = (sys) => {
+    if (!sys) return '';
+    const map = {
+      AUDIT:'bg-wmblue-100/10 text-wmblue-100 dark:text-spark-100 dark:bg-spark-100/10 ring-wmblue-100/20',
+      NRTI: 'bg-wmred-100/10 text-wmred-100 ring-wmred-100/25',
+      BOTH: 'bg-spark-100/15 text-spark-140 dark:text-spark-100 ring-spark-100/30'
+    };
+    return `<span class="shrink-0 text-[0.62rem] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ring-1 ${map[sys]||map.BOTH}">${sys}</span>`;
+  };
+  const escapeHtml = (s) => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+  // ---------- Mermaid ----------
+  let mermaidReady = false;
+  function initMermaid(theme){
+    if (window.mermaid){
+      window.mermaid.initialize({ startOnLoad:false, theme:(theme==='dark'?'dark':'neutral'), securityLevel:'loose', flowchart:{useMaxWidth:true}, sequence:{useMaxWidth:true} });
+      mermaidReady = true;
+    }
+  }
+  // Render any not-yet-rendered .mermaid nodes inside a visible container.
+  function runMermaidIn(container){
+    if (!mermaidReady || !window.mermaid || !container) return;
+    const nodes = $$('.mermaid', container).filter(n => n.getAttribute('data-rendered') !== 'true');
+    if (!nodes.length) return;
+    try {
+      window.mermaid.run({ nodes });
+      nodes.forEach(n => n.setAttribute('data-rendered','true'));
+    } catch(e){ /* leave source visible on failure */ }
+  }
+  function mermaidNode(src){
+    const n = el('div','mermaid');
+    n.textContent = src;      // raw graph source; mermaid replaces with SVG on run()
+    return n;
+  }
+
+  // ---------- accordion ----------
+  function makeAccordion(opts){
+    // opts: { headerHtml, bodyBuilder(bodyEl), startOpen }
+    const wrap = el('div','acc group rounded-2xl border border-gray-50/90 dark:border-white/10 bg-white dark:bg-[#11151f] shadow-card overflow-hidden');
+    const btn = el('button','acc-head w-full flex items-center gap-3 text-left px-4 sm:px-5 py-4 hover:bg-gray-10/70 dark:hover:bg-white/5 transition');
+    btn.setAttribute('aria-expanded','false');
+    btn.type = 'button';
+    btn.innerHTML =
+      `<svg class="chev shrink-0 w-4 h-4 text-wmblue-100 dark:text-spark-100" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M7 4l6 6-6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>` +
+      `<span class="flex-1 min-w-0">${opts.headerHtml}</span>`;
+    const body = el('div','acc-body');
+    const inner = el('div','px-4 sm:px-5 pb-5 pt-1');
+    body.appendChild(inner);
+    let built = false;
+    const build = () => { if (!built){ opts.bodyBuilder(inner); built = true; } };
+
+    const toggle = () => {
+      const open = wrap.classList.toggle('open');
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      if (open){ build(); runMermaidIn(inner); }
+    };
+    btn.addEventListener('click', toggle);
+    btn.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); toggle(); }
+    });
+
+    if (opts.startOpen){
+      wrap.classList.add('open');
+      btn.setAttribute('aria-expanded','true');
+      build();
+    }
+    wrap.appendChild(btn);
+    wrap.appendChild(body);
+    wrap.__build = build;        // expose for eager mermaid render on first show
+    wrap.__inner = inner;
+    return wrap;
+  }
+
+  // ---------- render: CHAINS ----------
+  function renderChains(){
+    const root = $('#tab-chains');
+    root.appendChild(el('p','text-sm text-gray-100 dark:text-white/55 -mt-1 mb-1',
+      'Thirteen chains from doc 18 — each a ladder a principal interviewer climbs to the floor. Expand a chain to walk the PE → You rungs; the diagram (if any) renders when opened.'));
+    CHAINS.forEach((c, i) => {
+      const header =
+        `<span class="flex items-start gap-2">${sysBadge(c.sys)}<span class="font-bold text-[0.98rem] sm:text-base leading-snug">${c.title}</span></span>` +
+        `<span class="block mt-1.5 text-xs text-gray-100 dark:text-white/55">${c.tag}</span>`;
+      const acc = makeAccordion({
+        startOpen: i === 0,
+        headerHtml: header,
+        bodyBuilder: (inner) => {
+          inner.appendChild(el('div','rounded-xl bg-spark-10 dark:bg-spark-100/5 border border-spark-100/40 px-4 py-3 text-sm mb-4',
+            `<span class="font-bold text-spark-140 dark:text-spark-100 uppercase text-[0.65rem] tracking-wider">What they\'re grading</span><p class="mt-1 leading-relaxed">${c.grade}</p>`));
+          if (c.diagram) inner.appendChild(mermaidNode(c.diagram));
+          const ladder = el('ol','mt-4 space-y-4 list-none');
+          c.qa.forEach((rung, idx) => {
+            const li = el('li','relative pl-0');
+            const pe = el('div','rounded-xl bg-wmred-100/5 border-l-4 border-wmred-100/70 px-4 py-3',
+              `<span class="text-[0.62rem] font-bold uppercase tracking-wider text-wmred-100">PE · rung ${idx+1}</span><p class="mt-1 text-sm font-semibold leading-relaxed">${rung[0]}</p>`);
+            const you = el('div','mt-2 rounded-xl bg-wmblue-100/5 dark:bg-wmblue-100/10 border-l-4 border-wmblue-100 px-4 py-3',
+              `<span class="text-[0.62rem] font-bold uppercase tracking-wider text-wmblue-100 dark:text-spark-100">You</span><p class="mt-1 text-sm leading-relaxed">${rung[1]}</p>` +
+              (rung[2] ? `<p class="mt-2 text-[0.72rem] anchor text-gray-100 dark:text-white/45 border-t border-gray-50/70 dark:border-white/10 pt-2">⚓ ${escapeHtml(rung[2])}</p>` : ''));
+            li.appendChild(pe); li.appendChild(you);
+            ladder.appendChild(li);
+          });
+          inner.appendChild(ladder);
+        }
+      });
+      root.appendChild(acc);
+    });
+  }
+
+  // ---------- render: TRANSCRIPTS ----------
+  function renderScripts(){
+    const root = $('#tab-scripts');
+    root.appendChild(el('p','text-sm text-gray-100 dark:text-white/55 -mt-1 mb-1',
+      'Twelve full transcripts from doc 19 — the way a great candidate actually talks: concede fast, go to mechanism, end every gap on a fix, cite the line. Each is tagged with what the interviewer is secretly grading and the one move that saved it.'));
+    TRANSCRIPTS.forEach((t, i) => {
+      const header =
+        `<span class="flex items-start gap-2">${sysBadge(t.sys)}<span class="font-bold text-[0.98rem] sm:text-base leading-snug">${t.title}</span></span>`;
+      const acc = makeAccordion({
+        startOpen: i === 0,
+        headerHtml: header,
+        bodyBuilder: (inner) => {
+          if (t.note) inner.appendChild(el('p','text-sm italic text-gray-100 dark:text-white/55 mb-3 leading-relaxed', t.note));
+          if (t.diagram) inner.appendChild(mermaidNode(t.diagram));
+          const conv = el('div','mt-4 space-y-3');
+          t.turns.forEach(turn => {
+            conv.appendChild(el('div','rounded-xl bg-wmred-100/5 border-l-4 border-wmred-100/70 px-4 py-3',
+              `<span class="text-[0.62rem] font-bold uppercase tracking-wider text-wmred-100">🟥 PE</span><p class="mt-1 text-sm font-semibold leading-relaxed">${turn[0]}</p>`));
+            conv.appendChild(el('div','rounded-xl bg-wmblue-100/5 dark:bg-wmblue-100/10 border-l-4 border-wmblue-100 px-4 py-3',
+              `<span class="text-[0.62rem] font-bold uppercase tracking-wider text-wmblue-100 dark:text-spark-100">🟩 You</span><p class="mt-1 text-sm leading-relaxed">${turn[1]}</p>` +
+              (turn[2] ? `<p class="mt-2 text-[0.72rem] anchor text-gray-100 dark:text-white/45 border-t border-gray-50/70 dark:border-white/10 pt-2">⚓ anchored in: ${escapeHtml(turn[2])}</p>` : '')));
+          });
+          inner.appendChild(conv);
+          inner.appendChild(el('div','mt-4 grid sm:grid-cols-2 gap-3',
+            `<div class="rounded-xl bg-spark-10 dark:bg-spark-100/5 border border-spark-100/40 px-4 py-3"><span class="text-[0.62rem] font-bold uppercase tracking-wider text-spark-140 dark:text-spark-100">[Grading]</span><p class="mt-1 text-sm leading-relaxed">${t.grading}</p></div>` +
+            `<div class="rounded-xl bg-wmgreen-100/8 border border-wmgreen-100/30 px-4 py-3"><span class="text-[0.62rem] font-bold uppercase tracking-wider text-wmgreen-100">[The move]</span><p class="mt-1 text-sm leading-relaxed">${t.move}</p></div>`));
+        }
+      });
+      root.appendChild(acc);
+    });
+  }
+
+  // ---------- render: DESIGN ----------
+  function renderDesign(){
+    const root = $('#tab-design');
+    root.className = root.className; // keep
+    root.appendChild(el('div','rounded-2xl bg-wmblue-130 text-white px-5 sm:px-6 py-5 mb-6',
+      `<h2 class="text-lg sm:text-xl font-black">System Design Round — "Design an Audit-Logging Platform"</h2><p class="mt-2 text-sm sm:text-[0.95rem] text-white/85 leading-relaxed">${DESIGN_INTRO}</p>`));
+    const steps = el('div','space-y-4');
+    DESIGN.forEach((s, i) => {
+      const header =
+        `<span class="flex items-start gap-3"><span class="shrink-0 grid place-items-center min-w-[2.4rem] h-7 px-2 rounded-lg bg-wmblue-100 text-white font-black text-xs">STEP ${s.n}</span><span class="font-bold text-[0.98rem] sm:text-base leading-snug">${s.title}</span></span>`;
+      const acc = makeAccordion({
+        startOpen: i < 2,
+        headerHtml: header,
+        bodyBuilder: (inner) => {
+          if (s.diagram) inner.appendChild(mermaidNode(s.diagram));
+          inner.appendChild(el('div','text-sm leading-relaxed mt-3 space-y-1', s.body));
+          if (s.code){
+            const pre = el('pre','mt-4 rounded-xl bg-gray-200 text-gray-10 text-[0.74rem] leading-relaxed p-4 overflow-x-auto border border-white/10');
+            const code = el('code','anchor whitespace-pre');
+            code.textContent = s.code;
+            pre.appendChild(code);
+            inner.appendChild(pre);
+          }
+        }
+      });
+      steps.appendChild(acc);
+    });
+    root.appendChild(steps);
+
+    // STEP 9 — alternatives table (always visible card)
+    const altWrap = el('div','mt-6 rounded-2xl border border-gray-50/90 dark:border-white/10 bg-white dark:bg-[#11151f] shadow-card p-4 sm:p-5');
+    altWrap.appendChild(el('h3','font-black text-base sm:text-lg mb-3','STEP 9 — Alternatives I considered (breadth + real magnitudes)'));
+    let rows = DESIGN_ALTERNATIVES.map(r =>
+      `<tr class="border-b border-gray-50/60 dark:border-white/10 align-top"><td class="py-2 pr-4 font-semibold">${r[0]}</td><td class="py-2 pr-4 text-gray-100 dark:text-white/60">${r[1]}</td><td class="py-2">${r[2]}</td></tr>`).join('');
+    altWrap.appendChild(el('div','overflow-x-auto',
+      `<table class="w-full text-sm border-collapse"><thead><tr class="text-left border-b-2 border-wmblue-100/30"><th class="py-2 pr-4 font-bold">Choice (ours)</th><th class="py-2 pr-4 font-bold">Alternative</th><th class="py-2 font-bold">Why ours (with the real trade-off)</th></tr></thead><tbody>${rows}</tbody></table>`));
+    root.appendChild(altWrap);
+
+    // STEP 10 — 60-second wrap-up
+    root.appendChild(el('div','mt-6 rounded-2xl bg-spark-10 dark:bg-spark-100/5 border border-spark-100/40 p-5',
+      `<h3 class="font-black text-base sm:text-lg mb-2 text-spark-140 dark:text-spark-100">STEP 10 — 60-second verbal wrap-up</h3><p class="text-sm leading-relaxed">${DESIGN_WRAP}</p>`));
+  }
+
+  // ---------- render: DRILL ----------
+  function renderDrill(){
+    const root = $('#tab-drill');
+    root.classList.add('space-y-4');
+    root.appendChild(el('p','text-sm text-gray-100 dark:text-white/55 mb-1',
+      'Twenty-five chained questions from doc 15. Click a card to reveal the model answer, the follow-up, and the one-line reflex. Cover the answer, say yours aloud through every rung, then reveal.'));
+    const grid = el('div','grid gap-3 sm:grid-cols-2');
+    DRILL.forEach((d) => {
+      const card = el('article','rounded-2xl border border-gray-50/90 dark:border-white/10 bg-white dark:bg-[#11151f] shadow-card overflow-hidden flex flex-col');
+      const btn = el('button','reveal-head w-full text-left px-4 py-4 hover:bg-gray-10/70 dark:hover:bg-white/5 transition flex-1');
+      btn.type = 'button';
+      btn.setAttribute('aria-expanded','false');
+      btn.innerHTML =
+        `<span class="flex items-start gap-2 mb-2">${sysBadge(d.sys)}<span class="text-[0.62rem] font-bold uppercase tracking-wider text-gray-100 dark:text-white/45 pt-0.5">tap to reveal</span></span>` +
+        `<span class="block font-bold text-sm leading-snug">${d.q}</span>` +
+        (d.trap ? `<span class="block mt-2 text-xs text-wmred-100/90 leading-relaxed"><b>Trap:</b> ${d.trap}</span>` : '');
+      const body = el('div','acc-body border-t border-gray-50/70 dark:border-white/10');
+      const inner = el('div','px-4 py-4 text-sm leading-relaxed space-y-3');
+      inner.innerHTML =
+        `<div>${d.answer}</div>` +
+        (d.followup ? `<div class="rounded-lg bg-wmblue-100/5 dark:bg-wmblue-100/10 px-3 py-2 text-[0.82rem]"><span class="font-bold text-wmblue-100 dark:text-spark-100">↳ Follow-up:</span> ${escapeHtml(d.followup)}</div>` : '') +
+        `<div class="rounded-lg bg-wmgreen-100/8 border border-wmgreen-100/25 px-3 py-2 text-[0.82rem]"><span class="font-bold text-wmgreen-100">⚡ Reflex:</span> ${escapeHtml(d.reflex)}</div>`;
+      body.appendChild(inner);
+      const wrap = el('div','acc');
+      const toggle = () => {
+        const open = wrap.classList.toggle('open');
+        btn.setAttribute('aria-expanded', open ? 'true':'false');
+      };
+      btn.addEventListener('click', toggle);
+      btn.addEventListener('keydown', (e)=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); toggle(); }});
+      wrap.appendChild(btn); wrap.appendChild(body);
+      card.appendChild(wrap);
+      grid.appendChild(card);
+    });
+    root.appendChild(grid);
+  }
+
+  // ---------- render: RHYTHM & SCORECARD ----------
+  function renderRhythm(){
+    const root = $('#tab-rhythm');
+    root.classList.add('space-y-6');
+
+    // The 3-beat (now 4-beat) rhythm
+    root.appendChild(el('div','rounded-2xl bg-wmblue-130 text-white px-5 sm:px-6 py-5',
+      `<h2 class="text-lg sm:text-xl font-black">The rhythm to internalize</h2>
+       <p class="mt-2 text-sm text-white/85 leading-relaxed">A principal interviewer doesn\'t want a defense — they want to see you walk to the floor yourself. The whole game is four beats, in order, every time.</p>`));
+
+    const beats = [
+      ['1','Concede','Concede the gap in the <b>first sentence</b> — no defending. "Yes, it can silently drop records." Conceding fast is the senior tell; defending is the junior one.'],
+      ['2','Mechanism','Go straight to the <b>named mechanism</b> — a config, a thread, a type, a status code. Not "it\'s unreliable" but "the send future is unobserved on an I/O thread."'],
+      ['3','Fix','End every gap on a <b>concrete fix</b> — whenComplete + metric + DLQ; future.orTimeout(2s); bound the pool with a RejectedExecutionHandler.'],
+      ['4','Cite the line','Drop the <b>file:line / class.method</b> receipt. "KafkaProducerService.java:47." The citation is part of the answer, not a footnote — it proves you read the code, not the diagram.']
+    ];
+    const beatGrid = el('div','grid gap-3 sm:grid-cols-2 lg:grid-cols-4');
+    beats.forEach(b => {
+      beatGrid.appendChild(el('div','rounded-2xl border border-gray-50/90 dark:border-white/10 bg-white dark:bg-[#11151f] shadow-card p-4',
+        `<span class="grid place-items-center w-9 h-9 rounded-xl bg-spark-100 text-wmblue-130 font-black mb-3">${b[0]}</span>` +
+        `<h3 class="font-black text-base">${b[1]}</h3><p class="mt-1 text-sm leading-relaxed text-gray-160 dark:text-white/75">${b[2]}</p>`));
+    });
+    root.appendChild(beatGrid);
+
+    // The secret scorecard
+    const scoreWrap = el('div','rounded-2xl border border-gray-50/90 dark:border-white/10 bg-white dark:bg-[#11151f] shadow-card p-4 sm:p-5');
+    scoreWrap.appendChild(el('h3','font-black text-base sm:text-lg mb-1','The secret scorecard — what they\'re really grading'));
+    scoreWrap.appendChild(el('p','text-sm text-gray-100 dark:text-white/55 mb-3','For each signal, the junior tell sinks you and the senior tell gets the offer. The candidate who says level-5 honesty at level 2 wins.'));
+    const scoreRows = [
+      ['Numbers','Recites a resume stat ("&lt;5ms", "zero loss")','Knows its boundary conditions — &lt;5ms is API overhead, freshness is ~10 min via flush.interval=600'],
+      ['Failure','"It\'s reliable"','Names the exact sequence — retry reorder; .join() on the Tomcat thread; the 5-min request.timeout.ms black hole'],
+      ['Config','"We configured it for durability"','"acks=all at NrtKafkaProducerConfig.java:116; audit defaults to acks=1 because KafkaProducerConfig sets none"'],
+      ['Trade-offs','"We kept it simple"','Adjudicates two principles with a requirement — one-topic vs per-country, residency-is-legal wins'],
+      ['Ownership','"The backlog deprioritized it"','"That\'s partly on me — here\'s the half-day PR"'],
+      ['Depth','Stops at the API','Knows the thread, the proxy ($$SpringCGLIB), the wire format (Avro value / String key), the file:line'],
+      ['Honesty','Defends every claim','Volunteers the gap first — null IAC key; DSC 201-on-failure; unmasked WM_SEC headers; not a real starter']
+    ];
+    const rowsHtml = scoreRows.map(r =>
+      `<tr class="border-b border-gray-50/60 dark:border-white/10 align-top">
+        <td class="py-2.5 pr-4 font-bold">${r[0]}</td>
+        <td class="py-2.5 pr-4 text-wmred-100/90">${r[1]}</td>
+        <td class="py-2.5 text-wmgreen-100 dark:text-wmgreen-100/90 font-medium">${r[2]}</td></tr>`).join('');
+    scoreWrap.appendChild(el('div','overflow-x-auto',
+      `<table class="w-full text-sm border-collapse">
+        <thead><tr class="text-left border-b-2 border-wmblue-100/30">
+          <th class="py-2 pr-4 font-bold">Signal</th>
+          <th class="py-2 pr-4 font-bold">🟥 Junior tell</th>
+          <th class="py-2 font-bold">🟩 Senior tell</th></tr></thead>
+        <tbody>${rowsHtml}</tbody></table>`));
+    root.appendChild(scoreWrap);
+
+    // The 5 reflexes
+    const reflexWrap = el('div','rounded-2xl bg-spark-10 dark:bg-spark-100/5 border border-spark-100/40 p-5');
+    reflexWrap.appendChild(el('h3','font-black text-base sm:text-lg mb-3 text-spark-140 dark:text-spark-100','The 5 reflexes — the spine of every floor answer'));
+    const reflexes = [
+      '<b>Two Kafka worlds — never conflate them.</b> Audit = Avro + Schema Registry (auto.register=false), acks=1 default, key service/endpoint, geo in the <b>sink</b>. NRTI = JSON, no Schema Registry, acks=all + idempotence=false, IAC <b>null key</b> / DSC tripId, failover in code.',
+      '<b>Failover lives in cp-nrti-apis (NrtKafkaProducerServiceImpl), not audit-srv.</b> Audit\'s kafkaSecondaryTemplate is <b>dead code</b> — built and autowired, never called. Never attribute failover to audit-srv.',
+      '<b>Pre-empt the 4 trap words with a receipt:</b> starter → library (no src/main/resources), factory → config (per-region deploy + CCM), zero-loss → at-least-once (idempotence=false; EOS is per-cluster), 3.2 → 3.5.x (BOM 3.5.7 governs).',
+      '<b>Sizing-by-formula, never a fabricated number.</b> Partitions/RF/min.insync/retention are KaaS-provisioned and <i>not in the repo</i> — quote the formula and the value I\'d request; quote file:line only for what\'s in my code.',
+      '<b>Every gap ends with a fix, and ownership ends with a PR.</b> The silent-drop audit path — unbounded newCachedThreadPool (ExecutorPoolService:10) + the @Async AbortPolicy pool (6/10/100) with send failures only logged. Never failed in prod, so it stayed below the line — that\'s partly on me; the fix is a half-day PR. Credit where due: DC inventory was largely authored with <b>Keshav Gatla</b> &amp; <b>Ambiorix Cruz Angeles</b> — own my real slice, credit the team.'
+    ];
+    const ol = el('ol','space-y-2.5 list-none counter-reset');
+    reflexes.forEach((r, i) => {
+      ol.appendChild(el('li','flex gap-3 text-sm leading-relaxed',
+        `<span class="shrink-0 grid place-items-center w-6 h-6 rounded-full bg-spark-100 text-wmblue-130 font-black text-xs">${i+1}</span><span>${r}</span>`));
+    });
+    reflexWrap.appendChild(ol);
+    root.appendChild(reflexWrap);
+
+    // closing line
+    root.appendChild(el('p','text-center text-sm font-semibold text-wmblue-100 dark:text-spark-100 pt-1',
+      'Your job in every chain: get to the floor answer voluntarily, before they drag you there.'));
+  }
+
+  // ---------- tab switching ----------
+  const PANELS = ['chains','scripts','design','drill','rhythm'];
+  const renderedTabs = {};
+
+  function showTab(name){
+    PANELS.forEach(p => {
+      const panel = document.getElementById('tab-' + p);
+      const isActive = p === name;
+      panel.classList.toggle('hidden', !isActive);
+    });
+    $$('.tab-btn').forEach(b => {
+      const active = b.getAttribute('data-tab') === name;
+      b.setAttribute('aria-selected', active ? 'true' : 'false');
+      if (active){
+        b.classList.add('border-wmblue-100','text-wmblue-100','dark:text-spark-100','dark:border-spark-100');
+        b.classList.remove('border-transparent','text-gray-100');
+      } else {
+        b.classList.remove('border-wmblue-100','text-wmblue-100','dark:text-spark-100','dark:border-spark-100');
+        b.classList.add('border-transparent','text-gray-100');
+      }
+    });
+    // Render diagrams now that the panel is visible (mermaid can't size hidden nodes).
+    const panel = document.getElementById('tab-' + name);
+    // ensure any start-open accordions have built their bodies, then run mermaid
+    $$('.acc.open', panel).forEach(a => { if (a.__build) a.__build(); });
+    runMermaidIn(panel);
+  }
+
+  $$('.tab-btn').forEach(b => {
+    b.addEventListener('click', () => showTab(b.getAttribute('data-tab')));
+  });
+
+  // ---------- dark mode ----------
+  const themeToggle = $('#themeToggle');
+  const themeIcon = $('#themeIcon');
+  function applyTheme(theme){
+    const dark = theme === 'dark';
+    document.documentElement.classList.toggle('dark', dark);
+    if (themeIcon) themeIcon.textContent = dark ? '☀️' : '🌙';
+    initMermaid(theme);
+    // re-render visible diagrams under the new theme
+    const visible = PANELS.map(p=>document.getElementById('tab-'+p)).find(el => !el.classList.contains('hidden'));
+    if (visible){
+      // force a re-run by clearing rendered flags + restoring source
+      $$('.mermaid', visible).forEach(n => {
+        if (n.getAttribute('data-rendered') === 'true' && n.getAttribute('data-src')){
+          n.removeAttribute('data-processed');
+          n.innerHTML = '';
+          n.textContent = n.getAttribute('data-src');
+          n.setAttribute('data-rendered','false');
+        }
+      });
+      runMermaidIn(visible);
+    }
+  }
+  function storedTheme(){
+    try { return localStorage.getItem('wm-theme'); } catch(e){ return null; }
+  }
+  function persistTheme(t){
+    try { localStorage.setItem('wm-theme', t); } catch(e){}
+  }
+  if (themeToggle){
+    themeToggle.addEventListener('click', () => {
+      const next = document.documentElement.classList.contains('dark') ? 'light' : 'dark';
+      persistTheme(next);
+      applyTheme(next);
+    });
+  }
+
+  // ---------- boot ----------
+  // Cache mermaid source on each node so theme-swap can re-render cleanly.
+  function tagMermaidSources(){
+    $$('.mermaid').forEach(n => { if (!n.getAttribute('data-src')) n.setAttribute('data-src', n.textContent); });
+  }
+
+  function boot(){
+    const initial = storedTheme() || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    initMermaid(initial);                 // initialize before any render
+    renderChains();
+    renderScripts();
+    renderDesign();
+    renderDrill();
+    renderRhythm();
+    tagMermaidSources();
+    applyTheme(initial);                  // sets .dark class + icon
+    showTab('chains');                    // default panel + first mermaid run
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
+})();
+</script>
+
+</body>
+</html>
