@@ -24,14 +24,26 @@ function escapeHtml(s) {
 const PY_TOKENS =
   /(#[^\n]*)|("""[\s\S]*?"""|'''[\s\S]*?'''|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*')|\b(def|class|return|if|elif|else|for|while|in|not|and|or|import|from|as|with|try|except|finally|raise|lambda|yield|global|nonlocal|pass|break|continue|None|True|False|is|assert|del|async|await|print|range|len|self)\b|\b(\d+\.?\d*)\b/g;
 
-function highlightPy(escaped) {
-  return escaped.replace(PY_TOKENS, (m, com, str, kw, num) => {
-    if (com) return `<span class="tok-com">${com}</span>`;
-    if (str) return `<span class="tok-str">${str}</span>`;
-    if (kw) return `<span class="tok-kw">${kw}</span>`;
-    if (num) return `<span class="tok-num">${num}</span>`;
+// Tokenize the RAW (un-escaped) source, then HTML-escape each segment as we emit it.
+// Escaping *after* tokenizing is essential: if we escaped first, a `'` would become
+// `&#39;` and the string regex (which looks for real quote chars) would never match,
+// so docstrings/strings wouldn't be detected AND the number rule would catch the `39`
+// inside `&#39;`, splitting the entity and printing a literal `&#39;` on screen.
+function highlightPy(code) {
+  let out = "";
+  let last = 0;
+  code.replace(PY_TOKENS, (m, com, str, kw, num, offset) => {
+    out += escapeHtml(code.slice(last, offset));
+    if (com) out += `<span class="tok-com">${escapeHtml(com)}</span>`;
+    else if (str) out += `<span class="tok-str">${escapeHtml(str)}</span>`;
+    else if (kw) out += `<span class="tok-kw">${escapeHtml(kw)}</span>`;
+    else if (num) out += `<span class="tok-num">${escapeHtml(num)}</span>`;
+    else out += escapeHtml(m);
+    last = offset + m.length;
     return m;
   });
+  out += escapeHtml(code.slice(last));
+  return out;
 }
 
 // C-family keyword tint (Java / C++ / TS / Go / Kotlin / Rust / Swift). Operates on
@@ -42,19 +54,31 @@ function highlightPy(escaped) {
 const C_TOKENS =
   /(\/\/[^\n]*|\/\*[\s\S]*?\*\/)|\b(abstract|class|interface|enum|extends|implements|public|private|protected|final|static|synchronized|volatile|transient|void|new|return|if|else|for|while|do|switch|case|default|break|continue|throw|throws|try|catch|finally|this|super|null|true|false|import|package|const|let|var|function|func|fun|type|struct|namespace|using|val|override|int|long|double|float|boolean|bool|char|byte|short|String|string|auto|nil)\b|\b(\d+\.?\d*[fFlLdD]?)\b/g;
 
-function highlightC(escaped) {
-  return escaped.replace(C_TOKENS, (m, com, kw, num) => {
-    if (com) return `<span class="tok-com">${com}</span>`;
-    if (kw) return `<span class="tok-kw">${kw}</span>`;
-    if (num) return `<span class="tok-num">${num}</span>`;
+// Same raw-first, escape-per-segment strategy as highlightPy (see note there) so an
+// apostrophe in a Java/C string can never render as a literal `&#39;`.
+function highlightC(code) {
+  let out = "";
+  let last = 0;
+  code.replace(C_TOKENS, (m, com, kw, num, offset) => {
+    out += escapeHtml(code.slice(last, offset));
+    if (com) out += `<span class="tok-com">${escapeHtml(com)}</span>`;
+    else if (kw) out += `<span class="tok-kw">${escapeHtml(kw)}</span>`;
+    else if (num) out += `<span class="tok-num">${escapeHtml(num)}</span>`;
+    else out += escapeHtml(m);
+    last = offset + m.length;
     return m;
   });
+  out += escapeHtml(code.slice(last));
+  return out;
 }
 const C_LANGS = /^(java|c|cpp|c\+\+|cs|csharp|js|javascript|ts|typescript|go|golang|kotlin|kt|rust|rs|swift|scala)$/;
 
 let _mermaidSeq = 0;
 
-function renderCodeBlock(lang, code) {
+function renderCodeBlock(lang, code, opts) {
+  // `opts.gutter` adds a left line-number column. It's opt-in (full-code viewer + modal
+  // only) so inline answer snippets and tool-card bodies stay clean and unchanged.
+  opts = opts || {};
   // Strip the " copy" suffix that Next.js-style docs use (```py copy) — we
   // handle copying ourselves; the word is meaningless as a language tag.
   const language = (lang || "").toLowerCase().replace(/\s+copy\s*$/, "").trim();
@@ -63,19 +87,27 @@ function renderCodeBlock(lang, code) {
     const raw = btoa(unescape(encodeURIComponent(code.replace(/\n$/, ""))));
     return `<div class="mermaid-block" data-code="${raw}" data-id="mmd-${_mermaidSeq++}"><pre class="mermaid-src">${escapeHtml(code.replace(/\n$/, ""))}</pre></div>`;
   }
-  const escaped = escapeHtml(code.replace(/\n$/, ""));
-  // Only tint blocks the model explicitly tagged python — so a bare ```...``` ASCII
-  // trace / array diagram isn't sprayed with random keyword/number colors.
+  // The highlighters tokenize raw source and escape each segment themselves; the
+  // plain (untinted) path escapes here. Only tint blocks the model explicitly tagged
+  // python/C-family — so a bare ```...``` ASCII trace isn't sprayed with random colors.
+  const clean = code.replace(/\n$/, "");
   const isPy = /^(py|python)$/.test(language);
-  const body = isPy ? highlightPy(escaped) : (C_LANGS.test(language) ? highlightC(escaped) : escaped);
+  const body = isPy ? highlightPy(clean) : (C_LANGS.test(language) ? highlightC(clean) : escapeHtml(clean));
   // Suppress the language chip for plain/untagged/copy-only blocks.
   const label = /^(copy|text|plain|txt)$/.test(language) ? "" : language;
   const raw = btoa(unescape(encodeURIComponent(code.replace(/\n$/, ""))));
+  let inner = `<pre><code>${body}</code></pre>`;
+  if (opts.gutter) {
+    const n = clean.split("\n").length;
+    let nums = "";
+    for (let i = 1; i <= n; i++) nums += i + "\n";
+    inner = `<div class="code-rows"><span class="code-gutter" aria-hidden="true">${nums}</span>${inner}</div>`;
+  }
   return (
-    `<div class="code-block"><div class="code-bar">` +
+    `<div class="code-block${opts.gutter ? " has-gutter" : ""}"><div class="code-bar">` +
     `<span class="code-lang">${escapeHtml(label)}</span>` +
     `<button class="copy-btn" data-raw="${raw}" type="button">copy</button></div>` +
-    `<pre><code>${body}</code></pre></div>`
+    inner + `</div>`
   );
 }
 
@@ -440,9 +472,25 @@ function _onMermaidRendered(el) {
     svg.style.maxWidth = "none";
     svg.removeAttribute("width"); // keep viewBox + height so it scales cleanly
     // If the diagram is wider than its container, left-anchor it (so the part you
-    // read first is visible) rather than centering it half-off-screen.
+    // read first is visible) rather than centering it half-off-screen, and offer a
+    // "fit" toggle that scales the whole diagram down to the column width.
     requestAnimationFrame(() => {
-      if (el.scrollWidth > el.clientWidth + 4) el.classList.add("mmd-wide");
+      if (el.scrollWidth > el.clientWidth + 4) {
+        el.classList.add("mmd-wide");
+        if (!el.querySelector(".mmd-fit-btn")) {
+          const btn = document.createElement("button");
+          btn.className = "mmd-fit-btn";
+          btn.type = "button";
+          btn.textContent = "⤢ fit";
+          btn.title = "Toggle fit-to-width";
+          btn.addEventListener("click", (e) => {
+            e.stopPropagation(); // don't trigger the click-to-zoom on the block
+            const fit = el.classList.toggle("mmd-fit");
+            btn.textContent = fit ? "↔ actual size" : "⤢ fit";
+          });
+          el.appendChild(btn);
+        }
+      }
     });
   }
 }

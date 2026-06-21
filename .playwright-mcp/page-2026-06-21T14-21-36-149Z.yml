@@ -1,0 +1,54 @@
+- generic [ref=e2]:
+  - banner [ref=e3]:
+    - generic [ref=e4]:
+      - generic [ref=e5]: ⚡
+      - heading "Algora" [level=1] [ref=e7]
+    - generic [ref=e8]:
+      - generic "Model" [ref=e9]:
+        - combobox [ref=e10] [cursor=pointer]:
+          - option "Opus 4.8" [selected]
+          - option "Sonnet 4.6"
+          - option "Haiku 4.5"
+      - button "thinking" [ref=e11] [cursor=pointer]: thinking
+      - button "⋯" [ref=e14] [cursor=pointer]
+      - generic "connecting…" [ref=e15]
+  - tablist "Mode" [ref=e16]:
+    - tab "⏱ Online Assessment" [selected] [ref=e17] [cursor=pointer]:
+      - generic [ref=e18]: ⏱
+      - text: Online Assessment
+    - tab "🎙 Coding Interview" [ref=e19] [cursor=pointer]:
+      - generic [ref=e20]: 🎙
+      - text: Coding Interview
+    - tab "🧩 Low Level Design" [ref=e21] [cursor=pointer]:
+      - generic [ref=e22]: 🧩
+      - text: Low Level Design
+    - tab "🏛 System Design (HLD)" [ref=e23] [cursor=pointer]:
+      - generic [ref=e24]: 🏛
+      - text: System Design (HLD)
+    - tab "💼 Behavioral / HM" [ref=e25] [cursor=pointer]:
+      - generic [ref=e26]: 💼
+      - text: Behavioral / HM
+    - tab "🏷 LP Coach" [ref=e27] [cursor=pointer]:
+      - generic [ref=e28]: 🏷
+      - text: LP Coach
+  - main [ref=e29]:
+    - generic [ref=e31]:
+      - generic [ref=e32]: ∑
+      - heading "Drop a problem. Watch it get solved." [level=2] [ref=e33]
+      - paragraph [ref=e34]:
+        - text: Paste a DSA problem, or attach a screenshot. The agent analyses the constraints, writes Python,
+        - emphasis [ref=e35]: actually runs it
+        - text: against sample and adversarial edge cases, fixes failures, and only then answers. Built for timed online assessments.
+      - generic [ref=e36]:
+        - button "Two Sum" [ref=e37] [cursor=pointer]
+        - button "Longest Substring" [ref=e38] [cursor=pointer]
+        - button "Course Schedule" [ref=e39] [cursor=pointer]
+  - generic [ref=e40]:
+    - button "Dictate by voice" [ref=e41] [cursor=pointer]:
+      - img [ref=e42]
+    - button "Attach image" [ref=e45] [cursor=pointer]:
+      - img [ref=e46]
+    - textbox "Problem input" [ref=e48]:
+      - /placeholder: Describe the problem, or paste a screenshot…
+    - button "Send" [ref=e49] [cursor=pointer]:
+      - img [ref=e50]

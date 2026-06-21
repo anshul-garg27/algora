@@ -1,0 +1,300 @@
+===== MERMAID BLOCK 1 (starts line 225) =====
+225: ```mermaid
+226: flowchart TD
+227:     Client[Client app]:::client
+228:     Client -->|"1 POST v1 links"| LB[Load balancer]:::svc
+229:     LB -->|"2 route"| WS[Write Service]:::svc
+230:     WS -->|"3 need a code"| KGS[Key Generation Service]:::svc
+231:     KGS -->|"4 grant ID range"| CounterDB[(Counter store)]:::db
+232:     WS -->|"5 base62 encode locally"| WS
+233:     WS -->|"6 insert mapping"| Mapping[(Mapping store sharded)]:::db
+234:     WS -->|"7 return shortUrl"| Client
+235:     classDef client fill:#1a3a5c,stroke:#4A90D9,stroke-width:2px,color:#e6edf3
+236:     classDef svc fill:#0b3d2e,stroke:#2ea043,stroke-width:2px,color:#e6edf3
+237:     classDef db fill:#2a2f3a,stroke:#6B7280,stroke-width:2px,color:#e6edf3
+238: ```
+239: ↳ reuses existing: none (first slice)
+240: 
+241: **Numbered step narration**
+242: 1. **Client POSTs the long URL** to the load balancer. Why LB: it spreads ~6K writes/s and gives HA. State: none yet. What goes wrong: a network retry — handled by the `Idempotency-Key`.
+243: 2. **LB routes to a Write Service** instance. Why: stateless services are interchangeable. State: none.
+244: 3. **Write Service asks KGS for capacity** *only if its local range is exhausted*. Why: amortizes the counter. State: server about to receive a new range.
+245: 4. **KGS atomically bumps the durable counter** and grants a range (e.g. IDs 5,001,000–5,001,999). Why: one atomic increment per 1,000 creates. State: counter advanced; range is now "owned" by that server. What goes wrong: server crash burns the range — acceptable, 3.5T keyspace.
+246: 5. **Write Service base62-encodes the next ID locally.** Why: pure function, no I/O. State: a candidate code exists.
+247: 6. **Write Service inserts the mapping** (`code → long_url`) on the shard owned by that code. For a custom alias this is insert-if-absent → 409 on conflict. State: link is durable. What goes wrong: alias collision → 409 returned, no overwrite.
+248: 7. **Returns the short URL.** State: client has its link.
+249: 
+250: > 💬 "The whole trick on writes is: don't call the counter per write — grab a block of a thousand and mint locally. The counter goes from a 6K/s hot spot to a 6-per-second nudge."
+251: 
+252: > 🎙️ **Script:** "To create a link, a stateless write service grabs a code. It mints codes from a block of IDs the key-generation service handed it — base62-encoding a number — so the only correctness rule, uniqueness, is guaranteed by construction instead of by retrying. It writes the mapping into Postgres sharded by code, and for a custom alias it's an atomic insert-if-absent so two people can't claim the same alias. The trade-off is we sometimes waste a block of IDs when a server dies, but with trillions of codes that's free."
+253: 
+254: ### 6.2 "Redirect short code → long URL"
+255: 
+256: This is the hot path: ~580K/s. The whole design is "answer from cache, almost never touch the DB." It builds directly on 6.1's mapping store.
+257: 
+258: **Architecture decisions table**
+259: 
+260: | Component | What it is (plain English) | Why THIS choice | What we DIDN'T pick & why not | Trade-off we accept |
+261: |---|---|---|---|---|
+262: | CDN / edge | Geographically distributed cache of redirect responses near users | Terminates most traffic near the user, cuts latency and origin load | Not origin-only (every click crosses the internet to us) | Edge caching a 302 means short max-age, so we still see most clicks |
+263: | Redirect Service | Stateless app servers that resolve a code to a URL and emit a 302 | Tiny, fast, horizontally scalable | Not serving directly from the DB (DB can't do 580K/s point reads) | Another tier to operate |
+264: | Redis cache (sharded) | In-memory store of `code → long_url`, sharded across nodes | 580K/s ÷ 150K/node ⇒ must shard; in-memory = sub-ms reads | Not a local in-process cache only (can't share across many servers, cold on deploy); not Memcached (Redis gives us richer ops + persistence options) | Cache and DB can briefly disagree; we use TTL + write-through |
+265: | Mapping store (Postgres replicas) | Same store from 6.1, read replicas for cache misses | Misses are only ~29K/s ⇒ ~3 replicas absorb them | Not hitting the primary for reads (would compete with writes) | Replica lag (ms) — fine, mappings are immutable after create |
+266: 
+267: > 🎙️ **Narration:** "On a click, I want to never touch the database. The request hits a CDN — a network of caches near the user — then a stateless redirect service, then Redis, an in-memory cache. Redis is in-memory so reads are sub-millisecond, and I shard it because one node tops out around a hundred-fifty thousand ops a second and I'm at half a million. Only the ~5% of reads that miss go to a Postgres read replica — that's about thirty thousand a second, which three replicas handle. I emit a 302 so the browser comes back next time and I keep seeing clicks. The trade-off is the cache and DB can disagree for a moment, but mappings are immutable once created, so that's a non-issue."
+268: 
+269: > **🗣️ Key terms for this slice:**
+270: > **CDN** — a network of cache servers spread around the world that serve responses from near the user. Here it absorbs a chunk of redirect traffic before it ever reaches us.
+271: > **Redis** — an in-memory key-value store with sub-millisecond reads. Here it holds the hot `code → URL` mappings so the DB is rarely touched.
+272: > **Read replica** — a read-only copy of the database kept in sync with the primary. Here replicas serve the few cache misses so reads don't compete with writes.
+273: > **302 Found** — an HTTP "temporary redirect" the browser doesn't permanently cache. Here it ensures every click comes back to us for analytics.
+274: 
+275: **Diagram — redirect (hot) flow with miss fallback**
+===== MERMAID BLOCK 2 (starts line 276) =====
+276: ```mermaid
+277: flowchart TD
+278:     Client[Client app]:::client
+279:     Client -->|"1 GET code"| CDN[CDN edge]:::ext
+280:     CDN -->|"2 miss to origin"| RS[Redirect Service]:::svc
+281:     RS -->|"3 read cache"| Redis[(Redis sharded)]:::db
+282:     Redis -->|"4 hit return URL"| RS
+283:     RS -->|"5 miss read replica"| Replica[(Postgres replica)]:::db
+284:     Replica -->|"6 backfill cache"| Redis
+285:     RS -->|"7 emit 302"| Client
+286:     RS -.->|"8 fire click event"| Queue[[Click queue]]:::async
+287:     classDef client fill:#1a3a5c,stroke:#4A90D9,stroke-width:2px,color:#e6edf3
+288:     classDef svc fill:#0b3d2e,stroke:#2ea043,stroke-width:2px,color:#e6edf3
+289:     classDef async fill:#3d2a0b,stroke:#B7791F,stroke-width:2px,color:#e6edf3
+290:     classDef db fill:#2a2f3a,stroke:#6B7280,stroke-width:2px,color:#e6edf3
+291:     classDef ext fill:#3a2150,stroke:#9b59b6,stroke-width:2px,color:#e6edf3
+292: ```
+293: ↳ reuses existing: Mapping store (from §6.1)
+294: 
+295: **Numbered step narration**
+296: 1. **Client GETs the code.** Why CDN first: closest cache wins. State: none. What goes wrong: CDN region down → falls back to origin.
+297: 2. **CDN miss goes to origin** (a stateless Redirect Service). Why: CDN can't hold every long-tail code. State: none.
+298: 3. **Redirect Service reads Redis** by code. Why: in-memory, sub-ms. State: none.
+299: 4. **Cache hit returns the URL** (~95% of the time). State: none. This is the common case.
+300: 5. **On miss, read a Postgres replica.** Why: replicas absorb the ~29K/s miss load. State: none. What goes wrong: a stampede on a cold popular key → request coalescing (single-flight), covered in §8.
+301: 6. **Backfill Redis** with the result (write-through on read) + TTL. State: code now hot in cache.
+302: 7. **Emit a 302** with the `Location`. State: browser redirects. What goes wrong: unknown code → 404 branded page.
+303: 8. **Fire a click event** onto the queue, *fire-and-forget* (dashed). Why: must not block the redirect. State: an event is enqueued for async counting.
+304: 
+305: > 💬 "The redirect answers from memory and the database basically never sees a read — only the 5% of misses, about thirty thousand a second, which is nothing."
+306: 
+307: > 🎙️ **Script:** "A click hits a CDN, then a stateless redirect service, then Redis — an in-memory cache that answers in under a millisecond. About 95% of reads are served from cache; only misses fall through to a Postgres read replica, which then backfills the cache. I emit a 302 so the browser keeps coming back and I keep seeing clicks, and I fire the click event onto a queue without waiting for it. The one decision that makes this slice work is sharding the cache, because one node can't do half a million reads a second."
+308: 
+309: ### 6.3 "Custom alias"
+310: 
+311: Mostly reuses 6.1 — the new behavior is the **atomic claim** and the **shared namespace** with auto-generated codes. The risk is two creators racing for the same alias, or an alias colliding with a future auto code.
+312: 
+313: **Architecture decisions table**
+314: 
+315: | Component | What it is (plain English) | Why THIS choice | What we DIDN'T pick & why not | Trade-off we accept |
+316: |---|---|---|---|---|
+317: | Alias claim (unique PK insert) | The mapping insert uses the alias as the primary key; DB rejects a duplicate | DB-enforced uniqueness is the simplest correct serialization point | Not "read-then-write in app code" (classic race: both read free, both write) | A loser just retries with a different alias |
+318: | Namespace partition | Auto codes are base62 of large counter IDs; reserved-word denylist for aliases | Keeps custom and auto codes from colliding by construction | Not a shared random pool (then auto and custom can clash) | Aliases can't look like a future auto code prefix — minor UX rule |
+319: 
+320: > 🎙️ **Narration:** "Custom aliases share the same code namespace as auto codes, so I need the claim to be atomic. I just make the alias the primary key and let the database reject a duplicate — that's the cleanest serialization point, no application-side lock. The classic mistake is read-then-write: two users both check 'is it free?', both see yes, both write, one silently clobbers the other. To stop a custom alias ever colliding with a future auto code, auto codes always come from large counter integers and aliases live with a reserved denylist, so the two pools don't overlap."
+321: 
+322: > **🗣️ Key terms for this slice:**
+323: > **Unique constraint** — a DB rule that no two rows share the same key. Here the alias is the PK, so a duplicate insert simply fails instead of overwriting.
+324: > **Namespace collision** — when two different generation strategies produce the same code. Here we prevent it by keeping auto codes in the high-integer space and aliases gated by a denylist.
+325: 
+326: ↳ builds on §6.1 diagram — no new components; the new edge is the **409 on conflict** return from the Mapping store insert.
+327: 
+328: **Numbered step narration (delta only)**
+329: 1. Same create path as 6.1 through step 6, but with `customAlias` as the code.
+330: 2. **Insert-if-absent on the alias.** Why: atomic claim. State: alias is durably owned. What goes wrong: already taken → DB unique-violation → service returns **409 ALIAS_TAKEN**, no overwrite.
+331: 
+332: > 💬 "I don't check-then-claim — I just try to insert and let the database be the referee. The first writer wins, everyone else gets a clean 409."
+333: 
+334: > 🎙️ **Script:** "Custom aliases reuse the create path; the only new thing is correctness. I make the alias the primary key and let the database reject duplicates, so two people racing for the same alias can't both win — the first insert succeeds and the rest get a 409. I keep auto-generated codes in a high integer range so a custom alias can never accidentally collide with a future random one."
+335: 
+336: ### 6.4 "Async click analytics"
+337: 
+338: Counting must never touch the hot path. Clicks ride a durable log to a stream processor that aggregates per-code counts. Builds on 6.2's fire-and-forget event.
+339: 
+340: **Architecture decisions table**
+341: 
+342: | Component | What it is (plain English) | Why THIS choice | What we DIDN'T pick & why not | Trade-off we accept |
+343: |---|---|---|---|---|
+344: | Kafka (click log) | A durable append-only log that buffers a firehose of events so nothing is lost if a consumer lags | Decouples the 580K/s hot path from slow analytics; replayable | Not a synchronous DB write per click (kills the hot path); not a fire-into-nowhere UDP (lossy) | Counts are eventually consistent (seconds of lag) |
+345: | Stream processor (Flink) | A job that reads the log and maintains rolling counts per code/geo | Stateful windowed aggregation at high throughput | Not a per-event row insert into Postgres (10B/day writes melts it) | Operational complexity of a streaming job |
+346: | Analytics store | A columnar/OLAP store + a small KV of current counts for the dashboard | Fast aggregate reads for the stats endpoint | Not the OLTP mapping DB (mixing analytics scans with the hot store) | A second store to keep |
+347: 
+348: > 🎙️ **Narration:** "Every redirect fires a click event onto Kafka — a durable log that buffers the firehose so nothing's lost if the consumer is slow. A Flink job — a streaming processor that keeps running totals in windows — reads the log and maintains counts per code and per country, writing to a columnar analytics store the dashboard reads from. I'd never write a row to the main database on every click; at ten billion clicks a day that would melt it. The trade-off is counts lag a few seconds, which is fine for a dashboard. Events carry a click id so the consumer can dedup retries — at-least-once delivery plus dedup gives me effectively-once counting."
+349: 
+350: > **🗣️ Key terms for this slice:**
+351: > **Kafka** — a durable, replayable log that holds events until consumers catch up. Here it buffers click events so a slow analytics consumer never slows the redirect.
+352: > **Flink** — a stream processor that maintains stateful, windowed aggregates over a firehose. Here it keeps per-code click counts updated continuously.
+353: > **OLAP / columnar store** — a database optimized for aggregate scans (sums, group-bys) rather than single-row lookups. Here it answers "clicks by country last week" fast.
+354: > **At-least-once + dedup** — the consumer may see an event more than once but ignores duplicates by id. Here it gives effectively-once counts without exactly-once delivery cost.
+355: 
+356: **Diagram — async analytics pipeline**
+===== MERMAID BLOCK 3 (starts line 357) =====
+357: ```mermaid
+358: flowchart TD
+359:     RS[Redirect Service]:::svc
+360:     RS -.->|"1 click event"| Kafka[[Kafka click log]]:::async
+361:     Kafka -.->|"2 consume"| Flink[Stream processor]:::svc
+362:     Flink -->|"3 dedup by click id"| Flink
+363:     Flink -->|"4 write counts"| OLAP[(Analytics store)]:::db
+364:     Flink -.->|"5 raw events"| ColdStore[(Object store cold)]:::db
+365:     Dash[Owner dashboard]:::client -->|"6 GET stats"| StatsSvc[Stats Service]:::svc
+366:     StatsSvc -->|"7 read counts"| OLAP
+367:     classDef client fill:#1a3a5c,stroke:#4A90D9,stroke-width:2px,color:#e6edf3
+368:     classDef svc fill:#0b3d2e,stroke:#2ea043,stroke-width:2px,color:#e6edf3
+369:     classDef async fill:#3d2a0b,stroke:#B7791F,stroke-width:2px,color:#e6edf3
+370:     classDef db fill:#2a2f3a,stroke:#6B7280,stroke-width:2px,color:#e6edf3
+371: ```
+372: ↳ reuses existing: Redirect Service (from §6.2)
+373: 
+374: **Numbered step narration**
+375: 1. **Redirect Service fires a click event** onto Kafka (fire-and-forget). State: event durably buffered. What goes wrong: Kafka unavailable → drop locally with a bounded buffer (analytics is lossy-tolerant), redirect still succeeds.
+376: 2. **Flink consumes** from the log. State: in-flight aggregation. What goes wrong: consumer lag → back-pressure on the log (it retains, doesn't block producers).
+377: 3. **Dedup by click id** so retries don't double-count. State: idempotent counting.
+378: 4. **Write rolling counts** to the analytics store. State: dashboard data updated (seconds of lag).
+379: 5. **Spill raw events** to a cold object store for 90-day retention/replay.
+380: 6. **Owner GETs stats** via the Stats Service (object-level authz).
+381: 7. **Stats Service reads pre-aggregated counts.** State: fast aggregate read, no scan of raw events.
+382: 
+383: > 💬 "The redirect throws the click over the wall and forgets about it — counting happens on a separate, replayable pipeline that can fall behind without anyone clicking noticing."
+384: 
+385: > 🎙️ **Script:** "Analytics is fully off the hot path. Every redirect fires an event onto Kafka, a durable log; a Flink stream job reads it, dedups by click id, and keeps rolling counts in an analytics store the dashboard reads from. I never write to the main database on a click — at ten billion a day that's impossible. The cost is counts lag a few seconds and I tolerate at-least-once with dedup, which is exactly the accuracy a dashboard needs."
+386: 
+387: ### Final (high-level) — reconciled union
+388: 
+===== MERMAID BLOCK 4 (starts line 389) =====
+389: ```mermaid
+390: flowchart TD
+391:     Client[Client app]:::client
+392:     Client -->|"create POST v1 links"| LB[Load balancer]:::svc
+393:     Client -->|"click GET code"| CDN[CDN edge]:::ext
+394:     subgraph WritePath["Write path"]
+395:         LB --> WS[Write Service]:::svc
+396:         WS --> KGS[Key Generation Service]:::svc
+397:         KGS --> CounterDB[(Counter store)]:::db
+398:         WS --> Mapping[(Mapping store sharded)]:::db
+399:     end
+400:     subgraph ReadPath["Read hot path"]
+401:         CDN --> RS[Redirect Service]:::svc
+402:         RS --> Redis[(Redis sharded)]:::db
+403:         RS --> Replica[(Postgres replica)]:::db
+404:     end
+405:     subgraph AsyncPath["Async analytics"]
+406:         RS -.-> Kafka[[Kafka click log]]:::async
+407:         Kafka -.-> Flink[Stream processor]:::svc
+408:         Flink --> OLAP[(Analytics store)]:::db
+409:         Flink -.-> ColdStore[(Object store cold)]:::db
+410:     end
+411:     Replica --> Mapping
+412:     StatsSvc[Stats Service]:::svc --> OLAP
+413:     classDef client fill:#1a3a5c,stroke:#4A90D9,stroke-width:2px,color:#e6edf3
+414:     classDef svc fill:#0b3d2e,stroke:#2ea043,stroke-width:2px,color:#e6edf3
+415:     classDef async fill:#3d2a0b,stroke:#B7791F,stroke-width:2px,color:#e6edf3
+416:     classDef db fill:#2a2f3a,stroke:#6B7280,stroke-width:2px,color:#e6edf3
+417:     classDef ext fill:#3a2150,stroke:#9b59b6,stroke-width:2px,color:#e6edf3
+418: ```
+419: *(`Replica --> Mapping` shows the replica is a copy of the primary mapping store; load-bearing columns: Mapping is keyed on `short_code` PK with `long_url, owner_id, expires_at`; Redis holds `code → long_url`.)*
+420: 
+421: > 🎙️ **Script:** "Read path: clicks hit the CDN, then a redirect service, then sharded Redis, with rare misses falling to a Postgres replica — that's where 99% of traffic lives. Write path: a write service mints a unique base62 code via the key-generation service and inserts into sharded Postgres. Async path: every click fires onto Kafka and a Flink job keeps the counts a dashboard reads. The two halves connect only through that fire-and-forget click event, so analytics can never slow a redirect."
+422: 
+423: > 🤝 **Checkpoint:** "That's the skeleton end to end. Want me deeper on short-code generation and the global counter, the read hot-path and cache, or the analytics pipeline?"
+424: 
+425: ---
+426: 
+427: ## 7. Data Model & Storage
+428: 
+429: **PART A — Entity table**
+430: 
+431: | Entity | Key fields (PK/shard key annotated) | Chosen store | Shard/partition key | Consistency |
+432: |---|---|---|---|---|
+433: | ShortLink | **short_code (PK, shard key)**, long_url, owner_id, created_at, expires_at, is_custom | Postgres (sharded) + Redis cache | short_code | Strong on write (unique insert); eventual on cached read |
+434: | Counter | range_start (PK), allocated_to | Postgres / etcd (single small store) | n/a (tiny) | Strong (atomic increment) |
+435: | ClickEvent | **(short_code, ts) partition**, click_id, geo, referrer, ua | Kafka → OLAP + cold object store | time-partitioned by day | Eventual (at-least-once + dedup) |
+436: | Owner | owner_id (PK) | Postgres | owner_id | Strong |
+437: 
+438: **PART B — Storage decision cards**
+439: 
+440: **🗄️ Postgres (sharded) — used for: ShortLink, Owner, Counter**
+441: 1. **What it is:** a relational database that stores rows with strict rules and guarantees a write either fully succeeds or fully rolls back; here it enforces that a code is unique.
+442: 2. **Why we picked it:** we need an **atomic insert-if-absent** so two creators racing for the same custom alias can't both win, and a strong PK uniqueness guarantee — only a relational DB gives this cleanly. Writes are light (~6K/s), so a sharded Postgres is plenty.
+443: 3. **What we considered instead:**
+444:    - **DynamoDB** — great KV for the read path, but its conditional writes work; the real reason against it as the *source of truth* is we'd still bolt on a counter scheme and we prefer Postgres's transactional ergonomics + cheaper at this write rate.
+445:    - **Cassandra** — excellent write throughput, but last-writer-wins by default makes the alias-uniqueness guarantee awkward (lightweight transactions are slow).
+446:    - **One unsharded MySQL** — identical capability to Postgres but 375TB won't fit on one node; we'd shard either way and prefer Postgres tooling.
+447: 4. **Trade-off we accept:** sharding by code means cross-shard queries (e.g. "all links by owner") need a secondary index or a separate owner→codes table; we denormalize.
+448: 5. **🗣️ How to say it:** "Mappings live in Postgres sharded by code, because custom aliases need an atomic claim and I want database-enforced uniqueness, not application locks. I looked at Dynamo and Cassandra — fine for the read path — but the uniqueness guarantee is cleanest in Postgres. The cost is cross-shard owner queries, which I solve with a small owner→codes table."
+449: 
+450: **🗄️ Redis (sharded) — used for: hot code → long_url cache**
+451: 1. **What it is:** an in-memory key-value store with sub-millisecond reads.
+452: 2. **Why we picked it:** the read path is ~580K/s and the DB can't do that; an in-memory cache sharded across ~4 nodes absorbs it at sub-ms latency.
+453: 3. **What we considered instead:** **Memcached** — simpler but no persistence/replication if we want warm restarts; **local in-process cache** — can't be shared across many redirect servers and is cold on every deploy.
+454: 4. **Trade-off we accept:** cache and DB can briefly disagree — fine because mappings are immutable after create (no update path to go stale).
+455: 5. **🗣️ How to say it:** "Redis holds the hot mappings in memory, sharded because one node tops out near 150K ops a second and I'm at half a million. Mappings never change after creation, so cache staleness basically can't happen."
+456: 
+457: **🗄️ Kafka + OLAP + object store — used for: ClickEvent / analytics**
+458: 1. **What it is:** Kafka is a durable replayable log; the OLAP store is a columnar DB built for aggregate scans; the object store (S3/Glacier) is cheap cold archival.
+459: 2. **Why we picked it:** at 10B clicks/day we cannot write a row per click to the OLTP DB; a log buffers the firehose, a stream job aggregates, and the columnar store answers "clicks by country" fast.
+460: 3. **What we considered instead:** **Postgres per-click insert** — melts at 10B/day; **direct OLAP insert per event** — too many tiny writes, no buffering/replay if the consumer dies.
+461: 4. **Trade-off we accept:** eventual counts (seconds of lag) and an extra streaming system to operate.
+462: 5. **🗣️ How to say it:** "Clicks ride Kafka into a Flink job that keeps counts in a columnar store, and raw events spill to cheap object storage. I never touch the main DB on a click. The price is a few seconds of lag, which is exactly fine for a dashboard."
+463: 
+464: **PART C — Per-operation consistency**
+465: 
+466: | Operation | Store | Consistency | Why right here |
+467: |---|---|---|---|
+468: | Create link / claim alias | Postgres | Strong (atomic unique insert) | Money-adjacent correctness: a collision sends users to the wrong site |
+469: | Counter allocate range | Postgres/etcd | Strong (atomic increment) | Two servers must never get the same ID range |
+470: | Redirect read (cache hit) | Redis | Eventual (but effectively strong) | Mappings are immutable post-create, so "stale" can't happen |
+471: | Redirect read (miss) | Postgres replica | Read replica (ms lag) | Mapping won't change, so lag is harmless |
+472: | Read-your-own-writes (just-created link) | Redis/replica | Handled explicitly | After create, the code may not be in cache/replica yet → see below |
+473: | Click count read | OLAP | Eventual (seconds) | Dashboard tolerates lag |
+474: 
+475: **Read-your-own-writes:** right after creating a link, the creator might immediately click it before the cache or replica has it. Mitigation: on create we **write-through into Redis** and the create response *is* the proof of existence; if a redirect misses both cache and replica within the replica-lag window, the Redirect Service **reads the primary** for that one lookup. Staleness bound: ≤ replica lag (single-digit ms).
+476: 
+477: **PART D — Data lifecycle (largest table = ClickEvent, ~270TB raw at 90 days)**
+478: 
+479: Raw click events are the fastest-growing table. We keep **90 days of raw events** (tying to the ~270TB / replication-3 figure from §3); beyond that we keep only **rolled-up aggregates** (counts per code/day) which are tiny. Reclamation is **time-partitioned tables with a daily PARTITION DROP** — dropping a day's partition is an O(1) metadata operation, instant, versus a row-by-row DELETE that churns indexes and never cleanly reclaims space. Cold raw events spill to **S3/Glacier** for replay/audit. Without this we'd grow unbounded and the analytics store would dominate cost.
+480: 
+481: > 🎙️ **Script:** "The core is Postgres sharded by code — I chose it for database-enforced uniqueness on custom aliases, since a collision is a correctness disaster. The hot reads are absorbed by sharded Redis, and because mappings are immutable I don't worry about cache staleness. Clicks ride Kafka into Flink and land in a columnar analytics store, with raw events kept 90 days then partition-dropped and archived to S3. I considered Cassandra for the source of truth but its last-writer-wins makes the alias guarantee awkward, so I kept the source of truth relational and used the NoSQL-style stores only where eventual consistency is acceptable."
+482: 
+483: ---
+484: 
+485: ## 8. Deep Dives — Bad → Good → Great
+486: 
+487: > 🆘 **If you get stuck:** go back to "this is read-heavy 100:1, codes must be unique by construction, and analytics never touches the hot path" — every answer falls out of those three.
+488: 
+489: ### How do we generate short codes that never collide?
+490: 
+491: **#### Bad: Random base62 + check-and-retry**
+492: - 🗣️ **Plain words:** roll a random 7-character code, ask the DB "is this taken?", and reroll if it is.
+493: - **Approach:** generate 7 random base62 chars, `SELECT` to check existence, insert if free, else retry.
+494: - **Why people try this:** it's the obvious first idea — no coordinator needed.
+495: - ⚠️ **What breaks:** every write now needs an extra read, and as the keyspace fills, collisions (and retries) climb; under a write burst the retry loop amplifies load on the exact DB you're trying to protect. At ~6K writes/s the extra read isn't fatal yet, but it's an unbounded-retry latent risk and it makes uniqueness probabilistic.
+496: - 🔁 **Forces upgrade:** the need for *guaranteed* uniqueness with no per-write read pushes us to a counter.
+497: 
+498: **#### Good: Single global counter + base62**
+499: - ↩️ **What the previous tier got wrong:** random codes need a DB check on every write; a counter is unique *by construction*, so no check, no retry.
+500: - 🗣️ **Plain words:** hand out an ever-increasing number like a deli ticket and base62-encode it.
+501: - **Approach:** a single atomic counter (a row with `FOR UPDATE`, or a Redis `INCR`) gives the next integer; base62-encode it into the code.
+502: - **Why people try this:** it's correct and simple to reason about.
+503: - ⚠️ **What breaks:** the counter is now a **global coordinator** — every create serializes through it. At ~6K writes/s a single `INCR` is fine, but its *availability* is now the write tier's availability, and codes are **sequential/guessable** (you can enumerate other people's links).
+504: - 🔁 **Forces upgrade:** the single point of serialization + guessability pushes us to ranged allocation + obfuscation.
+505: 
+===== MERMAID BLOCK 5 (starts line 506) =====
+506: ```mermaid
+507: flowchart TD
+508:     WS[Write Service]:::svc -->|"1 next id"| Counter[(Atomic counter)]:::db
+509:     Counter -->|"2 id = N"| WS
+510:     WS -->|"3 base62 encode"| WS
+511:     WS -->|"4 insert mapping"| Mapping[(Mapping store)]:::db
+512:     classDef svc fill:#0b3d2e,stroke:#2ea043,stroke-width:2px,color:#e6edf3
+513:     classDef db fill:#2a2f3a,stroke:#6B7280,stroke-width:2px,color:#e6edf3
+514: ```
+515: 
+516: **#### Great: Ranged KGS + per-server blocks (+ optional bit-permutation)**
+517: - ↩️ **What the previous tier got wrong:** a per-write counter call serializes every create and is a single availability dependency; granting *ranges* removes ~99.9% of those calls, and permuting bits removes guessability.
+518: - 🗣️ **Plain words:** the counter hands each server a block of a thousand numbers at once, so servers mint codes locally and barely ever talk to the counter; then we scramble the bits so codes aren't sequential.
+519: - **Approach:** the **KGS** atomically advances the counter by 1,000 and grants `[N, N+999]` to a server. The server mints codes locally from its block. To kill guessability, we apply a reversible **bit permutation** (a Feistel/XOR scramble — a deterministic two-way shuffle of the integer's bits) *before* base62 encoding, so consecutive IDs produce non-adjacent codes. Custom aliases bypass the counter and use insert-if-absent in the same namespace partition.

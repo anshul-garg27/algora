@@ -186,6 +186,31 @@ body {
 }
 .ghost-btn:hover { border-color: var(--border-strong); color: var(--text); }
 
+/* Overflow ("⋯") menu. On desktop the menu is `display:contents`, so devices/history/new
+   flow inline exactly as before and the ⋯ trigger is hidden. On mobile (≤620) the trigger
+   appears and the menu collapses into a popover — keeping the header to a single tidy row. */
+.more-wrap { position: relative; display: inline-flex; }
+.more-btn { display: none; line-height: 1; padding: 7px 11px; font-size: 1rem; }
+.more-menu { display: contents; }
+.more-label { display: none; }
+@media (max-width: 620px) {
+  .more-btn { display: inline-flex; align-items: center; }
+  .more-menu {
+    display: flex; flex-direction: column; gap: 6px; align-items: stretch;
+    position: absolute; top: calc(100% + 8px); right: 0; z-index: 60;
+    min-width: 168px; padding: 7px;
+    background: var(--surface-2, oklch(17% 0.012 265));
+    border: 1px solid var(--border-strong); border-radius: var(--radius);
+    box-shadow: 0 14px 34px oklch(0% 0 0 / 0.5);
+    opacity: 0; visibility: hidden; transform: translateY(-6px) scale(0.98);
+    transform-origin: top right;
+    transition: opacity 0.14s ease, transform 0.14s ease, visibility 0.14s ease;
+  }
+  .more-menu.open { opacity: 1; visibility: visible; transform: translateY(0) scale(1); }
+  .more-menu .ghost-btn { text-align: left; width: 100%; }
+  .more-label { display: inline; }
+}
+
 .status-dot {
   width: 9px; height: 9px; border-radius: 50%;
   background: var(--text-faint);
@@ -285,6 +310,7 @@ body {
   min-height: 0;
   display: flex;
   flex-direction: column;
+  position: relative;   /* anchor for the reading-progress bar + floating nav controls */
 }
 .transcript {
   flex: 1;
@@ -543,6 +569,19 @@ body {
   font-family: var(--font-mono); font-size: 0.82rem; line-height: 1.55;
   color: oklch(90% 0.01 265);
 }
+/* Opt-in line-number gutter (full-code viewer + modal). The gutter shares the pre's
+   font metrics + vertical padding so numbers line up with code rows; it stays put while
+   the code scrolls horizontally inside its own <pre>. */
+.code-rows { display: flex; align-items: stretch; }
+.code-block.has-gutter pre { flex: 1; min-width: 0; }
+.code-gutter {
+  flex: none; user-select: none; text-align: right;
+  padding: 13px 10px 13px 14px;
+  font-family: var(--font-mono); font-size: 0.82rem; line-height: 1.55;
+  color: var(--text-faint); background: oklch(14% 0.01 265);
+  border-right: 1px solid var(--border);
+  white-space: pre;
+}
 /* tiny python-ish syntax tint */
 .tok-kw { color: oklch(74% 0.13 300); }
 .tok-str { color: oklch(80% 0.13 140); }
@@ -780,6 +819,20 @@ body {
 }
 /* wide diagrams: anchor to the left (the part you read first) instead of mid-canvas */
 .mermaid-block.mmd-wide { text-align: left; }
+/* "fit to width" toggle — only injected on diagrams wider than the column. Sits top-right
+   so it doesn't collide with the bottom-right "tap to enlarge" hint. */
+.mmd-fit-btn {
+  position: absolute; top: 6px; right: 8px; z-index: 2; cursor: pointer;
+  font-size: 0.6rem; font-weight: 600; letter-spacing: 0.02em;
+  color: var(--text-dim); background: oklch(0% 0 0 / 0.5);
+  border: 1px solid var(--border-strong); border-radius: 999px; padding: 3px 9px;
+  transition: color 0.12s ease, border-color 0.12s ease;
+}
+.mmd-fit-btn:hover { color: var(--text); border-color: var(--accent); }
+.mmd-fit-btn:active { transform: scale(0.94); }
+/* when fitted, scale the SVG down to the column (overrides the inline maxWidth:none) */
+.mermaid-block.mmd-fit { text-align: center; }
+.mermaid-block.mmd-fit svg { width: 100% !important; max-width: 100% !important; height: auto; }
 /* width:auto + max-width:none lets the SVG keep its natural size so the block
    scrolls horizontally instead of shrinking the diagram to fit the column. */
 .mermaid-block svg { width: auto; max-width: none; height: auto; display: inline-block; }
@@ -948,6 +1001,35 @@ body {
   opacity: 0.7;
 }
 .ifc-tab.active .ifc-tab-meta { color: var(--accent-strong); opacity: 0.6; }
+/* Native file picker — hidden on desktop (tabs are used), shown on phones where a
+   horizontal strip of 18 tabs is unusable. Keeps the OS arrow + wheel picker on iOS. */
+.ifc-select {
+  display: none;
+  width: 100%;
+  background: var(--surface-2);
+  color: var(--text);
+  border: none;
+  border-bottom: 1px solid var(--border);
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 11px 14px;
+  cursor: pointer;
+}
+/* Breadcrumb: full relative path of the active file (folder dimmed, filename bright).
+   Tabs/options only show the basename, so this is where the directory context lives. */
+.ifc-path {
+  display: flex; align-items: center; gap: 6px;
+  padding: 7px 14px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  font-family: var(--font-mono); font-size: 0.72rem;
+  color: var(--text-faint);
+  white-space: nowrap; overflow: hidden;
+}
+.ifc-path-ico { flex: none; opacity: 0.85; }
+.ifc-path-dir { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.ifc-path-name { flex: none; color: var(--text); font-weight: 650; }
 /* The single code pane — fixed height, internal scroll, so the page stays compact. */
 .ifc-pane {
   max-height: 62vh;
@@ -1001,11 +1083,17 @@ body {
   border-right: 1px solid var(--border); overflow-y: auto; background: var(--surface-2);
 }
 .cm-file {
+  display: flex; flex-direction: column; gap: 1px; line-height: 1.3;
   text-align: left; background: transparent; border: 1px solid transparent;
   color: var(--text-dim); font-family: var(--font-mono); font-size: 0.76rem;
-  padding: 7px 10px; border-radius: 8px; cursor: pointer; white-space: nowrap;
-  overflow: hidden; text-overflow: ellipsis;
+  padding: 7px 10px; border-radius: 8px; cursor: pointer; min-width: 0;
 }
+.cm-file-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cm-file-dir {
+  font-size: 0.63rem; color: var(--text-faint); opacity: 0.85;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.cm-file.active .cm-file-dir { color: var(--accent-strong); opacity: 0.7; }
 .cm-file:hover { background: var(--surface-3); color: var(--text); }
 .cm-file.active { background: var(--accent-soft); color: var(--accent-strong); border-color: oklch(72% 0.16 45 / 0.4); }
 .cm-code { overflow: auto; padding: 12px; min-width: 0; }
@@ -1041,6 +1129,18 @@ body {
     overflow-x: auto; overflow-y: hidden; scrollbar-width: none;
   }
   .cm-file { flex: none; min-height: 36px; }
+  .cm-file-dir { display: none; }   /* horizontal strip: keep tabs compact, basename only */
+
+  /* Inline full-code viewer on phones: swap the 18-wide tab strip for a native picker,
+     give the code pane more height, and keep the breadcrumb for folder context. */
+  .ifc-tabs { display: none; }
+  .ifc-select { display: block; }
+  .ifc-pane { max-height: 72vh; }
+  /* The breadcrumb path was tiny + dim on a phone — bump its size and contrast so the
+     active filename reads clearly. */
+  .ifc-path { font-size: 0.84rem; padding: 9px 14px; color: var(--text-dim); gap: 7px; }
+  .ifc-path-ico { font-size: 0.9rem; opacity: 1; }
+  .ifc-path-name { font-weight: 700; }
 }
 
 /* ---------- Notice / usage / error lines ---------- */
@@ -1103,6 +1203,80 @@ body {
 .history-item .hi-del:hover { color: var(--danger); background: oklch(70% 0.19 25 / 0.12); }
 .history-empty { color: var(--text-faint); font-size: 0.86rem; text-align: center; padding: 30px 16px; }
 
+/* ---------- Long-answer navigation: reading progress + outline + back-to-top ----------
+   LLD/HLD answers run to tens of thousands of pixels. These controls let a candidate
+   see how far they are and jump between sections without an endless thumb-scroll. */
+.reading-progress {
+  position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  z-index: 6; pointer-events: none;
+  opacity: 0; transition: opacity var(--dur) var(--ease);
+}
+.reading-progress.show { opacity: 1; }
+.reading-progress > i {
+  display: block; height: 100%; width: 0;
+  background: linear-gradient(90deg, var(--accent), var(--accent-strong));
+  box-shadow: 0 0 10px oklch(72% 0.16 45 / 0.5);
+  transition: width 90ms linear;
+}
+
+.nav-fab-cluster {
+  position: absolute; right: clamp(12px, 3vw, 22px);
+  bottom: 90px; z-index: 9;
+  display: flex; flex-direction: column; align-items: flex-end; gap: 10px;
+  pointer-events: none;
+}
+.nav-fab {
+  pointer-events: auto;
+  display: inline-flex; align-items: center; gap: 7px;
+  height: 38px; padding: 0 13px; border-radius: 999px;
+  background: oklch(22% 0.014 265 / 0.92); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+  border: 1px solid var(--border-strong); color: var(--text-dim);
+  font-size: 0.76rem; font-weight: 650; letter-spacing: 0.01em; cursor: pointer;
+  box-shadow: var(--shadow-hi);
+  opacity: 0; transform: translateY(10px) scale(0.94); visibility: hidden;
+  transition: opacity var(--dur) var(--ease), transform var(--dur) var(--ease),
+              color var(--dur) var(--ease), border-color var(--dur) var(--ease), visibility var(--dur);
+}
+.nav-fab.show { opacity: 1; transform: none; visibility: visible; }
+.nav-fab:hover { color: var(--text); border-color: var(--accent); }
+.nav-fab:active { transform: scale(0.93); }
+.nav-fab svg { width: 16px; height: 16px; flex: none; }
+.nav-fab.icon-only { width: 38px; padding: 0; justify-content: center; }
+
+.outline-pop {
+  pointer-events: auto;
+  position: absolute; right: 0; bottom: calc(100% + 10px);
+  width: min(300px, 80vw); max-height: min(58vh, 460px); overflow-y: auto;
+  background: var(--surface); border: 1px solid var(--border-strong);
+  border-radius: var(--radius); box-shadow: var(--shadow-hi); padding: 6px;
+  opacity: 0; transform: translateY(10px) scale(0.97); transform-origin: bottom right;
+  transition: opacity var(--dur) var(--ease), transform var(--dur) var(--ease);
+}
+.outline-pop.show { opacity: 1; transform: none; }
+.outline-head {
+  font-size: 0.64rem; text-transform: uppercase; letter-spacing: 0.1em;
+  color: var(--text-faint); padding: 7px 10px 6px; font-weight: 700;
+}
+.outline-item {
+  display: block; width: 100%; text-align: left; background: transparent; border: 0;
+  color: var(--text-dim); font-size: 0.82rem; line-height: 1.35; padding: 8px 10px;
+  border-radius: 8px; cursor: pointer;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  transition: background var(--dur) var(--ease), color var(--dur) var(--ease);
+}
+.outline-item:hover { background: var(--surface-2); color: var(--text); }
+.outline-item.active { background: var(--accent-soft); color: var(--accent-strong); }
+.outline-item.lvl-sub { padding-left: 22px; font-size: 0.78rem; color: var(--text-faint); }
+
+/* ---------- Global focus + press micro-interactions ----------
+   Keyboard-only focus rings (mouse clicks stay clean), plus a tiny press feedback so
+   every control feels physical. */
+:focus-visible { outline: 2px solid var(--accent-strong); outline-offset: 2px; border-radius: 8px; }
+.example-chip:active, .quick-action-btn:active, .ghost-btn:active,
+.chip-toggle:active, .copy-btn:active, .speak-btn:active, .full-code-btn:active,
+.ifc-copyall:active, .tab:active { transform: scale(0.96); }
+.send-btn:active:not(:disabled) { transform: scale(0.94); }
+
 /* ---------- Mobile ---------- */
 @media (max-width: 620px) {
   .tagline { display: none; }
@@ -1123,6 +1297,20 @@ body {
   #voice-wrap { display: none; }
   /* >=16px avoids iOS focus-zoom now that pinch-zoom is re-enabled */
   #model-select { font-size: 16px; }
+  /* keep the floating nav clear of the (taller) phone composer + home indicator */
+  .nav-fab-cluster { bottom: calc(86px + env(safe-area-inset-bottom)); right: 12px; }
+  /* Outline popover on phones: anchor to the viewport (not .panels) and cap its height to
+     the *dynamic* viewport with room reserved for the header above and the FAB/composer
+     below. Earlier it grew upward past the top of the screen, clipping items 1–2 on a short
+     phone (iPhone 15). Now it always fits and scrolls; full responsive width via left/right. */
+  .outline-pop {
+    position: fixed;
+    left: 12px; right: 12px; width: auto;
+    bottom: calc(185px + env(safe-area-inset-bottom));   /* sit just above the FAB */
+    max-height: calc(100vh - 295px);                     /* fallback for older Safari */
+    max-height: calc(100dvh - 295px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+    transform-origin: bottom right;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

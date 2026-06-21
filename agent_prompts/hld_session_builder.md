@@ -22,7 +22,7 @@ HLD sessions do NOT have Python workspace files — they are entirely prose, tab
 
 Before generating anything, read the full HLD system prompt from:
 ```
-/Users/anshullkgarg/Desktop/projects/claude-gpt/system_design_prompt.md
+/Users/gbang/Downloads/algora/system_design_prompt.md
 ```
 This is the exact prompt the AI uses in production. Your output must match every section it describes (§1 through §11).
 
@@ -49,90 +49,15 @@ slug = re.sub(r'[^A-Za-z0-9_-]', '_', session_id)
 
 Using the system prompt from `system_design_prompt.md`, generate the complete HLD response as markdown. This is what the user will READ — it must be fully expanded, no shortcuts.
 
-### Required sections (all 11):
+### Required sections (all 11)
 
-**§1 — Requirements**
-- Bullet each functional requirement on its own line
-- Layman parenthetical after every requirement: `(what this means in plain English)`
-- "Why it's hard" line per requirement
-- Every NFR must have a "What breaks without it" line
+**The section structure, exact headings, and per-section requirements are defined EXCLUSIVELY by `system_design_prompt.md` (its `<output_format>` block, §1 through §11). Read that file and follow it VERBATIM — do NOT paraphrase, re-label, or re-derive the sections here.** This builder used to embed its own mini-spec; that drifted out of sync with the production prompt (wrong section names, wrong card structure, an uncapped question count) and produced weaker artifacts. The production prompt is the single source of truth.
 
-**§2 — Clarifying Questions**
-- 6–10 questions per category (scale, consistency, latency)
-- Every question has: default assumption + design fork (If YES → ..., If NO → ...)
-- 🗣️ plain-words line showing how to say it aloud in the interview
+Two things to be especially careful to carry over from the production prompt (they were previously gotten wrong here):
+- §1 is **"Scope, Requirements & Assumptions"** and opens with the **🔒 Scope lock** — 2-4 architecture-forking questions stated as vetoable assumptions FIRST, then functional requirements derived from them, then provisional NFR targets. §2 is the **residual forks** ("what changes if I'm wrong"), NOT a fresh 6-10 question interrogation. Cap clarifying questions at the 2-4 that actually fork the design; everything else is a stated assumption.
+- §4 is **"Core Entities"** (a 1-2 minute scaffold, not a field-level data model — that lives in §7), §6 is **"High-Level Design"**, and §7 storage decision cards are **5-part** (what it is / why this / what we rejected & why / trade-off accepted / 🗣️ how to say it) — not 3-part.
 
-**§3 — Capacity Estimation**
-- Full derivation chains showing every intermediate step
-- Every acronym/term glossed on first use (QPS = Queries Per Second, etc.)
-- Final summary table: metric, value, raw calculation
-
-**§4 — Data Model**
-- Each entity: one-line role, table of fields with types
-- 🎙️ Spoken intro: "I'd start by talking about the key entities and why each one exists"
-- Simple analogy per important entity (e.g. "think of this like a spreadsheet row")
-- Interviewer probe Q per entity
-
-**§5 — API Design**
-- Table of key endpoints with method, path, auth
-- Per endpoint: key request fields + why, key response fields + why
-- 🗣️ how to narrate each endpoint choice aloud
-
-**§6 — High-Level Architecture**
-- Mermaid diagram (wrapped in ` ```mermaid `)
-- Decision table: component → options considered → chosen → why → 🗣️ plain words → what we rejected
-- Subgraph block per major flow showing the components involved in that flow
-- 4-part step narration for at least 2 critical flows: what user does → what hits first → what happens in the middle → what responds
-
-**§7 — Data Model & Storage**
-- 3-part decision card per storage decision:
-  - Plain definition: "What is this: ..."
-  - What we rejected: "We considered X but ..."
-  - How to say it: 🗣️ "In the interview I'd say ..."
-- Include: primary DB choice, cache layer, blob/object storage, search index if relevant
-
-**§8 — Deep Dives**
-- 6-part tier structure per deep dive topic:
-  1. What the previous tier got wrong (why we need this component)
-  2. How this tier fixes it
-  3. Decision math (numbers that justify the choice)
-  4. Failure modes (what can go wrong here)
-  5. Failure matrix: failure → impact → mitigation
-  6. 🗣️ How to narrate this to the interviewer
-- Cover at least: caching strategy, database sharding/replication, async processing, CDN/global distribution
-
-**§9 — Reliability & Fault Tolerance**
-- Define RPO and RTO in plain English first, then state target values
-- 4 sub-sections:
-  1. Single points of failure + how we eliminate them
-  2. Replication strategy (sync vs async — when and why)
-  3. Circuit breakers, retries, backoff
-  4. Disaster recovery: backup frequency, restore process, multi-region plan
-
-**§10 — Trade-off Ledger**
-- 5-part decision card per major trade-off:
-  1. The choice made
-  2. What we gave up
-  3. Why we made this trade
-  4. When this reverses (what would make us choose differently)
-  5. 🗣️ How to say it in the interview
-- Cover at least: consistency vs availability, SQL vs NoSQL, sync vs async, monolith vs microservices
-
-**§11 — Likely Interviewer Questions**
-- ALL 7 question domains required:
-  1. Core algorithm / data structure choices
-  2. Failure handling (what happens when X goes down)
-  3. Scale / hot-spot handling
-  4. Consistency and data guarantees
-  5. Security and access control
-  6. Cost optimization
-  7. Extensibility / future requirements
-- Per question: 4-part answer format:
-  - One-line direct answer
-  - Supporting detail (2-3 sentences)
-  - Trade-off acknowledgement
-  - 🗣️ Interview-ready phrasing
-- Close with a 60-second verbal summary template the user can memorize
+Everything else — capacity rigor, the Bad→Good→Great deep dives, RPO/RTO, the trade-off ledger, the 7 interviewer-question domains — follow §1–§11 of `system_design_prompt.md` as written.
 
 ---
 
@@ -140,7 +65,7 @@ Using the system prompt from `system_design_prompt.md`, generate the complete HL
 
 File path:
 ```
-/Users/anshullkgarg/Desktop/projects/claude-gpt/data/conversations/<slug>.json
+/Users/gbang/Downloads/algora/data/conversations/<slug>.json
 ```
 
 ### JSON structure:
@@ -228,7 +153,7 @@ data = {
     ]
 }
 
-out = pathlib.Path('/Users/anshullkgarg/Desktop/projects/claude-gpt/data/conversations') / f'{slug}.json'
+out = pathlib.Path('/Users/gbang/Downloads/algora/data/conversations') / f'{slug}.json'
 out.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding='utf-8')
 print(f"Written: {out}")
 print(f"Open at: https://localhost:8002/?s={session_id}")
@@ -239,7 +164,7 @@ print(f"Open at: https://localhost:8002/?s={session_id}")
 ## Step 4 — Verify
 
 ```bash
-cd /Users/anshullkgarg/Desktop/projects/claude-gpt
+cd /Users/gbang/Downloads/algora
 python3 -c "
 import re, json, pathlib
 sid = '<uuid>:hld'
@@ -260,20 +185,19 @@ print(f'Open: https://localhost:8002/?s={sid}')
 
 ## Quality checklist before finishing
 
-- [ ] All 11 sections are present and fully expanded (not abbreviated)
-- [ ] §1: every requirement has layman explanation + "why it's hard"
-- [ ] §1: every NFR has "what breaks without it"
-- [ ] §2: every question has default + design fork (If YES / If NO)
-- [ ] §3: full derivation chains, all terms glossed
-- [ ] §4: analogy + interviewer probe per entity
-- [ ] §5: request/response fields with WHY per endpoint
-- [ ] §6: Mermaid diagram + 5-column decision table + 4-part step narration for ≥2 flows
-- [ ] §7: 3-part cards (what is it, what we rejected, how to say it)
-- [ ] §8: 6-part tier structure, failure matrix per deep dive
-- [ ] §9: RPO/RTO defined in plain English before use
-- [ ] §10: 5-part cards with "when this reverses"
-- [ ] §11: all 7 question domains + 4-part answers + 60-second summary template
-- [ ] Conversation JSON exists at `data/conversations/<slug>.json`
-- [ ] `session_id` inside JSON uses `:hld` (colon, not underscore)
-- [ ] Slug in filename uses `_hld` (colon → underscore)
-- [ ] Markdown in the text block is > 10,000 characters (must be thorough)
+- [ ] All 11 sections present and fully expanded, with the EXACT headings from `system_design_prompt.md` (§1 "Scope, Requirements & Assumptions", §4 "Core Entities", §6 "High-Level Design" — not the old mislabels)
+- [ ] §1 opens with the 🔒 Scope lock (2-4 forking questions as vetoable assumptions) FIRST, then functional requirements derived from them, then provisional NFR targets
+- [ ] §2 is the residual "forks behind my assumptions" (what changes if I'm wrong) — NOT a fresh question round, and re-asks NOTHING already locked in §1; clarifying questions capped at the 2-4 that fork the design
+- [ ] §3: full derivation chains, all terms glossed, capacity computed with run_python
+- [ ] §4: 1-2 minute entity scaffold (analogy + interviewer probe per entity) — NOT a field-level data model
+- [ ] §5: request/response fields with WHY per endpoint + idempotency + object-level authz + versioning & cursor pagination noted once
+- [ ] §6: every above-the-line requirement gets its own `flowchart TD` diagram + 5-column decision table + numbered step narration
+- [ ] §7: 5-part storage decision cards + PART D data lifecycle for the largest table
+- [ ] §8: Bad→Good→Great tiers with mechanism diagrams + decision math + failure matrix (fold single-tier stubs away)
+- [ ] §9: RPO/RTO defined in plain English before use; back-pressure, observability (golden signals + trace propagation), rate-limiting covered
+- [ ] §10: trade-off cards with "when this reverses" + a one-line CAP/PACELC framing
+- [ ] §11: all 7 question domains + 60-second summary template
+- [ ] Mermaid safety: every diagram is `flowchart TD` for multi-path; NO breaking chars — parens, colons, semicolons, slashes, quotes, angle/curly braces — inside any node or edge label
+- [ ] Conversation JSON exists at `data/conversations/<slug>.json`; top-level `messages` is `[]`; the single assistant block is `{"k":"text","md":...}` (no tool blocks)
+- [ ] `session_id` inside JSON uses `:hld` (colon); slug filename uses `_hld` (underscore)
+- [ ] Markdown in the text block is > 20,000 characters (must be thorough)

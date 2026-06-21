@@ -1,0 +1,13 @@
+🆕 L13 — Cart Management System → cart + inventory hold + checkout
+🆕 L14 — Task Dependency / DAG Scheduler → topological sort + cycle detection
+🆕 L15 — Concurrent Log Processor → producer-consumer pipeline + ordered flush
+4. Curriculum-only extras (jo GENERATION_PLAN.md ki L-list me the hi nahi)
+Agar poori curriculum zero-gap chahiye toh yeh bhi pending hain:
+
+🆕 Spreadsheet (Tier-3 #15) → cell formula DAG, recompute, cycle detection
+🆕 Drawing App / Whiteboard (Tier-3 #16) → shape Commands, undo/redo, layers
+🆕 Deck of Cards & Card Game (Tier-3 #18) → Card/Deck/Hand modeling, shuffle Strategy
+🆕 Twitter / News Feed (Tier-3 #19) → fan-out-on-write vs read, feed ranking
+Tier-4 (purely optional deepeners): Snowflake ID Generator · Distributed Lock/Lease Manager · Library Management · Bowling Score Calculator (Auction Tier-4 #22 = L11, already counted).
+
+✅ Reference ke liye: Curriculum Tier 1–2 (#1–9) aur Tier-3 ka #10–14 (ATM, Traffic, Wallet, Autocomplete, LFU) — sab DONE. Snake&Ladder (#17)=L6, Shopping Cart/Inventory (#20)=L9/L13 — overlap, upar count ho chuke.

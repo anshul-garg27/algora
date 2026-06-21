@@ -1,0 +1,2502 @@
+- generic [ref=e2]:
+  - banner [ref=e3]:
+    - generic [ref=e4]:
+      - generic [ref=e5]: ⚡
+      - heading "Algora" [level=1] [ref=e7]
+    - generic [ref=e8]:
+      - generic "Model" [ref=e9]:
+        - combobox [ref=e10] [cursor=pointer]:
+          - option "Opus 4.8" [selected]
+          - option "Sonnet 4.6"
+          - option "Haiku 4.5"
+      - button "thinking" [ref=e11] [cursor=pointer]: thinking
+      - button "📱" [ref=e13] [cursor=pointer]
+      - button "history" [ref=e14] [cursor=pointer]
+      - button "new" [ref=e15] [cursor=pointer]
+      - generic "ready" [ref=e16]
+  - tablist "Mode" [ref=e17]:
+    - tab "⏱ Online Assessment" [ref=e18] [cursor=pointer]:
+      - generic [ref=e19]: ⏱
+      - text: Online Assessment
+    - tab "🎙 Coding Interview" [ref=e20] [cursor=pointer]:
+      - generic [ref=e21]: 🎙
+      - text: Coding Interview
+    - tab "🧩 Low Level Design" [selected] [ref=e22] [cursor=pointer]:
+      - generic [ref=e23]: 🧩
+      - text: Low Level Design
+    - tab "🏛 System Design (HLD)" [ref=e24] [cursor=pointer]:
+      - generic [ref=e25]: 🏛
+      - text: System Design (HLD)
+    - tab "💼 Behavioral / HM" [ref=e26] [cursor=pointer]:
+      - generic [ref=e27]: 💼
+      - text: Behavioral / HM
+    - tab "🏷 LP Coach" [ref=e28] [cursor=pointer]:
+      - generic [ref=e29]: 🏷
+      - text: LP Coach
+  - main [ref=e30]:
+    - generic [ref=e31]:
+      - generic [ref=e33]: "Design a Parking Lot: multiple floors, spots of different sizes, vehicles park/unpark, find nearest available spot, charge by time. Thread-safe with concurrent park/unpark (no double-allocation). In Java."
+      - generic [ref=e34]:
+        - generic [ref=e36]: Algora
+        - generic [ref=e37]:
+          - generic [ref=e38]:
+            - heading "Design a Parking Lot (Java 17+, thread-safe, in-memory)" [level=1] [ref=e39]
+            - blockquote [ref=e40]:
+              - text: "Mode for this writeup:"
+              - strong [ref=e41]: Mode B — Coding environment (Uber/Meta style).
+              - text: I write the code and RUN it. §7 shows real
+              - code [ref=e42]: mvn
+              - text: output.
+            - heading "⏱️ 60-Minute Interview Plan" [level=2] [ref=e43]
+            - table [ref=e45]:
+              - rowgroup [ref=e46]:
+                - row "Time What you do Mode" [ref=e47]:
+                  - columnheader "Time" [ref=e48]
+                  - columnheader "What you do" [ref=e49]
+                  - columnheader "Mode" [ref=e50]
+              - rowgroup [ref=e51]:
+                - row "0–5 min Say §1-2 out loud — restate \"in-memory thread-safe parking lot\", propose scope cuts. Don't write yet. 🗣️ SAY" [ref=e52]:
+                  - cell "0–5 min" [ref=e53]
+                  - cell "Say §1-2 out loud — restate \"in-memory thread-safe parking lot\", propose scope cuts. Don't write yet." [ref=e54]:
+                    - strong [ref=e55]: Say §1-2 out loud
+                    - text: — restate "in-memory thread-safe parking lot", propose scope cuts. Don't write yet.
+                  - cell "🗣️ SAY" [ref=e56]
+                - row "5–8 min Pin the API surface (§3.5) — park, unpark, plus two read methods. \"Here's the contract before I design classes.\" 🗣️ SAY" [ref=e57]:
+                  - cell "5–8 min" [ref=e58]
+                  - cell "Pin the API surface (§3.5) — park, unpark, plus two read methods. \"Here's the contract before I design classes.\"" [ref=e59]:
+                    - strong [ref=e60]: Pin the API surface (§3.5)
+                    - text: —
+                    - code [ref=e61]: park
+                    - text: ","
+                    - code [ref=e62]: unpark
+                    - text: ", plus two read methods. \"Here's the contract before I design classes.\""
+                  - cell "🗣️ SAY" [ref=e63]
+                - 'row "8–14 min Draw the core class diagram — 5 boxes: ParkingLotService, ParkingSpot, SpotAllocationStrategy, BestFitNearestStrategy, ThreadSafeParkingLotService. Mention Vehicle/Ticket/ParkingFloor verbally. ✍️ DRAW" [ref=e64]':
+                  - cell "8–14 min" [ref=e65]
+                  - 'cell "Draw the core class diagram — 5 boxes: ParkingLotService, ParkingSpot, SpotAllocationStrategy, BestFitNearestStrategy, ThreadSafeParkingLotService. Mention Vehicle/Ticket/ParkingFloor verbally." [ref=e66]':
+                    - strong [ref=e67]: Draw the core class diagram
+                    - text: "— 5 boxes:"
+                    - code [ref=e68]: ParkingLotService
+                    - text: ","
+                    - code [ref=e69]: ParkingSpot
+                    - text: ","
+                    - code [ref=e70]: SpotAllocationStrategy
+                    - text: ","
+                    - code [ref=e71]: BestFitNearestStrategy
+                    - text: ","
+                    - code [ref=e72]: ThreadSafeParkingLotService
+                    - text: . Mention
+                    - code [ref=e73]: Vehicle
+                    - text: /
+                    - code [ref=e74]: Ticket
+                    - text: /
+                    - code [ref=e75]: ParkingFloor
+                    - text: verbally.
+                  - cell "✍️ DRAW" [ref=e76]
+                - 'row "14–16 min State patterns + concurrency flag — Strategy + Template Method, then: \"I see the double-allocation race in park — two cars see the same spot free. I''ll fix it with per-spot locks at the end.\" 🗣️ SAY" [ref=e77]':
+                  - cell "14–16 min" [ref=e78]
+                  - 'cell "State patterns + concurrency flag — Strategy + Template Method, then: \"I see the double-allocation race in park — two cars see the same spot free. I''ll fix it with per-spot locks at the end.\"" [ref=e79]':
+                    - strong [ref=e80]: State patterns + concurrency flag
+                    - text: "— Strategy + Template Method, then: \"I see the double-allocation race in"
+                    - code [ref=e81]: park
+                    - text: — two cars see the same spot free. I'll fix it with per-spot locks at the end."
+                  - cell "🗣️ SAY" [ref=e82]
+                - 'row "16–18 min Walk §5.5 approach — key insight: spot is a self-guarding state machine + each spot carries its own lock; selection is a pluggable strategy. 🗣️ SAY" [ref=e83]':
+                  - cell "16–18 min" [ref=e84]
+                  - 'cell "Walk §5.5 approach — key insight: spot is a self-guarding state machine + each spot carries its own lock; selection is a pluggable strategy." [ref=e85]':
+                    - strong [ref=e86]: Walk §5.5 approach
+                    - text: "— key insight: spot is a self-guarding state machine + each spot carries its own lock; selection is a pluggable strategy."
+                  - cell "🗣️ SAY" [ref=e87]
+                - row "18–38 min Write code in interview order — enums → ParkingSpot state machine + per-spot lock → SpotAllocationStrategy + best-fit → ParkingLotService skeleton → park() → unpark(). ✍️ WRITE" [ref=e88]:
+                  - cell "18–38 min" [ref=e89]
+                  - cell "Write code in interview order — enums → ParkingSpot state machine + per-spot lock → SpotAllocationStrategy + best-fit → ParkingLotService skeleton → park() → unpark()." [ref=e90]:
+                    - strong [ref=e91]: Write code in interview order
+                    - text: — enums →
+                    - code [ref=e92]: ParkingSpot
+                    - text: state machine + per-spot lock →
+                    - code [ref=e93]: SpotAllocationStrategy
+                    - text: + best-fit →
+                    - code [ref=e94]: ParkingLotService
+                    - text: skeleton →
+                    - code [ref=e95]: park()
+                    - text: →
+                    - code [ref=e96]: unpark()
+                    - text: .
+                  - cell "✍️ WRITE" [ref=e97]
+                - row "38–45 min Demo Case 1 + Case 3 — run Main, point at output. 🗣️ SAY / run" [ref=e98]:
+                  - cell "38–45 min" [ref=e99]
+                  - cell "Demo Case 1 + Case 3 — run Main, point at output." [ref=e100]:
+                    - strong [ref=e101]: Demo Case 1 + Case 3
+                    - text: — run
+                    - code [ref=e102]: Main
+                    - text: ", point at output."
+                  - cell "🗣️ SAY / run" [ref=e103]
+                - row "45–55 min Concurrency answer — per-spot ReentrantLock, no-op withSpotGuard hook, thread-safe subclass. Write the subclass only if asked. 🗣️ SAY (❓ code if asked)" [ref=e104]:
+                  - cell "45–55 min" [ref=e105]
+                  - cell "Concurrency answer — per-spot ReentrantLock, no-op withSpotGuard hook, thread-safe subclass. Write the subclass only if asked." [ref=e106]:
+                    - strong [ref=e107]: Concurrency answer
+                    - text: — per-spot
+                    - code [ref=e108]: ReentrantLock
+                    - text: ", no-op"
+                    - code [ref=e109]: withSpotGuard
+                    - text: hook, thread-safe subclass. Write the subclass only if asked.
+                  - cell "🗣️ SAY (❓ code if asked)" [ref=e110]
+                - row "55–60 min Follow-ups — RLock vs Lock, per-spot vs global, distributed CAS. ❓ IF ASKED" [ref=e111]:
+                  - cell "55–60 min" [ref=e112]
+                  - cell "Follow-ups — RLock vs Lock, per-spot vs global, distributed CAS." [ref=e113]:
+                    - strong [ref=e114]: Follow-ups
+                    - text: — RLock vs Lock, per-spot vs global, distributed CAS.
+                  - cell "❓ IF ASKED" [ref=e115]
+            - paragraph [ref=e116]:
+              - strong [ref=e117]: "Two interview modes:"
+            - list [ref=e118]:
+              - listitem [ref=e119]:
+                - strong [ref=e120]: "Mode A — Whiteboard / no-run (Amazon, Google):"
+                - text: Skip §7 run output, demo verbally.
+              - listitem [ref=e121]:
+                - strong [ref=e122]: "Mode B — Coding environment (Uber, Meta):"
+                - text: Run
+                - code [ref=e123]: Main
+                - text: in §7. This writeup is Mode B.
+            - paragraph [ref=e124]:
+              - strong [ref=e125]: "The one move that flags \"strong hire\":"
+              - text: right after the diagram, say "I see a double-allocation race in
+              - code [ref=e126]: park
+              - text: "\" — before being asked."
+            - separator [ref=e127]
+            - heading "1. Understanding the Problem & Clarifying Questions" [level=2] [ref=e128]
+            - heading "1.1 What we're building (plain words)" [level=3] [ref=e129]
+            - blockquote [ref=e130]:
+              - text: 💬 "We're building the brain of a parking garage that lives in memory. Cars, motorcycles, and handicapped vehicles drive up; the system finds them the best free spot across multiple floors, hands back a ticket, and when they leave it frees the spot and charges them for how long they stayed. The two hard parts are picking the
+              - emphasis [ref=e131]: right
+              - text: spot — smallest one that fits, nearest floor — and making sure two cars arriving at the exact same second never get handed the same spot."
+            - heading "1.2 Clarifying questions (candidate-led proposals)" [level=3] [ref=e132]
+            - paragraph [ref=e133]:
+              - strong [ref=e134]: "You:"
+              - text: "\"For v1 I'll assume a single in-memory lot in one process — no database, no multi-region. The whole thing is one JVM. Sound right?\""
+              - strong [ref=e135]: "Interviewer:"
+              - text: "\"Yep, in-memory is the scope.\""
+              - emphasis [ref=e136]: "✓ scoped: one process, in-memory state — distributed is a §9 'if we scaled' note."
+            - paragraph [ref=e137]:
+              - strong [ref=e138]: "You:"
+              - text: "\"Spot sizes: I'll model compact, large, and handicapped. A motorcycle fits a compact or larger, a car needs at least a large, and a handicapped vehicle needs a handicapped spot — and a regular car must NOT be allowed to take a handicapped spot. OK?\""
+              - strong [ref=e139]: "Interviewer:"
+              - text: "\"Agreed — and yes, protect the handicapped spots.\""
+              - emphasis [ref=e140]: "✓ locked: handicapped is a reserved category matched by exact equality, not by size ranking."
+            - paragraph [ref=e141]:
+              - strong [ref=e142]: "You:"
+              - text: "\"Allocation policy: I'll do best-fit — smallest spot that still fits — breaking ties by nearest floor. I'll make that a pluggable strategy so we can swap to 'cheapest first' or 'random' later without touching core code. Reasonable?\""
+              - strong [ref=e143]: "Interviewer:"
+              - text: "\"Love it, make it pluggable.\""
+              - emphasis [ref=e144]: ✓ Strategy seam is in scope — this is the design's smart move.
+            - paragraph [ref=e145]:
+              - strong [ref=e146]: "You:"
+              - text: "\"Billing: charge by time, per started hour, rounding partial hours up, with a one-hour minimum. I'll keep money in cents to avoid float bugs. Fine?\""
+              - strong [ref=e147]: "Interviewer:"
+              - text: "\"Sounds good. Flat hourly rate is fine for now.\""
+              - emphasis [ref=e148]: "✓ scoped: flat rate, round up, cents. Tiered/peak pricing is a future strategy."
+            - paragraph [ref=e149]:
+              - strong [ref=e150]: "You:"
+              - text: "\"Concurrency is the meat: many cars park and unpark at once. I'll keep the core single-threaded-clean and then show a thread-safe version using a per-spot lock so two cars never double-book one spot. I'll prove it with a 50-thread race test. That's the deliverable you care about?\""
+              - strong [ref=e151]: "Interviewer:"
+              - text: "\"Exactly — show me no double-allocation under contention.\""
+              - emphasis [ref=e152]: ✓ the concurrency angle is per-spot fine-grained locks; the race test is the proof.
+            - paragraph [ref=e153]:
+              - strong [ref=e154]: "You:"
+              - text: "\"I'll treat the physical gate hardware, license-plate OCR, and payment processing as out of scope — we just return a fee amount. OK?\""
+              - strong [ref=e155]: "Interviewer:"
+              - text: "\"Agreed, out of scope.\""
+              - emphasis [ref=e156]: "✓ system boundary: we compute the fee, we don't move money or open gates."
+            - heading "1.3 Final Requirements (the whiteboard summary)" [level=3] [ref=e157]
+            - paragraph [ref=e158]:
+              - strong [ref=e159]: Functional Requirements
+            - list [ref=e160]:
+              - listitem [ref=e161]:
+                - strong [ref=e162]: A vehicle parks
+                - text: by driving up with a known type (motorcycle / car / handicapped).
+            - list [ref=e163]:
+              - listitem [ref=e164]:
+                - text: System finds the best free
+                - emphasis [ref=e165]: compatible
+                - text: spot across all floors and marks it occupied
+              - listitem [ref=e166]:
+                - text: Returns a
+                - code [ref=e167]: Ticket
+                - text: (spot id, vehicle, entry time) on success
+              - listitem [ref=e168]:
+                - text: Throws
+                - code [ref=e169]: NoSpotAvailableException
+                - text: if no compatible spot is free
+            - list [ref=e170]:
+              - listitem [ref=e171]:
+                - strong [ref=e172]: A vehicle unparks
+                - text: by presenting its ticket id.
+            - list [ref=e173]:
+              - listitem [ref=e174]: System frees the spot and returns the fee (cents)
+              - listitem [ref=e175]:
+                - text: Throws
+                - code [ref=e176]: TicketNotFoundException
+                - text: for an unknown or already-used ticket
+            - list [ref=e177]:
+              - listitem [ref=e178]:
+                - strong [ref=e179]: Allocation is best-fit, nearest-floor
+                - text: and pluggable.
+            - list [ref=e180]:
+              - listitem [ref=e181]: Smallest fitting spot wins; ties broken by lowest floor, then spot id
+              - listitem [ref=e182]: The policy is a Strategy — swappable without core changes
+            - list [ref=e183]:
+              - listitem [ref=e184]:
+                - strong [ref=e185]: Billing by time
+                - text: — per started hour, rounded up, one-hour minimum, in cents.
+              - listitem [ref=e186]:
+                - strong [ref=e187]: Concurrent park/unpark are safe
+                - text: — no two vehicles ever get the same spot.
+            - list [ref=e188]:
+              - listitem [ref=e189]:
+                - text: N threads parking into K spots → exactly K succeed on K
+                - emphasis [ref=e190]: distinct
+                - text: spots; the rest get the typed full error
+            - list [ref=e191]:
+              - listitem [ref=e192]:
+                - strong [ref=e193]: Read queries
+                - text: —
+                - code [ref=e194]: occupiedCount()
+                - text: ","
+                - code [ref=e195]: availableCountFor(type)
+                - text: .
+            - paragraph [ref=e196]:
+              - strong [ref=e197]: Out of scope
+            - list [ref=e198]:
+              - listitem [ref=e199]: Physical gate / barrier hardware (downstream — we just say "occupied")
+              - listitem [ref=e200]: Payment processing (we return a fee number; money movement is a separate system)
+              - listitem [ref=e201]:
+                - text: License-plate recognition (input is a given
+                - code [ref=e202]: Vehicle
+                - text: )
+              - listitem [ref=e203]: Multi-process / multi-region (in-memory single JVM for v1)
+            - blockquote [ref=e204]:
+              - text: 💬
+              - strong [ref=e205]: "What you say to open:"
+              - text: "\"OK, before I model anything, the one thing I want to lock down is the concurrency contract — N cars racing for K spots must yield exactly K winners on K distinct spots. With that pinned, let me walk through the actors and flows.\""
+            - separator [ref=e206]
+            - heading "2. Actors & Core Flows" [level=2] [ref=e207]
+            - paragraph [ref=e208]:
+              - strong [ref=e209]: Actors
+            - list [ref=e210]:
+              - listitem [ref=e211]:
+                - strong [ref=e212]: Driver / vehicle
+                - text: — drives up to park, presents a ticket to leave. Initiates both core flows.
+              - listitem [ref=e213]:
+                - strong [ref=e214]: Lot operator (config)
+                - text: — builds the lot (floors and spots) at startup. Not a runtime actor.
+              - listitem [ref=e215]:
+                - strong [ref=e216]: Billing reader
+                - text: — whoever reads the fee returned by
+                - code [ref=e217]: unpark
+                - text: (a kiosk / payment system downstream).
+            - paragraph [ref=e218]:
+              - strong [ref=e219]: Core flows
+            - list [ref=e220]:
+              - listitem [ref=e221]: "Park: driver arrives → strategy picks best free compatible spot → spot marked occupied → ticket returned"
+              - listitem [ref=e222]: "Unpark: driver presents ticket → system finds spot → spot freed → fee computed and returned"
+              - listitem [ref=e223]:
+                - text: "Reject: driver arrives, no compatible spot free → typed"
+                - code [ref=e224]: NoSpotAvailableException
+                - text: (never a silent null)
+            - separator [ref=e225]
+            - heading "3. Core Entities (with explicit accept / reject reasoning)" [level=2] [ref=e226]
+            - heading "3.1 Candidate noun walkthrough" [level=3] [ref=e227]
+            - blockquote [ref=e228]:
+              - strong [ref=e229]: ParkingLot / Lot
+              - text: — The whole system. It owns the floors, the open-ticket registry, the clock and rate, and coordinates park/unpark. This is the orchestrator.
+              - emphasis [ref=e230]:
+                - text: Accepted — it becomes
+                - code [ref=e231]: ParkingLotService
+                - text: .
+            - blockquote [ref=e232]
+            - blockquote [ref=e233]:
+              - strong [ref=e234]: ParkingFloor
+              - text: — A real grouping of spots with a floor number that drives "nearest". It owns its spots (composition).
+              - emphasis [ref=e235]: Accepted.
+            - blockquote [ref=e236]
+            - blockquote [ref=e237]:
+              - strong [ref=e238]: ParkingSpot
+              - text: — A physical spot with an id, a size, and an occupancy state — AND it carries its own lock. It has data plus behavior (occupy/release as a guarded state machine). This is the heart of the design.
+              - emphasis [ref=e239]: Accepted.
+            - blockquote [ref=e240]
+            - blockquote [ref=e241]:
+              - strong [ref=e242]: Vehicle
+              - text: — What's parking. We care about its plate (identity on the ticket) and its type (drives compatibility). It never changes after creation.
+              - emphasis [ref=e243]: Accepted — as an immutable record.
+            - blockquote [ref=e244]
+            - blockquote [ref=e245]:
+              - strong [ref=e246]: Ticket
+              - text: "— The entry receipt: spot id, vehicle, entry timestamp. It has its own identity and an immutable lifecycle. Worth its own type so unpark can look it up and billing can read the entry time."
+              - emphasis [ref=e247]: Accepted — immutable record.
+            - blockquote [ref=e248]
+            - blockquote [ref=e249]:
+              - strong [ref=e250]: AllocationStrategy
+              - text: — "How do we pick a spot?" is a policy that will change. Pulling it behind an interface is the smart move here.
+              - emphasis [ref=e251]: Accepted — Strategy interface.
+            - blockquote [ref=e252]
+            - blockquote [ref=e253]:
+              - strong [ref=e254]: Fee / Price
+              - text: — A number computed at exit from entry time and rate. It has no lifecycle of its own.
+              - emphasis [ref=e255]:
+                - text: Rejected — it's a
+                - code [ref=e256]: long
+                - text: (cents) returned by
+                - code [ref=e257]: unpark
+                - text: ", computed by a private helper."
+            - blockquote [ref=e258]
+            - blockquote [ref=e259]:
+              - strong [ref=e260]: Size / VehicleType / Status
+              - text: — Finite sets of values with a compatibility rule.
+              - emphasis [ref=e261]:
+                - text: Rejected as entities — modeled as enums (
+                - code [ref=e262]: SpotSize
+                - text: ","
+                - code [ref=e263]: VehicleType
+                - text: ","
+                - code [ref=e264]: SpotStatus
+                - text: ). The "fits" rule lives on
+                - code [ref=e265]: VehicleType
+                - text: .
+            - blockquote [ref=e266]
+            - blockquote [ref=e267]:
+              - strong [ref=e268]: Driver / Customer
+              - text: — Actors who call the system; we don't store them.
+              - emphasis [ref=e269]: Rejected — actors live outside the model.
+            - blockquote [ref=e270]
+            - blockquote [ref=e271]:
+              - strong [ref=e272]: Gate / Barrier / Payment
+              - text: — Out of system scope per §1.3.
+              - emphasis [ref=e273]: Rejected — external systems.
+            - heading "3.2 Final entity table" [level=3] [ref=e274]
+            - table [ref=e276]:
+              - rowgroup [ref=e277]:
+                - row "Entity Responsibility Key fields (typed) Invariant it guards" [ref=e278]:
+                  - columnheader "Entity" [ref=e279]
+                  - columnheader "Responsibility" [ref=e280]
+                  - columnheader "Key fields (typed)" [ref=e281]
+                  - columnheader "Invariant it guards" [ref=e282]
+              - rowgroup [ref=e283]:
+                - 'row "ParkingLotService Coordinate park/unpark; own the truth about who''s parked floors: List<ParkingFloor>, strategy: SpotAllocationStrategy, clock: Supplier<Instant>, ratePerHourCents: long, openTickets: Map<String,Ticket> (key = spot id), ticketCounter: AtomicLong Every parked car has exactly one open ticket; a freed spot is removed from the registry" [ref=e284]':
+                  - cell "ParkingLotService" [ref=e285]:
+                    - code [ref=e286]: ParkingLotService
+                  - cell "Coordinate park/unpark; own the truth about who's parked" [ref=e287]
+                  - 'cell "floors: List<ParkingFloor>, strategy: SpotAllocationStrategy, clock: Supplier<Instant>, ratePerHourCents: long, openTickets: Map<String,Ticket> (key = spot id), ticketCounter: AtomicLong" [ref=e288]':
+                    - code [ref=e289]: "floors: List<ParkingFloor>"
+                    - text: ","
+                    - code [ref=e290]: "strategy: SpotAllocationStrategy"
+                    - text: ","
+                    - code [ref=e291]: "clock: Supplier<Instant>"
+                    - text: ","
+                    - code [ref=e292]: "ratePerHourCents: long"
+                    - text: ","
+                    - code [ref=e293]: "openTickets: Map<String,Ticket>"
+                    - text: (key = spot id),
+                    - code [ref=e294]: "ticketCounter: AtomicLong"
+                  - cell "Every parked car has exactly one open ticket; a freed spot is removed from the registry" [ref=e295]
+                - 'row "ParkingFloor Own a labelled bag of spots on one floor floorNumber: int, spots: List<ParkingSpot> Owns its spots; outsiders get an unmodifiable view" [ref=e296]':
+                  - cell "ParkingFloor" [ref=e297]:
+                    - code [ref=e298]: ParkingFloor
+                  - cell "Own a labelled bag of spots on one floor" [ref=e299]
+                  - 'cell "floorNumber: int, spots: List<ParkingSpot>" [ref=e300]':
+                    - code [ref=e301]: "floorNumber: int"
+                    - text: ","
+                    - code [ref=e302]: "spots: List<ParkingSpot>"
+                  - cell "Owns its spots; outsiders get an unmodifiable view" [ref=e303]
+                - 'row "ParkingSpot Hold one car; guard its own status; carry its own lock id: String, floorNumber: int, size: SpotSize, status: SpotStatus, vehicle: @Nullable Vehicle, lock: ReentrantLock A FREE spot can be occupied once; only OCCUPIED→FREE on release; release is a no-op otherwise" [ref=e304]':
+                  - cell "ParkingSpot" [ref=e305]:
+                    - code [ref=e306]: ParkingSpot
+                  - cell "Hold one car; guard its own status; carry its own lock" [ref=e307]
+                  - 'cell "id: String, floorNumber: int, size: SpotSize, status: SpotStatus, vehicle: @Nullable Vehicle, lock: ReentrantLock" [ref=e308]':
+                    - code [ref=e309]: "id: String"
+                    - text: ","
+                    - code [ref=e310]: "floorNumber: int"
+                    - text: ","
+                    - code [ref=e311]: "size: SpotSize"
+                    - text: ","
+                    - code [ref=e312]: "status: SpotStatus"
+                    - text: ","
+                    - code [ref=e313]: "vehicle: @Nullable Vehicle"
+                    - text: ","
+                    - code [ref=e314]: "lock: ReentrantLock"
+                  - cell "A FREE spot can be occupied once; only OCCUPIED→FREE on release; release is a no-op otherwise" [ref=e315]
+                - 'row "Vehicle Identify what''s parking and its type licensePlate: String, type: VehicleType Non-blank plate, non-null type (validated at construction)" [ref=e316]':
+                  - cell "Vehicle" [ref=e317]:
+                    - code [ref=e318]: Vehicle
+                  - cell "Identify what's parking and its type" [ref=e319]
+                  - 'cell "licensePlate: String, type: VehicleType" [ref=e320]':
+                    - code [ref=e321]: "licensePlate: String"
+                    - text: ","
+                    - code [ref=e322]: "type: VehicleType"
+                  - cell "Non-blank plate, non-null type (validated at construction)" [ref=e323]
+                - 'row "Ticket The entry receipt for billing & unpark id: String, spotId: String, vehicle: Vehicle, entryTime: Instant Immutable; all fields non-null" [ref=e324]':
+                  - cell "Ticket" [ref=e325]:
+                    - code [ref=e326]: Ticket
+                  - cell "The entry receipt for billing & unpark" [ref=e327]
+                  - 'cell "id: String, spotId: String, vehicle: Vehicle, entryTime: Instant" [ref=e328]':
+                    - code [ref=e329]: "id: String"
+                    - text: ","
+                    - code [ref=e330]: "spotId: String"
+                    - text: ","
+                    - code [ref=e331]: "vehicle: Vehicle"
+                    - text: ","
+                    - code [ref=e332]: "entryTime: Instant"
+                  - cell "Immutable; all fields non-null" [ref=e333]
+                - 'row "SpotAllocationStrategy Decide which free spot to use (policy) (interface) findSpot(floors, type): Optional<ParkingSpot> Returns a candidate only; never mutates state" [ref=e334]':
+                  - cell "SpotAllocationStrategy" [ref=e335]:
+                    - code [ref=e336]: SpotAllocationStrategy
+                  - cell "Decide which free spot to use (policy)" [ref=e337]
+                  - 'cell "(interface) findSpot(floors, type): Optional<ParkingSpot>" [ref=e338]':
+                    - emphasis [ref=e339]: (interface)
+                    - code [ref=e340]: "findSpot(floors, type): Optional<ParkingSpot>"
+                  - cell "Returns a candidate only; never mutates state" [ref=e341]:
+                    - text: Returns a
+                    - emphasis [ref=e342]: candidate
+                    - text: only; never mutates state
+            - paragraph [ref=e343]:
+              - strong [ref=e344]: Enums
+              - text: —
+              - code [ref=e345]: "SpotSize {COMPACT, LARGE, HANDICAPPED}"
+              - text: (each carries a
+              - code [ref=e346]: rank
+              - text: );
+              - code [ref=e347]: "VehicleType {MOTORCYCLE, CAR, HANDICAPPED}"
+              - text: (each owns a
+              - code [ref=e348]: fits(spotSize)
+              - text: rule);
+              - code [ref=e349]: "SpotStatus {FREE, OCCUPIED}"
+              - text: .
+            - heading "3.3 🎙️ Spoken intro" [level=3] [ref=e350]
+            - blockquote [ref=e351]:
+              - text: 💬 "So the model has six objects.
+              - code [ref=e352]: ParkingLotService
+              - text: is the brain — it owns the floors and a map of open tickets, keyed by spot id so unpark is O(1) on the spot.
+              - code [ref=e353]: ParkingSpot
+              - text: "is the interesting one: it remembers its own physical state and carries its own lock — it's the only thing allowed to flip itself occupied or free, and to take a spot you lock that one spot."
+              - code [ref=e354]: SpotAllocationStrategy
+              - text: is the seam — the lot asks it which spot, so the policy is swappable.
+              - code [ref=e355]: Vehicle
+              - text: and
+              - code [ref=e356]: Ticket
+              - text: are immutable records — plain data. The pieces I deliberately left OUT are Fee, which is just a number computed at exit, and Driver/Gate/Payment, which live outside our boundary."
+            - separator [ref=e357]
+            - heading "3.5 API / System Interface" [level=2] [ref=e358]
+            - table [ref=e360]:
+              - rowgroup [ref=e361]:
+                - row "Method Signature Returns Throws Purpose" [ref=e362]:
+                  - columnheader "Method" [ref=e363]
+                  - columnheader "Signature" [ref=e364]
+                  - columnheader "Returns" [ref=e365]
+                  - columnheader "Throws" [ref=e366]
+                  - columnheader "Purpose" [ref=e367]
+              - rowgroup [ref=e368]:
+                - row "park park(Vehicle vehicle) Ticket — the entry receipt ParkingException (null vehicle), NoSpotAvailableException A driver arrives; system picks the best free compatible spot and issues a ticket" [ref=e369]:
+                  - cell "park" [ref=e370]:
+                    - code [ref=e371]: park
+                  - cell "park(Vehicle vehicle)" [ref=e372]:
+                    - code [ref=e373]: park(Vehicle vehicle)
+                  - cell "Ticket — the entry receipt" [ref=e374]:
+                    - code [ref=e375]: Ticket
+                    - text: — the entry receipt
+                  - cell "ParkingException (null vehicle), NoSpotAvailableException" [ref=e376]:
+                    - code [ref=e377]: ParkingException
+                    - text: (null vehicle),
+                    - code [ref=e378]: NoSpotAvailableException
+                  - cell "A driver arrives; system picks the best free compatible spot and issues a ticket" [ref=e379]
+                - row "unpark unpark(String ticketId) long — fee in cents TicketNotFoundException A driver leaves; system frees the spot and bills by time" [ref=e380]:
+                  - cell "unpark" [ref=e381]:
+                    - code [ref=e382]: unpark
+                  - cell "unpark(String ticketId)" [ref=e383]:
+                    - code [ref=e384]: unpark(String ticketId)
+                  - cell "long — fee in cents" [ref=e385]:
+                    - code [ref=e386]: long
+                    - text: — fee in cents
+                  - cell "TicketNotFoundException" [ref=e387]:
+                    - code [ref=e388]: TicketNotFoundException
+                  - cell "A driver leaves; system frees the spot and bills by time" [ref=e389]
+                - row "occupiedCount occupiedCount() int — number of parked cars — How full is the lot right now (O(1) registry size)" [ref=e390]:
+                  - cell "occupiedCount" [ref=e391]:
+                    - code [ref=e392]: occupiedCount
+                  - cell "occupiedCount()" [ref=e393]:
+                    - code [ref=e394]: occupiedCount()
+                  - cell "int — number of parked cars" [ref=e395]:
+                    - code [ref=e396]: int
+                    - text: — number of parked cars
+                  - cell "—" [ref=e397]
+                  - cell "How full is the lot right now (O(1) registry size)" [ref=e398]
+                - row "availableCountFor availableCountFor(VehicleType type) long — free compatible spots — How many spots a given vehicle type could still use" [ref=e399]:
+                  - cell "availableCountFor" [ref=e400]:
+                    - code [ref=e401]: availableCountFor
+                  - cell "availableCountFor(VehicleType type)" [ref=e402]:
+                    - code [ref=e403]: availableCountFor(VehicleType type)
+                  - cell "long — free compatible spots" [ref=e404]:
+                    - code [ref=e405]: long
+                    - text: — free compatible spots
+                  - cell "—" [ref=e406]
+                  - cell "How many spots a given vehicle type could still use" [ref=e407]
+            - blockquote [ref=e408]:
+              - text: 🎙️ "The whole system is four public calls — two that change state (
+              - code [ref=e409]: park
+              - text: ","
+              - code [ref=e410]: unpark
+              - text: ") and two read-only queries. Everything else is internal: the spot guards itself, the strategy picks the spot, billing is a private helper. Handed this interface cold, you'd know exactly what the system does without seeing a class.\""
+            - separator [ref=e411]
+            - heading "4. Class Design" [level=2] [ref=e412]
+            - heading "4.1 Per-class derivation" [level=3] [ref=e413]
+            - heading "(1) ParkingLotService — the orchestrator" [level=4] [ref=e414]:
+              - text: (1)
+              - code [ref=e415]: ParkingLotService
+              - text: — the orchestrator
+            - paragraph [ref=e416]:
+              - strong [ref=e417]: (a) Role
+              - text: — The system's public API. External code calls it to park and unpark; it coordinates the strategy and the spots and owns the open-ticket registry.
+            - paragraph [ref=e418]:
+              - strong [ref=e419]: (b) State derivation
+            - table [ref=e421]:
+              - rowgroup [ref=e422]:
+                - row "Requirement What this class must remember" [ref=e423]:
+                  - columnheader "Requirement" [ref=e424]
+                  - columnheader "What this class must remember" [ref=e425]
+              - rowgroup [ref=e426]:
+                - row "\"find the best free compatible spot across all floors\" The list of floors" [ref=e427]:
+                  - cell "\"find the best free compatible spot across all floors\"" [ref=e428]
+                  - cell "The list of floors" [ref=e429]
+                - row "\"allocation is pluggable\" A reference to the allocation strategy" [ref=e430]:
+                  - cell "\"allocation is pluggable\"" [ref=e431]
+                  - cell "A reference to the allocation strategy" [ref=e432]
+                - row "\"bill by time\" The clock (injected) and the hourly rate" [ref=e433]:
+                  - cell "\"bill by time\"" [ref=e434]
+                  - cell "The clock (injected) and the hourly rate" [ref=e435]
+                - row "\"unpark by ticket; never strand a car\" A registry of open tickets, keyed by spot id" [ref=e436]:
+                  - cell "\"unpark by ticket; never strand a car\"" [ref=e437]
+                  - cell "A registry of open tickets, keyed by spot id" [ref=e438]
+                - row "\"readable ticket ids\" A ticket counter" [ref=e439]:
+                  - cell "\"readable ticket ids\"" [ref=e440]
+                  - cell "A ticket counter" [ref=e441]
+            - generic [ref=e442]:
+              - button "copy" [ref=e444] [cursor=pointer]
+              - code [ref=e446]: "class ParkingLotService: - floors: List<ParkingFloor> - strategy: SpotAllocationStrategy - clock: Supplier<Instant> - ratePerHourCents: long - openTickets: Map<String, Ticket> # key = spot id - ticketCounter: AtomicLong"
+            - paragraph [ref=e447]:
+              - strong [ref=e448]: State placement trade-off
+              - text: — Occupancy could live on the orchestrator (a set of taken spot ids) OR on the spot itself. I put the
+              - emphasis [ref=e449]: physical
+              - text: status (FREE/OCCUPIED + which vehicle) on the
+              - code [ref=e450]: ParkingSpot
+              - text: because that describes the spot's own condition, and I put the
+              - emphasis [ref=e451]: relational
+              - text: fact (which ticket maps to which spot) in the orchestrator's registry because that's a system-managed relationship. Physical state on the entity, relational state in the orchestrator.
+            - paragraph [ref=e452]:
+              - strong [ref=e453]: (c) Operations derivation
+            - table [ref=e455]:
+              - rowgroup [ref=e456]:
+                - row "Need from requirements Method on this class" [ref=e457]:
+                  - columnheader "Need from requirements" [ref=e458]
+                  - columnheader "Method on this class" [ref=e459]
+              - rowgroup [ref=e460]:
+                - row "\"a vehicle parks → ticket or full error\" park(vehicle) -> Ticket" [ref=e461]:
+                  - cell "\"a vehicle parks → ticket or full error\"" [ref=e462]
+                  - cell "park(vehicle) -> Ticket" [ref=e463]:
+                    - code [ref=e464]: park(vehicle) -> Ticket
+                - row "\"a vehicle unparks → fee\" unpark(ticketId) -> long" [ref=e465]:
+                  - cell "\"a vehicle unparks → fee\"" [ref=e466]
+                  - cell "unpark(ticketId) -> long" [ref=e467]:
+                    - code [ref=e468]: unpark(ticketId) -> long
+                - row "\"how full is the lot\" occupiedCount() -> int" [ref=e469]:
+                  - cell "\"how full is the lot\"" [ref=e470]
+                  - cell "occupiedCount() -> int" [ref=e471]:
+                    - code [ref=e472]: occupiedCount() -> int
+                - row "\"how many spots free for a type\" availableCountFor(type) -> long" [ref=e473]:
+                  - cell "\"how many spots free for a type\"" [ref=e474]
+                  - cell "availableCountFor(type) -> long" [ref=e475]:
+                    - code [ref=e476]: availableCountFor(type) -> long
+                - row "\"concurrency seam (no-op in core)\" withSpotGuard(spot, action) -> T (protected)" [ref=e477]:
+                  - cell "\"concurrency seam (no-op in core)\"" [ref=e478]
+                  - cell "withSpotGuard(spot, action) -> T (protected)" [ref=e479]:
+                    - code [ref=e480]: withSpotGuard(spot, action) -> T
+                    - text: (protected)
+            - generic [ref=e481]:
+              - button "copy" [ref=e483] [cursor=pointer]
+              - code [ref=e485]: "class ParkingLotService: - floors: List<ParkingFloor> - strategy: SpotAllocationStrategy - clock: Supplier<Instant> - ratePerHourCents: long - openTickets: Map<String, Ticket> - ticketCounter: AtomicLong + ParkingLotService(floors, strategy, clock, ratePerHourCents) + park(Vehicle) -> Ticket | throws NoSpotAvailableException + unpark(String ticketId) -> long | throws TicketNotFoundException + occupiedCount() -> int + availableCountFor(VehicleType) -> long # withSpotGuard(spot, action) -> T (protected hook, no-op here) - nextTicketId() -> String - findOpenTicketById(String) -> Ticket - findSpotById(String) -> ParkingSpot - computeFee(Instant, Instant) -> long"
+            - paragraph [ref=e486]:
+              - strong [ref=e487]: (d) Design choices worth calling out
+            - list [ref=e488]:
+              - listitem [ref=e489]:
+                - strong [ref=e490]:
+                  - text: Why key
+                  - code [ref=e491]: openTickets
+                  - text: by spot id, not ticket id?
+                - text: Unpark needs to free the
+                - emphasis [ref=e492]: spot
+                - text: ", and a spot can be re-keyed by the next park. Keying by spot id makes \"free this spot\" O(1) and naturally caps the map at lot capacity."
+              - listitem [ref=e493]:
+                - strong [ref=e494]:
+                  - text: Why inject the clock as a
+                  - code [ref=e495]: Supplier<Instant>
+                  - text: "?"
+                - text: So tests fast-forward time without sleeping. A 90-minute stay is two array writes, not a 90-minute test.
+              - listitem [ref=e496]:
+                - strong [ref=e497]:
+                  - text: Why is
+                  - code [ref=e498]: withSpotGuard
+                  - text: a no-op here?
+                - text: This file stays 100% lock-free and readable. The thread-safe subclass overrides this one method — the concurrency diff is one method, not a rewrite.
+            - heading "(2) ParkingSpot — the state machine + lock holder" [level=4] [ref=e499]:
+              - text: (2)
+              - code [ref=e500]: ParkingSpot
+              - text: — the state machine + lock holder
+            - paragraph [ref=e501]:
+              - strong [ref=e502]: (a) Role
+              - text: — One physical spot. The only class allowed to change its own occupancy, and the carrier of the per-spot lock that prevents double-allocation.
+            - paragraph [ref=e503]:
+              - strong [ref=e504]: (b) State derivation
+            - table [ref=e506]:
+              - rowgroup [ref=e507]:
+                - row "Requirement What this class must remember" [ref=e508]:
+                  - columnheader "Requirement" [ref=e509]
+                  - columnheader "What this class must remember" [ref=e510]
+              - rowgroup [ref=e511]:
+                - row "\"spots of different sizes\" its size" [ref=e512]:
+                  - cell "\"spots of different sizes\"" [ref=e513]
+                  - cell "its size" [ref=e514]:
+                    - text: its
+                    - code [ref=e515]: size
+                - row "\"nearest floor\" its floorNumber" [ref=e516]:
+                  - cell "\"nearest floor\"" [ref=e517]
+                  - cell "its floorNumber" [ref=e518]:
+                    - text: its
+                    - code [ref=e519]: floorNumber
+                - row "\"mark occupied / free\" its status and the vehicle in it" [ref=e520]:
+                  - cell "\"mark occupied / free\"" [ref=e521]
+                  - cell "its status and the vehicle in it" [ref=e522]:
+                    - text: its
+                    - code [ref=e523]: status
+                    - text: and the
+                    - code [ref=e524]: vehicle
+                    - text: in it
+                - row "\"concurrent park safe per spot\" its own lock" [ref=e525]:
+                  - cell "\"concurrent park safe per spot\"" [ref=e526]
+                  - cell "its own lock" [ref=e527]:
+                    - text: its own
+                    - code [ref=e528]: lock
+            - generic [ref=e529]:
+              - button "copy" [ref=e531] [cursor=pointer]
+              - code [ref=e533]: "class ParkingSpot: - id: String - floorNumber: int - size: SpotSize - status: SpotStatus - vehicle: @Nullable Vehicle - lock: ReentrantLock"
+            - paragraph [ref=e534]:
+              - strong [ref=e535]: (c) Operations derivation
+            - table [ref=e537]:
+              - rowgroup [ref=e538]:
+                - row "Need from requirements Method on this class" [ref=e539]:
+                  - columnheader "Need from requirements" [ref=e540]
+                  - columnheader "Method on this class" [ref=e541]
+              - rowgroup [ref=e542]:
+                - 'row "\"mark a free spot occupied (guarded)\" `occupy(Vehicle) -> void throws InvalidSpotStateException`" [ref=e543]':
+                  - cell "\"mark a free spot occupied (guarded)\"" [ref=e544]
+                  - 'cell "`occupy(Vehicle) -> void" [ref=e545]'
+                  - 'cell "throws InvalidSpotStateException`" [ref=e546]'
+                - row "\"free a spot (idempotent)\" release() -> void" [ref=e547]:
+                  - cell "\"free a spot (idempotent)\"" [ref=e548]
+                  - cell "release() -> void" [ref=e549]:
+                    - code [ref=e550]: release() -> void
+                - row "\"strategy needs to read availability\" isFree() -> boolean, size(), floorNumber(), id()" [ref=e551]:
+                  - cell "\"strategy needs to read availability\"" [ref=e552]
+                  - cell "isFree() -> boolean, size(), floorNumber(), id()" [ref=e553]:
+                    - code [ref=e554]: isFree() -> boolean
+                    - text: ","
+                    - code [ref=e555]: size()
+                    - text: ","
+                    - code [ref=e556]: floorNumber()
+                    - text: ","
+                    - code [ref=e557]: id()
+                - row "\"thread-safe subclass needs the lock\" lock() -> ReentrantLock" [ref=e558]:
+                  - cell "\"thread-safe subclass needs the lock\"" [ref=e559]
+                  - cell "lock() -> ReentrantLock" [ref=e560]:
+                    - code [ref=e561]: lock() -> ReentrantLock
+            - generic [ref=e562]:
+              - button "copy" [ref=e564] [cursor=pointer]
+              - code [ref=e566]: "class ParkingSpot: - id: String - floorNumber: int - size: SpotSize - status: SpotStatus - vehicle: @Nullable Vehicle - lock: ReentrantLock + ParkingSpot(id, floorNumber, size) + occupy(Vehicle) -> void | throws InvalidSpotStateException + release() -> void # idempotent + isFree() -> boolean + status() -> SpotStatus + vehicle() -> Vehicle | null + lock() -> ReentrantLock + id(), floorNumber(), size() -> getters"
+            - paragraph [ref=e567]:
+              - strong [ref=e568]: (d) Design choices worth calling out
+            - list [ref=e569]:
+              - listitem [ref=e570]:
+                - strong [ref=e571]:
+                  - text: Why does the spot own its lock instead of the service holding a
+                  - code [ref=e572]: Map<spotId, Lock>
+                  - text: "?"
+                - text: Co-locating the lock with the thing it guards means there's no separate map to keep in sync and no "lock the map before the lock" dance. The lock's lifetime is exactly the spot's lifetime.
+              - listitem [ref=e573]:
+                - strong [ref=e574]:
+                  - text: Why is
+                  - code [ref=e575]: occupy
+                  - text: guarded but
+                  - code [ref=e576]: release
+                  - text: idempotent?
+                - text: Occupying an occupied spot is a real bug (two cars on one spot) — it must throw. Releasing a free spot is a harmless double-free (a real unpark racing a future cleanup sweep) — it must be a silent no-op.
+            - heading "(3) SpotAllocationStrategy — the seam (interface)" [level=4] [ref=e577]:
+              - text: (3)
+              - code [ref=e578]: SpotAllocationStrategy
+              - text: — the seam (interface)
+            - paragraph [ref=e579]:
+              - strong [ref=e580]: (a) Role
+              - text: — The pluggable policy for "which free spot to use". The orchestrator depends on this abstraction, never on a concrete policy.
+            - paragraph [ref=e581]:
+              - strong [ref=e582]: (b) State
+              - text: — none (stateless policy).
+            - paragraph [ref=e583]:
+              - strong [ref=e584]: (c) Operations
+            - table [ref=e586]:
+              - rowgroup [ref=e587]:
+                - row "Need Method" [ref=e588]:
+                  - columnheader "Need" [ref=e589]
+                  - columnheader "Method" [ref=e590]
+              - rowgroup [ref=e591]:
+                - row "\"find the best free compatible spot\" findSpot(floors, type) -> Optional<ParkingSpot>" [ref=e592]:
+                  - cell "\"find the best free compatible spot\"" [ref=e593]
+                  - cell "findSpot(floors, type) -> Optional<ParkingSpot>" [ref=e594]:
+                    - code [ref=e595]: findSpot(floors, type) -> Optional<ParkingSpot>
+            - generic [ref=e596]:
+              - button "copy" [ref=e598] [cursor=pointer]
+              - code [ref=e600]: "interface SpotAllocationStrategy: + findSpot(List<ParkingFloor> floors, VehicleType type) -> Optional<ParkingSpot>"
+            - paragraph [ref=e601]:
+              - strong [ref=e602]: (d) Design choices
+            - list [ref=e603]:
+              - listitem [ref=e604]:
+                - strong [ref=e605]:
+                  - text: Why
+                  - code [ref=e606]: Optional
+                  - text: ", not null?"
+                - text: "\"No spot\" is a real answer the caller must unwrap; the service turns an empty Optional into a typed"
+                - code [ref=e607]: NoSpotAvailableException
+                - text: . A null could silently slip through.
+              - listitem [ref=e608]:
+                - strong [ref=e609]: Why return a candidate, not occupy it?
+                - text: Selection is a pure read; occupying is a guarded write the service does under the lock. Keeping them separate is what lets the
+                - emphasis [ref=e610]: re-check inside the lock
+                - text: fix the race.
+            - heading "(4) BestFitNearestStrategy — the default policy" [level=4] [ref=e611]:
+              - text: (4)
+              - code [ref=e612]: BestFitNearestStrategy
+              - text: — the default policy
+            - paragraph [ref=e613]:
+              - strong [ref=e614]: (a) Role
+              - text: "— The concrete policy: smallest fitting spot, nearest floor, deterministic tie-break."
+            - paragraph [ref=e615]:
+              - strong [ref=e616]: (b) State
+              - text: — one static
+              - code [ref=e617]: Comparator
+              - text: .
+            - paragraph [ref=e618]:
+              - strong [ref=e619]: (c) Operations
+              - text: — implements
+              - code [ref=e620]: findSpot
+              - text: .
+            - generic [ref=e621]:
+              - button "copy" [ref=e623] [cursor=pointer]
+              - code [ref=e625]: "class BestFitNearestStrategy implements SpotAllocationStrategy: - BEST_FIRST: Comparator<ParkingSpot> # size rank, then floor, then id + findSpot(List<ParkingFloor> floors, VehicleType type) -> Optional<ParkingSpot> - isCompatible(SpotSize, VehicleType) -> boolean"
+            - paragraph [ref=e626]:
+              - strong [ref=e627]: (d) Design choices
+            - list [ref=e628]:
+              - listitem [ref=e629]:
+                - strong [ref=e630]:
+                  - text: Why sort by
+                  - code [ref=e631]: (size, floor, id)
+                  - text: and not just size?
+                - text: Floor gives "nearest"; id gives a
+                - emphasis [ref=e632]: deterministic
+                - text: pick so the same lot state always returns the same spot — reproducible tests, no flakiness.
+            - heading "(5) Vehicle and Ticket — immutable records" [level=4] [ref=e633]:
+              - text: (5)
+              - code [ref=e634]: Vehicle
+              - text: and
+              - code [ref=e635]: Ticket
+              - text: — immutable records
+            - paragraph [ref=e636]:
+              - strong [ref=e637]: (a) Role
+              - text: "— Plain value objects:"
+              - code [ref=e638]: Vehicle
+              - text: is the thing parking;
+              - code [ref=e639]: Ticket
+              - text: is the entry receipt.
+            - paragraph [ref=e640]:
+              - strong [ref=e641]: (b)/(c)
+              - text: — Records; validated at construction.
+            - generic [ref=e642]:
+              - button "copy" [ref=e644] [cursor=pointer]
+              - code [ref=e646]: "record Vehicle(String licensePlate, VehicleType type) # non-blank plate record Ticket(String id, String spotId, Vehicle vehicle, Instant entryTime) # all non-null"
+            - paragraph [ref=e647]:
+              - strong [ref=e648]: (d) Design choices
+            - list [ref=e649]:
+              - listitem [ref=e650]:
+                - strong [ref=e651]: Why records?
+                - text: Immutability for free, value equality, no setters — a ticket once issued can never be mutated.
+              - listitem [ref=e652]:
+                - strong [ref=e653]:
+                  - text: Why no
+                  - code [ref=e654]: fee
+                  - text: on the ticket?
+                - text: It's unknown at entry; computed at exit from
+                - code [ref=e655]: entryTime
+                - text: and the exit time.
+            - heading "(6) ThreadSafeParkingLotService — the concurrency subclass" [level=4] [ref=e656]:
+              - text: (6)
+              - code [ref=e657]: ThreadSafeParkingLotService
+              - text: — the concurrency subclass
+            - paragraph [ref=e658]:
+              - strong [ref=e659]: (a) Role
+              - text: — The thread-safe version. Overrides exactly one method.
+            - paragraph [ref=e660]:
+              - strong [ref=e661]: (b) State
+              - text: — none added.
+            - paragraph [ref=e662]:
+              - strong [ref=e663]: (c) Operations
+              - text: — overrides
+              - code [ref=e664]: withSpotGuard
+              - text: .
+            - generic [ref=e665]:
+              - button "copy" [ref=e667] [cursor=pointer]
+              - code [ref=e669]: "class ThreadSafeParkingLotService extends ParkingLotService: + ThreadSafeParkingLotService(floors, strategy, clock, ratePerHourCents) # withSpotGuard(spot, action) -> T (override: lock spot, run, unlock)"
+            - paragraph [ref=e670]:
+              - strong [ref=e671]: (d) Design choices
+            - list [ref=e672]:
+              - listitem [ref=e673]:
+                - strong [ref=e674]: Why a subclass, not a flag?
+                - text: The clean core has zero lock code; the diff between clean and safe is one overridden method. The interviewer sees the seam instantly.
+            - heading "4.2 Final consolidated class diagram" [level=3] [ref=e675]
+            - paragraph [ref=e676]:
+              - text: 🗣️
+              - strong [ref=e677]: "SAY (don't draw):"
+              - text: "\"I also have"
+              - code [ref=e678]: Vehicle
+              - text: ","
+              - code [ref=e679]: Ticket
+              - text: ", and"
+              - code [ref=e680]: ParkingFloor
+              - text: —
+              - code [ref=e681]: Vehicle
+              - text: and
+              - code [ref=e682]: Ticket
+              - text: are immutable data records, and
+              - code [ref=e683]: ParkingFloor
+              - text: just owns its spots. Nothing interesting; I'll focus the diagram on the classes with real logic."
+            - generic [ref=e684]:
+              - document [ref=e685]:
+                - generic [ref=e687]:
+                  - generic [ref=e694]:
+                    - generic [ref=e699]: floors 1..*
+                    - generic [ref=e704]: uses
+                    - generic [ref=e709]: owns 1..*
+                    - generic [ref=e714]: occupies via guard
+                  - generic [ref=e715]:
+                    - generic [ref=e718]:
+                      - generic [ref=e720]: ParkingLotService
+                      - generic [ref=e722]: "-List<ParkingFloor> floors"
+                      - generic [ref=e724]: "-SpotAllocationStrategy strategy"
+                      - generic [ref=e726]: "-Supplier<Instant> clock"
+                      - generic [ref=e728]: "-long ratePerHourCents"
+                      - generic [ref=e730]: "-Map<String,Ticket> openTickets"
+                      - generic [ref=e732]: "+park(Vehicle) : Ticket"
+                      - generic [ref=e734]: "+unpark(String) : long"
+                      - generic [ref=e736]: "+occupiedCount() : int"
+                      - generic [ref=e738]: "+availableCountFor(VehicleType) : long"
+                      - generic [ref=e740]: "#withSpotGuard(ParkingSpot, action) : T"
+                    - generic [ref=e743]:
+                      - generic [ref=e745]: ThreadSafeParkingLotService
+                      - generic [ref=e747]: "#withSpotGuard(ParkingSpot, action) : T"
+                    - generic [ref=e750]:
+                      - generic [ref=e752]: ParkingSpot
+                      - generic [ref=e754]: "-String id"
+                      - generic [ref=e756]: "-SpotSize size"
+                      - generic [ref=e758]: "-SpotStatus status"
+                      - generic [ref=e760]: "-ReentrantLock lock"
+                      - generic [ref=e762]: "+occupy(Vehicle) : void"
+                      - generic [ref=e764]: "+release() : void"
+                      - generic [ref=e766]: "+isFree() : boolean"
+                      - generic [ref=e768]: "+lock() : ReentrantLock"
+                    - generic [ref=e771]:
+                      - generic [ref=e773]: ParkingFloor
+                      - generic [ref=e775]: "-int floorNumber"
+                      - generic [ref=e777]: "-List<ParkingSpot> spots"
+                    - generic [ref=e780]:
+                      - generic [ref=e782]: «interface»
+                      - generic [ref=e784]: SpotAllocationStrategy
+                      - generic [ref=e786]: "+findSpot(floors, VehicleType) : Optional<ParkingSpot>"
+                    - generic [ref=e789]:
+                      - generic [ref=e791]: BestFitNearestStrategy
+                      - generic [ref=e793]: "+findSpot(floors, VehicleType) : Optional<ParkingSpot>"
+              - text: ⤢ tap to enlarge
+            - paragraph [ref=e794]:
+              - strong [ref=e795]: "Relationships, one at a time:"
+            - list [ref=e796]:
+              - listitem [ref=e797]:
+                - strong [ref=e798]:
+                  - code [ref=e799]: ThreadSafeParkingLotService --|> ParkingLotService
+                - text: "(inheritance, solid arrow): the thread-safe version"
+                - emphasis [ref=e800]: extends
+                - text: the clean core and overrides only
+                - code [ref=e801]: withSpotGuard
+                - text: . It fulfils the same public contract; callers can't tell which one they hold.
+              - listitem [ref=e802]:
+                - strong [ref=e803]:
+                  - code [ref=e804]: BestFitNearestStrategy ..|> SpotAllocationStrategy
+                - text: "(realization, dashed): the concrete policy"
+                - emphasis [ref=e805]: implements
+                - text: the strategy interface. This is
+                - strong [ref=e806]: the extensibility seam
+                - text: — a new policy is a new class realizing this interface, zero core edits.
+              - listitem [ref=e807]:
+                - strong [ref=e808]:
+                  - code [ref=e809]:
+                    - text: ParkingFloor
+                    - emphasis [ref=e810]: "-- ParkingSpot"
+                - emphasis [ref=e811]: (composition, filled diamond, 1..
+                - text: "): a floor"
+                - emphasis [ref=e812]: owns
+                - text: its spots. Kill the floor and the spots go with it — they have no independent existence.
+              - listitem [ref=e813]:
+                - strong [ref=e814]:
+                  - code [ref=e815]: ParkingLotService o-- ParkingFloor
+                - text: "(aggregation, open diamond, 1..*): the service"
+                - emphasis [ref=e816]: holds a reference to
+                - text: floors. It reads them to scan for spots, but the lot's structure is passed in at construction.
+              - listitem [ref=e817]:
+                - strong [ref=e818]:
+                  - code [ref=e819]: ParkingLotService ..> SpotAllocationStrategy
+                - text: "(dependency, dashed): the service"
+                - emphasis [ref=e820]: uses
+                - text: the strategy transiently to pick a spot. It never knows the concrete type — that's Dependency Inversion.
+              - listitem [ref=e821]:
+                - strong [ref=e822]:
+                  - code [ref=e823]: ParkingLotService ..> ParkingSpot
+                - text: "(dependency): the service calls"
+                - code [ref=e824]: occupy
+                - text: /
+                - code [ref=e825]: release
+                - text: on a spot under the guard, but it does not own spots (floors do).
+            - paragraph [ref=e826]:
+              - strong [ref=e827]: Pattern Map
+            - table [ref=e829]:
+              - rowgroup [ref=e830]:
+                - row "Class / Interface Pattern One-line reason" [ref=e831]:
+                  - columnheader "Class / Interface" [ref=e832]
+                  - columnheader "Pattern" [ref=e833]
+                  - columnheader "One-line reason" [ref=e834]
+              - rowgroup [ref=e835]:
+                - row "SpotAllocationStrategy + BestFitNearestStrategy Strategy service depends on the abstraction; policy swaps without core changes" [ref=e836]:
+                  - cell "SpotAllocationStrategy + BestFitNearestStrategy" [ref=e837]:
+                    - code [ref=e838]: SpotAllocationStrategy
+                    - text: +
+                    - code [ref=e839]: BestFitNearestStrategy
+                  - cell "Strategy" [ref=e840]
+                  - cell "service depends on the abstraction; policy swaps without core changes" [ref=e841]
+                - row "ParkingLotService.withSpotGuard hook Template Method no-op in clean core; thread-safe subclass overrides one method" [ref=e842]:
+                  - cell "ParkingLotService.withSpotGuard hook" [ref=e843]:
+                    - code [ref=e844]: ParkingLotService.withSpotGuard
+                    - text: hook
+                  - cell "Template Method" [ref=e845]
+                  - cell "no-op in clean core; thread-safe subclass overrides one method" [ref=e846]
+                - row "ParkingSpot (occupy/release) State machine (Information Expert) the spot guards its own legal transitions; nobody writes its status directly" [ref=e847]:
+                  - cell "ParkingSpot (occupy/release)" [ref=e848]:
+                    - code [ref=e849]: ParkingSpot
+                    - text: (occupy/release)
+                  - cell "State machine (Information Expert)" [ref=e850]
+                  - cell "the spot guards its own legal transitions; nobody writes its status directly" [ref=e851]
+            - blockquote [ref=e852]:
+              - text: 🎙️
+              - strong [ref=e853]: "Script — walk the diagram:"
+              - text: "\"I put"
+              - code [ref=e854]: ParkingLotService
+              - text: in the center because every operation flows through it. Below it, the
+              - code [ref=e855]: ThreadSafeParkingLotService
+              - text: subclass — it overrides one method,
+              - code [ref=e856]: withSpotGuard
+              - text: . On the left,
+              - code [ref=e857]: ParkingFloor
+              - text: owns its
+              - code [ref=e858]: ParkingSpot
+              - text: s — that's composition, the spots can't outlive the floor.
+              - code [ref=e859]: ParkingSpot
+              - text: "is the heart: it guards its own status and carries its own lock. On the right,"
+              - code [ref=e860]: SpotAllocationStrategy
+              - text: — the Strategy seam — with
+              - code [ref=e861]: BestFitNearestStrategy
+              - text: "implementing it. The key seam is that interface: the service never knows which policy it's talking to, so 'cheapest-first' or 'random' plug in as new classes.\""
+            - blockquote [ref=e862]:
+              - text: ⚠️
+              - strong [ref=e863]: "PROACTIVE CONCURRENCY FLAG:"
+              - text: "\"I notice there's a race in"
+              - code [ref=e864]: park
+              - text: — if two cars call it at the same time, the strategy can hand both the same free spot, both occupy it, and we double-allocate one spot to two cars. I'll keep the core clean and single-threaded for now, and show you exactly how I fix it in §9 with a per-spot lock plus a re-check inside the lock."
+            - separator [ref=e865]
+            - heading "5. Design Patterns & Principles" [level=2] [ref=e866]
+            - heading "5.1 Information Expert (the foundational principle)" [level=3] [ref=e867]
+            - blockquote [ref=e868]:
+              - text: "💬 \"I followed Information Expert: each class owns the state and behavior closest to the data it has."
+              - code [ref=e869]: ParkingLotService
+              - text: owns allocation coordination and the open-ticket registry because it's the only thing that sees all floors and all tickets.
+              - code [ref=e870]: ParkingSpot
+              - text: owns its occupancy and its lock because physical presence — 'is there a car in me right now' — is intrinsic to the spot, not relational to the system.
+              - code [ref=e871]: VehicleType
+              - text: owns the
+              - code [ref=e872]: fits
+              - text: rule because compatibility is intrinsic to the vehicle's kind. So nobody reaches across boundaries to mutate state they don't own."
+            - heading "5.2 Applied patterns" [level=3] [ref=e873]
+            - paragraph [ref=e874]:
+              - strong [ref=e875]: Strategy
+              - text: —
+              - code [ref=e876]: SpotAllocationStrategy
+              - text: /
+              - code [ref=e877]: BestFitNearestStrategy
+            - list [ref=e878]:
+              - listitem [ref=e879]:
+                - strong [ref=e880]: "Why it fits here:"
+                - text: the rule for picking a spot is
+                - emphasis [ref=e881]: exactly
+                - text: the thing the business will want to tweak — best-fit today, nearest-door or cheapest-category tomorrow. So I extract the policy and the orchestrator never hardcodes it.
+              - listitem [ref=e882]:
+                - strong [ref=e883]: "Interface + impl:"
+                - code [ref=e884]: SpotAllocationStrategy.findSpot(...) → BestFitNearestStrategy
+              - listitem [ref=e885]: 🎙️ "The lot doesn't decide which spot — it asks a strategy. Swapping the rule is one new class."
+              - listitem [ref=e886]:
+                - text: 💬
+                - strong [ref=e887]: "Layman:"
+                - text: "\"It's like the lot doesn't choose the parking space itself — it asks a rule-of-the-day. We can change the rule without rewiring the lot.\""
+            - paragraph [ref=e888]:
+              - strong [ref=e889]: Template Method
+              - text: —
+              - code [ref=e890]: ParkingLotService.withSpotGuard
+            - list [ref=e891]:
+              - listitem [ref=e892]:
+                - strong [ref=e893]: "Why it fits here:"
+                - text: I want the clean core to have
+                - emphasis [ref=e894]: zero
+                - text: lock code, and the thread-safe version to differ by as little as possible. A no-op hook in the base, overridden by the subclass, makes the concurrency diff exactly one method.
+              - listitem [ref=e895]:
+                - strong [ref=e896]: "Hook + override:"
+                - text: base
+                - code [ref=e897]: "withSpotGuard(spot, action) { return action.get(); }"
+                - text: → subclass wraps it in
+                - code [ref=e898]: spot.lock()
+                - text: .
+              - listitem [ref=e899]: 🎙️ "My core file imports no locks. Thread safety is one overridden method."
+              - listitem [ref=e900]:
+                - text: 💬
+                - strong [ref=e901]: "Layman:"
+                - text: "\"I leave a blank slot where a lock would go. The clean version leaves it blank; the safe version fills it in.\""
+            - heading "5.3 SOLID principles" [level=3] [ref=e902]
+            - list [ref=e903]:
+              - listitem [ref=e904]:
+                - strong [ref=e905]: "Single Responsibility:"
+                - code [ref=e906]: ParkingSpot
+                - text: owns physical state,
+                - code [ref=e907]: SpotAllocationStrategy
+                - text: owns selection,
+                - code [ref=e908]: ParkingLotService
+                - text: owns coordination,
+                - code [ref=e909]: computeFee
+                - text: owns billing. Four reasons to change, four homes — never bundled.
+              - listitem [ref=e910]:
+                - strong [ref=e911]: "Open/Closed:"
+                - text: a new allocation policy = a new
+                - code [ref=e912]: SpotAllocationStrategy
+                - text: class, zero edits to the service. A new pricing rule = a new private helper or injected pricer.
+              - listitem [ref=e913]:
+                - strong [ref=e914]: "Dependency Inversion:"
+                - code [ref=e915]: ParkingLotService
+                - text: depends on the
+                - code [ref=e916]: SpotAllocationStrategy
+                - text: abstraction and a
+                - code [ref=e917]: Supplier<Instant>
+                - text: clock abstraction — never on a concrete policy or on
+                - code [ref=e918]: Instant.now()
+                - text: directly.
+              - listitem [ref=e919]:
+                - strong [ref=e920]: "Liskov:"
+                - code [ref=e921]: ThreadSafeParkingLotService
+                - text: is a drop-in for
+                - code [ref=e922]: ParkingLotService
+                - text: — it strengthens guarantees (thread safety) without changing the contract.
+            - heading "5.4 Earn your patterns" [level=3] [ref=e923]
+            - list [ref=e924]:
+              - listitem [ref=e925]:
+                - strong [ref=e926]: Strategy
+                - text: — real interface (
+                - code [ref=e927]: SpotAllocationStrategy
+                - text: ) with a real impl (
+                - code [ref=e928]: BestFitNearestStrategy
+                - text: ) the service holds via constructor injection. Survives Cmd-F.
+              - listitem [ref=e929]:
+                - strong [ref=e930]: Template Method
+                - text: — real
+                - code [ref=e931]: protected withSpotGuard
+                - text: no-op in §6, real
+                - code [ref=e932]: "@Override"
+                - text: in the subclass. Survives Cmd-F.
+              - listitem [ref=e933]:
+                - text: I did
+                - strong [ref=e934]: NOT
+                - text: claim Singleton (the lot is just constructed once by
+                - code [ref=e935]: Main
+                - text: ", not enforced as single) or Factory (no enum→object translation worth naming). Calling those out would be name-dropping."
+            - separator [ref=e936]
+            - heading "5.5 Core Algorithms & Approach" [level=2] [ref=e937]
+            - heading "A. The Key Insight" [level=3] [ref=e938]
+            - blockquote [ref=e939]:
+              - strong [ref=e940]: "Insight:"
+              - text: Make each
+              - code [ref=e941]: ParkingSpot
+              - text: a self-guarding state machine that
+              - emphasis [ref=e942]: carries its own lock
+              - text: ", and make spot selection a swappable Strategy. To park, lock the one spot you're taking, re-check it's free, occupy it."
+            - blockquote [ref=e943]:
+              - strong [ref=e944]: Why it works
+              - text: "\"Which spot is best\" is a pure policy with no shared state — it factors cleanly into a Strategy. And \"is this spot taken\" is intrinsic to the spot, so the spot can guard its own FREE→OCCUPIED transition. Because the lock lives"
+              - emphasis [ref=e945]: on the spot
+              - text: ", two cars taking two different spots take two different locks and never block each other. The only contention is two cars fighting for the"
+              - emphasis [ref=e946]: same
+              - text: spot, and the lock plus re-check makes one win cleanly and the other go find another spot.
+            - blockquote [ref=e947]:
+              - strong [ref=e948]: "What breaks without it:"
+              - text: The naive version inlines
+              - code [ref=e949]: spot.status = OCCUPIED
+              - text: in the service after a bare
+              - code [ref=e950]: findSpot
+              - text: . Under load, two threads both see spot L1-1 free (check-then-act), both write OCCUPIED, and two cars are assigned one spot — one ticket silently overwrites the other in the registry. By making the spot guard its own transition
+              - emphasis [ref=e951]: and
+              - text: requiring its own lock for the write, that bug is impossible by construction.
+            - heading "B. Per-Operation Algorithm" [level=3] [ref=e952]
+            - heading "park(vehicle)" [level=4] [ref=e953]:
+              - code [ref=e954]: park(vehicle)
+            - paragraph [ref=e955]:
+              - strong [ref=e956]: (1) Pseudocode
+            - generic [ref=e957]:
+              - button "copy" [ref=e959] [cursor=pointer]
+              - code [ref=e961]: "1. if vehicle is null -> throw ParkingException 2. loop: # retry loop lives OUTSIDE the guard 3. candidate = strategy.findSpot(floors, vehicle.type) 4. if candidate is empty -> throw NoSpotAvailableException 5. ticket = withSpotGuard(candidate): # no-op in core; per-spot lock in subclass 6. if candidate is NOT free: # re-check inside the guard 7. return null # taken meanwhile; sentinel -> retry 8. candidate.occupy(vehicle) # FREE -> OCCUPIED, guarded by the spot 9. return new Ticket(nextId, candidate.id, vehicle, clock.now) 10. # guard has now RELEASED candidate's lock 11. if ticket is not null: 12. openTickets[candidate.id] = ticket 13. return ticket 14. # else: loop and try the next-best spot, holding NO lock across the retry"
+            - blockquote [ref=e962]:
+              - text: 🎙️
+              - strong [ref=e963]: "Walkthrough (race-prone method):"
+              - text: "\"This method has the check-then-act race —"
+              - code [ref=e964]: findSpot
+              - text: checks,
+              - code [ref=e965]: occupy
+              - text: "acts, and steps 6-9 are the critical section. Step 3 is where the Strategy fires — the service doesn't know it's best-fit. Step 6 is the non-obvious one: I re-check"
+              - emphasis [ref=e966]: inside
+              - text: the guard, because the strategy's answer is a hint that may be stale by the time I hold the lock. If the spot got taken, the guard returns a
+              - code [ref=e967]: "null"
+              - text: sentinel and the loop retries — but crucially the loop is
+              - emphasis [ref=e968]: outside
+              - text: the guard, so candidate's lock is already released before I re-run the strategy and take the next spot's lock. That's what keeps a thread holding at most ONE spot lock at a time. In §9 the guard becomes a real per-spot lock, and steps 6-9 become atomic."
+            - paragraph [ref=e969]:
+              - strong [ref=e970]:
+                - text: (3) Dry run —
+                - code [ref=e971]: park(Vehicle("CAR-1", CAR))
+              - text: "on a fresh 2-floor lot:"
+            - table [ref=e973]:
+              - rowgroup [ref=e974]:
+                - row "Step Action State change" [ref=e975]:
+                  - columnheader "Step" [ref=e976]
+                  - columnheader "Action" [ref=e977]
+                  - columnheader "State change" [ref=e978]
+              - rowgroup [ref=e979]:
+                - row "3 strategy.findSpot(floors, CAR) returns L1-1 (smallest fitting=LARGE, lowest floor, lowest id)" [ref=e980]:
+                  - cell "3" [ref=e981]
+                  - cell "strategy.findSpot(floors, CAR)" [ref=e982]:
+                    - code [ref=e983]: strategy.findSpot(floors, CAR)
+                  - cell "returns L1-1 (smallest fitting=LARGE, lowest floor, lowest id)" [ref=e984]
+                - row "5 enter guard on L1-1 (no-op in core / lock held in subclass)" [ref=e985]:
+                  - cell "5" [ref=e986]
+                  - cell "enter guard on L1-1" [ref=e987]
+                  - cell "(no-op in core / lock held in subclass)" [ref=e988]
+                - row "6 re-check L1-1 free free ✓" [ref=e989]:
+                  - cell "6" [ref=e990]
+                  - cell "re-check L1-1 free" [ref=e991]
+                  - cell "free ✓" [ref=e992]
+                - 'row "8 L1-1.occupy(CAR-1) L1-1.status: FREE → OCCUPIED, vehicle=CAR-1" [ref=e993]':
+                  - cell "8" [ref=e994]
+                  - cell "L1-1.occupy(CAR-1)" [ref=e995]:
+                    - code [ref=e996]: L1-1.occupy(CAR-1)
+                  - 'cell "L1-1.status: FREE → OCCUPIED, vehicle=CAR-1" [ref=e997]'
+                - row "9 build ticket, guard returns it tkt-1, spotId=L1-1, entry=08:00; lock released" [ref=e998]:
+                  - cell "9" [ref=e999]
+                  - cell "build ticket, guard returns it" [ref=e1000]
+                  - cell "tkt-1, spotId=L1-1, entry=08:00; lock released" [ref=e1001]:
+                    - code [ref=e1002]: tkt-1
+                    - text: ", spotId=L1-1, entry=08:00; lock released"
+                - 'row "12 index it openTickets={ \"L1-1\": tkt-1 }" [ref=e1003]':
+                  - cell "12" [ref=e1004]
+                  - cell "index it" [ref=e1005]
+                  - 'cell "openTickets={ \"L1-1\": tkt-1 }" [ref=e1006]':
+                    - code [ref=e1007]: "openTickets={ \"L1-1\": tkt-1 }"
+                - row "13 return caller gets tkt-1" [ref=e1008]:
+                  - cell "13" [ref=e1009]
+                  - cell "return" [ref=e1010]
+                  - cell "caller gets tkt-1" [ref=e1011]:
+                    - text: caller gets
+                    - code [ref=e1012]: tkt-1
+            - blockquote [ref=e1013]:
+              - emphasis [ref=e1014]:
+                - text: "Edge probe: what if a second car calls"
+                - code [ref=e1015]: park
+                - text: while step 8 is mid-flight?
+              - text: "Without a lock both see L1-1 free at step 6 → both occupy → double-allocation. §9 fixes it: the per-spot lock serializes step 6-9, so the loser's re-check at step 6 sees OCCUPIED, the guard returns the"
+              - code [ref=e1016]: "null"
+              - text: sentinel, the loser's lock on L1-1 is released, and the loop re-runs the strategy and takes L1-2 next — never holding two spot locks at once.
+            - heading "unpark(ticketId)" [level=4] [ref=e1017]:
+              - code [ref=e1018]: unpark(ticketId)
+            - paragraph [ref=e1019]:
+              - strong [ref=e1020]: (1) Pseudocode
+            - generic [ref=e1021]:
+              - button "copy" [ref=e1023] [cursor=pointer]
+              - code [ref=e1025]: "1. if ticketId is null -> throw TicketNotFoundException 2. ticket = findOpenTicketById(ticketId) 3. if ticket is null -> throw TicketNotFoundException 4. spot = findSpotById(ticket.spotId) 5. withSpotGuard(spot): 6. spot.release() # OCCUPIED -> FREE (idempotent) 7. openTickets.remove(spot.id) # drop registry entry 8. return computeFee(ticket.entryTime, clock.now)"
+            - blockquote [ref=e1026]:
+              - text: 🎙️
+              - strong [ref=e1027]: "Walkthrough (completion path):"
+              - text: "\"Unpark is two guards then a release-and-bill. Step 2-3 reject unknown tickets. Step 6 is idempotent on purpose — if a future cleanup sweep already freed the spot,"
+              - code [ref=e1028]: release
+              - text: is a no-op, no spurious error. Step 8 is the only place fee is computed, and it reads the injected clock, so a test can pretend hours passed."
+            - heading "availableCountFor(type) / occupiedCount()" [level=4] [ref=e1029]:
+              - code [ref=e1030]: availableCountFor(type)
+              - text: /
+              - code [ref=e1031]: occupiedCount()
+            - paragraph [ref=e1032]:
+              - strong [ref=e1033]: (1) Pseudocode
+            - generic [ref=e1034]:
+              - button "copy" [ref=e1036] [cursor=pointer]
+              - code [ref=e1038]: "occupiedCount: return openTickets.size # O(1) availableCountFor(t): count spots where free AND t.fits(spot.size) # O(total spots)"
+            - blockquote [ref=e1039]:
+              - text: 🎙️
+              - strong [ref=e1040]: "Lookup method:"
+              - text: "\""
+              - code [ref=e1041]: occupiedCount
+              - text: is an O(1) hit on the registry size — the registry
+              - emphasis [ref=e1042]: is
+              - text: the set of parked cars.
+              - code [ref=e1043]: availableCountFor
+              - text: scans the spots, which is fine at a few hundred spots."
+            - heading "C. Data Structure Choices" [level=3] [ref=e1044]
+            - table [ref=e1046]:
+              - rowgroup [ref=e1047]:
+                - row "Data Structure Used For Why THIS (vs alternative) Complexity" [ref=e1048]:
+                  - columnheader "Data Structure" [ref=e1049]
+                  - columnheader "Used For" [ref=e1050]
+                  - columnheader "Why THIS (vs alternative)" [ref=e1051]
+                  - columnheader "Complexity" [ref=e1052]
+              - rowgroup [ref=e1053]:
+                - row "Map<String,Ticket> keyed by spot id open-ticket registry unpark must free a spot; keying by spot id makes \"free this spot + drop it\" O(1). Keying by ticket id would force a scan of all spots to find which spot to free O(1) put/remove; O(open) find-by-ticket-id" [ref=e1054]:
+                  - cell "Map<String,Ticket> keyed by spot id" [ref=e1055]:
+                    - code [ref=e1056]: Map<String,Ticket>
+                    - text: keyed by
+                    - strong [ref=e1057]: spot id
+                  - cell "open-ticket registry" [ref=e1058]
+                  - cell "unpark must free a spot; keying by spot id makes \"free this spot + drop it\" O(1). Keying by ticket id would force a scan of all spots to find which spot to free" [ref=e1059]:
+                    - text: unpark must free a
+                    - emphasis [ref=e1060]: spot
+                    - text: ; keying by spot id makes "free this spot + drop it" O(1). Keying by ticket id would force a scan of all spots to find which spot to free
+                  - cell "O(1) put/remove; O(open) find-by-ticket-id" [ref=e1061]
+                - row "ReentrantLock per ParkingSpot per-spot critical section a single global lock serializes the whole building; per-spot locks let N cars park into N different spots fully in parallel. Co-located with the spot so there's no separate lock-map to sync O(1) acquire" [ref=e1062]:
+                  - cell "ReentrantLock per ParkingSpot" [ref=e1063]:
+                    - code [ref=e1064]: ReentrantLock
+                    - text: per
+                    - code [ref=e1065]: ParkingSpot
+                  - cell "per-spot critical section" [ref=e1066]
+                  - cell "a single global lock serializes the whole building; per-spot locks let N cars park into N different spots fully in parallel. Co-located with the spot so there's no separate lock-map to sync" [ref=e1067]
+                  - cell "O(1) acquire" [ref=e1068]
+                - row "linear scan + Comparator.min in strategy best-fit selection n ≤ a few hundred spots per lot; a per-size heap adds sync complexity for zero measurable win at this scale O(n), n small" [ref=e1069]:
+                  - cell "linear scan + Comparator.min in strategy" [ref=e1070]:
+                    - text: linear scan +
+                    - code [ref=e1071]: Comparator.min
+                    - text: in strategy
+                  - cell "best-fit selection" [ref=e1072]
+                  - cell "n ≤ a few hundred spots per lot; a per-size heap adds sync complexity for zero measurable win at this scale" [ref=e1073]
+                  - cell "O(n), n small" [ref=e1074]
+                - row "AtomicLong counter ticket ids readable ids (tkt-1) and safe under many threads; a plain long++ would race O(1)" [ref=e1075]:
+                  - cell "AtomicLong counter" [ref=e1076]:
+                    - code [ref=e1077]: AtomicLong
+                    - text: counter
+                  - cell "ticket ids" [ref=e1078]
+                  - cell "readable ids (tkt-1) and safe under many threads; a plain long++ would race" [ref=e1079]:
+                    - text: readable ids (
+                    - code [ref=e1080]: tkt-1
+                    - text: ) and safe under many threads; a plain
+                    - code [ref=e1081]: long++
+                    - text: would race
+                  - cell "O(1)" [ref=e1082]
+                - row "ConcurrentHashMap registry backing lets the thread-safe subclass read/write the registry from many threads without a separate map lock O(1)" [ref=e1083]:
+                  - cell "ConcurrentHashMap" [ref=e1084]:
+                    - code [ref=e1085]: ConcurrentHashMap
+                  - cell "registry backing" [ref=e1086]
+                  - cell "lets the thread-safe subclass read/write the registry from many threads without a separate map lock" [ref=e1087]
+                  - cell "O(1)" [ref=e1088]
+            - paragraph [ref=e1089]:
+              - text: I chose the
+              - strong [ref=e1090]: scan
+              - text: over a per-size heap deliberately. I'd flip to a per-size free-list/heap when a single lot crosses ~a few thousand spots — at that point the scan becomes a measurable hot spot.
+            - heading "D. Tricky Logic" [level=3] [ref=e1091]
+            - blockquote [ref=e1092]:
+              - strong [ref=e1093]: "🧠 Claim:"
+              - code [ref=e1094]: park
+              - text: must re-check the spot is free
+              - emphasis [ref=e1095]: inside
+              - text: the guard, not trust the strategy's answer.
+            - blockquote [ref=e1096]:
+              - strong [ref=e1097]: "🔬 Proof:"
+              - text: Thread A's
+              - code [ref=e1098]: findSpot
+              - text: returns L1-1. Before A occupies it, thread B (which also got L1-1) occupies it. If A blindly occupies, two cars share L1-1.
+            - blockquote [ref=e1099]:
+              - strong [ref=e1100]: "🛠️ Fix in code:"
+              - text: the re-check in
+              - code [ref=e1101]: park
+              - text: —
+              - code [ref=e1102]: if (!candidate.isFree()) return null;
+              - text: inside the guard — returns a sentinel so the loop
+              - emphasis [ref=e1103]: outside
+              - text: the guard retries, finding the next-best spot. The retry runs after the guard released candidate's lock, so a thread never holds two spot locks at once.
+            - blockquote [ref=e1104]:
+              - strong [ref=e1105]: "🧠 Claim:"
+              - code [ref=e1106]: ParkingSpot.release()
+              - text: must be idempotent.
+            - blockquote [ref=e1107]:
+              - strong [ref=e1108]: "🔬 Proof:"
+              - text: A real unpark and a future stale-ticket sweep can both decide a spot is done; whoever runs second would hit "illegal FREE→FREE" and wrongly error on the legitimate path.
+            - blockquote [ref=e1109]:
+              - strong [ref=e1110]: "🛠️ Fix in code:"
+              - code [ref=e1111]: release()
+              - text: only flips when
+              - code [ref=e1112]: status == OCCUPIED
+              - text: ; otherwise it returns silently.
+            - blockquote [ref=e1113]:
+              - strong [ref=e1114]: "🧠 Claim:"
+              - text: A regular car must never take a handicapped spot, and vice-versa.
+            - blockquote [ref=e1115]:
+              - strong [ref=e1116]: "🔬 Proof:"
+              - text: Pure rank comparison (
+              - code [ref=e1117]: spot.rank >= vehicle.minRank
+              - text: ) would let a CAR grab a HANDICAPPED spot if HANDICAPPED had a high rank, or block handicapped vehicles if it had a low rank.
+            - blockquote [ref=e1118]:
+              - strong [ref=e1119]: "🛠️ Fix in code:"
+              - code [ref=e1120]: VehicleType.fits
+              - text: special-cases HANDICAPPED with exact two-way equality before falling back to the rank test.
+            - blockquote [ref=e1121]:
+              - strong [ref=e1122]: "🧠 Claim:"
+              - text: Fee must round partial hours up with a one-hour minimum.
+            - blockquote [ref=e1123]:
+              - strong [ref=e1124]: "🔬 Proof:"
+              - text: Integer division
+              - code [ref=e1125]: minutes/60
+              - text: would bill 0 for a 30-minute stay — free parking by accident.
+            - blockquote [ref=e1126]:
+              - strong [ref=e1127]: "🛠️ Fix in code:"
+              - code [ref=e1128]: (minutes + 59) / 60
+              - text: ", then"
+              - code [ref=e1129]: if (hours == 0) hours = 1
+              - text: .
+            - blockquote [ref=e1130]:
+              - strong [ref=e1131]: "🧠 Claim:"
+              - text: Billing in
+              - code [ref=e1132]: long
+              - text: cents, never
+              - code [ref=e1133]: double
+              - text: .
+            - blockquote [ref=e1134]:
+              - strong [ref=e1135]: "🔬 Proof:"
+              - code [ref=e1136]: 0.1 + 0.2 != 0.3
+              - text: in floating point — money drifts.
+            - blockquote [ref=e1137]:
+              - strong [ref=e1138]: "🛠️ Fix in code:"
+              - code [ref=e1139]: ratePerHourCents
+              - text: is a
+              - code [ref=e1140]: long
+              - text: ; the fee is
+              - code [ref=e1141]: hours * ratePerHourCents
+              - text: .
+            - heading "E. The \"what I'd write WRONG first\" anti-example" [level=3] [ref=e1142]
+            - blockquote [ref=e1143]:
+              - strong [ref=e1144]: "❌ Naive version a junior would write:"
+            - blockquote [ref=e1145]: BLOCK12
+            - blockquote [ref=e1146]:
+              - strong [ref=e1147]: "Why it's wrong:"
+              - text: two failure modes. (1) The direct status write bypasses the spot's state machine — illegal transitions become possible. (2) The find-then-write is check-then-act — under concurrency two callers both see the same spot free and both occupy it. The correct version delegates selection to a Strategy, calls
+              - code [ref=e1148]: spot.occupy()
+              - text: so the entity guards itself, and lifts the check-and-occupy under a per-spot lock with a re-check (§9).
+            - heading "F. Narration Order for §6" [level=3] [ref=e1149]
+            - table [ref=e1151]:
+              - rowgroup [ref=e1152]:
+                - row "Order Class One-line open" [ref=e1153]:
+                  - columnheader "Order" [ref=e1154]
+                  - columnheader "Class" [ref=e1155]
+                  - columnheader "One-line open" [ref=e1156]
+              - rowgroup [ref=e1157]:
+                - row "1 Enums (SpotSize, VehicleType, SpotStatus) \"Let me start with the vocabulary — sizes, vehicle types, and the fits rule in one place.\"" [ref=e1158]:
+                  - cell "1" [ref=e1159]
+                  - cell "Enums (SpotSize, VehicleType, SpotStatus)" [ref=e1160]:
+                    - text: Enums (
+                    - code [ref=e1161]: SpotSize
+                    - text: ","
+                    - code [ref=e1162]: VehicleType
+                    - text: ","
+                    - code [ref=e1163]: SpotStatus
+                    - text: )
+                  - cell "\"Let me start with the vocabulary — sizes, vehicle types, and the fits rule in one place.\"" [ref=e1164]
+                - row "2 ParkingSpot (state machine + lock) \"This is the heart — the only class allowed to change a spot's status, and it carries its own lock.\"" [ref=e1165]:
+                  - cell "2" [ref=e1166]
+                  - cell "ParkingSpot (state machine + lock)" [ref=e1167]:
+                    - code [ref=e1168]: ParkingSpot
+                    - text: (state machine + lock)
+                  - cell "\"This is the heart — the only class allowed to change a spot's status, and it carries its own lock.\"" [ref=e1169]
+                - row "3 SpotAllocationStrategy + BestFitNearestStrategy \"The seam — the lot never knows which policy is wired in.\"" [ref=e1170]:
+                  - cell "3" [ref=e1171]
+                  - cell "SpotAllocationStrategy + BestFitNearestStrategy" [ref=e1172]:
+                    - code [ref=e1173]: SpotAllocationStrategy
+                    - text: +
+                    - code [ref=e1174]: BestFitNearestStrategy
+                  - cell "\"The seam — the lot never knows which policy is wired in.\"" [ref=e1175]
+                - row "4 ParkingLotService.__init__ + skeleton \"Here's the brain. Registry keyed by spot id, clock injected, zero locks.\"" [ref=e1176]:
+                  - cell "4" [ref=e1177]
+                  - cell "ParkingLotService.__init__ + skeleton" [ref=e1178]:
+                    - code [ref=e1179]: ParkingLotService.__init__
+                    - text: + skeleton
+                  - cell "\"Here's the brain. Registry keyed by spot id, clock injected, zero locks.\"" [ref=e1180]
+                - row "5 ParkingLotService.park \"Now the interesting part — the pipeline I dry-ran, with the re-check inside the guard.\"" [ref=e1181]:
+                  - cell "5" [ref=e1182]
+                  - cell "ParkingLotService.park" [ref=e1183]:
+                    - code [ref=e1184]: ParkingLotService.park
+                  - cell "\"Now the interesting part — the pipeline I dry-ran, with the re-check inside the guard.\"" [ref=e1185]
+                - row "6 ParkingLotService.unpark \"Unpark is two guards then a release-and-bill.\"" [ref=e1186]:
+                  - cell "6" [ref=e1187]
+                  - cell "ParkingLotService.unpark" [ref=e1188]:
+                    - code [ref=e1189]: ParkingLotService.unpark
+                  - cell "\"Unpark is two guards then a release-and-bill.\"" [ref=e1190]
+            - separator [ref=e1191]
+            - heading "6. Implementation — narrated, class by class" [level=2] [ref=e1192]
+            - heading "6.0 Live Writing Order (your interview playbook)" [level=3] [ref=e1193]
+            - heading "(a) The 9 phases" [level=4] [ref=e1194]
+            - paragraph [ref=e1195]:
+              - strong [ref=e1196]: Phase 1 — Set the stage (1-2 min). NO CODE.
+            - blockquote [ref=e1197]:
+              - text: "Bolo: \"Main teen cheezein banaunga — enums, phir"
+              - code [ref=e1198]: ParkingSpot
+              - text: ki state machine plus uska lock, phir orchestrator. Code se pehle har class ka role bata deta hoon." Roadmap pehle.
+            - paragraph [ref=e1199]:
+              - strong [ref=e1200]: Phase 2 — Enums first (2 min).
+            - blockquote [ref=e1201]:
+              - text: "Bolo: \"States pehle —"
+              - code [ref=e1202]: SpotSize
+              - text: ko rank deta hoon taaki 'fits' check ek comparison ho jaaye."
+            - blockquote [ref=e1203]:
+              - text: "Likho:"
+              - code [ref=e1204]: SpotSize
+              - text: (with rank),
+              - code [ref=e1205]: VehicleType
+              - text: (with
+              - code [ref=e1206]: fits
+              - text: ),
+              - code [ref=e1207]: SpotStatus
+              - text: .
+            - paragraph [ref=e1208]:
+              - strong [ref=e1209]:
+                - text: Phase 3 —
+                - code [ref=e1210]: ParkingSpot
+                - text: state machine + lock (5 min).
+            - blockquote [ref=e1211]: "Bolo: \"Ye system ka heart hai. Sirf yeh class apna status badalti hai, aur apna lock bhi rakhti hai. Illegal jumps impossible by construction.\""
+            - blockquote [ref=e1212]:
+              - text: "Likho: fields +"
+              - code [ref=e1213]: occupy
+              - text: (guarded) +
+              - code [ref=e1214]: release
+              - text: (idempotent) +
+              - code [ref=e1215]: lock()
+              - text: .
+            - blockquote [ref=e1216]:
+              - text: Then drop the
+              - strong [ref=e1217]: CONCURRENCY FLAG
+              - text: ": \""
+              - code [ref=e1218]: park
+              - text: mein double-allocation race hogi — main §9 mein per-spot lock se fix karunga. Abhi clean version."
+            - paragraph [ref=e1219]:
+              - strong [ref=e1220]: Phase 4 — Strategy interface + best-fit (2 min).
+            - blockquote [ref=e1221]: "Bolo: \"Strategy seam — orchestrator ko nahi pata best-fit hai ya nearest-door.\""
+            - blockquote [ref=e1222]:
+              - text: "Likho: interface +"
+              - code [ref=e1223]: BestFitNearestStrategy
+              - text: with the comparator.
+            - paragraph [ref=e1224]:
+              - strong [ref=e1225]: Phase 5 — Orchestrator SKELETON (2-3 min).
+            - blockquote [ref=e1226]: "Bolo: \"Pehle saari API surface dikha deta hoon, phir do main methods bharta hoon.\""
+            - blockquote [ref=e1227]:
+              - text: "Likho: constructor + all method signatures + the no-op"
+              - code [ref=e1228]: withSpotGuard
+              - text: .
+            - paragraph [ref=e1229]:
+              - strong [ref=e1230]:
+                - text: Phase 6 —
+                - code [ref=e1231]: park
+                - text: ", FULL body (5-7 min). Slow down."
+            - blockquote [ref=e1232]: "Bolo: \"Strategy se spot, phir guard ke andar re-check, occupy, ticket.\" Walk steps 2→10."
+            - paragraph [ref=e1233]:
+              - strong [ref=e1234]:
+                - text: Phase 7 —
+                - code [ref=e1235]: unpark
+                - text: ", FULL body (3-4 min)."
+            - blockquote [ref=e1236]: "Bolo: \"Do guards, phir release aur bill. Release idempotent hai.\""
+            - paragraph [ref=e1237]:
+              - strong [ref=e1238]: Phase 8 — Demo / run (3-4 min).
+            - blockquote [ref=e1239]:
+              - text: "Mode B:"
+              - code [ref=e1240]: mvn compile exec:java -Dexec.mainClass="com.interview.lld.parking.Main" -q
+              - text: ", show stdout."
+            - paragraph [ref=e1241]:
+              - strong [ref=e1242]: Phase 9 — Concurrency (2-3 min, only if asked).
+            - blockquote [ref=e1243]:
+              - text: "Bolo: \"Race"
+              - code [ref=e1244]: park
+              - text: "mein hai. Fix: per-spot"
+              - code [ref=e1245]: ReentrantLock
+              - text: through the
+              - code [ref=e1246]: withSpotGuard
+              - text: hook — subclass override karta hai, core zero changes." Likho subclass only if asked.
+            - heading "(b) The 7 golden rules" [level=4] [ref=e1247]
+            - list [ref=e1248]:
+              - listitem [ref=e1249]:
+                - strong [ref=e1250]: Roadmap pehle bolo
+                - text: — three files, enums → spot → service.
+              - listitem [ref=e1251]:
+                - strong [ref=e1252]: Skeleton-then-flesh
+                - text: — orchestrator gets signatures first, bodies later.
+              - listitem [ref=e1253]:
+                - strong [ref=e1254]: State machine before orchestrator
+                - text: —
+                - code [ref=e1255]: ParkingSpot
+                - text: is independent; the service imports it.
+              - listitem [ref=e1256]:
+                - strong [ref=e1257]: BOLO while likhing
+                - text: — "yahan clock inject kar raha hoon", "yeh re-check race ke liye hai".
+              - listitem [ref=e1258]:
+                - strong [ref=e1259]:
+                  - text: Concurrency flag drop karo
+                  - code [ref=e1260]: ParkingSpot
+                  - text: ke baad
+                - text: — proactively.
+              - listitem [ref=e1261]:
+                - strong [ref=e1262]: Demo wait karo
+                - text: — only after both methods are full-body.
+              - listitem [ref=e1263]:
+                - strong [ref=e1264]: Pseudocode → code 1:1
+                - text: — §5.5.B steps become §6 lines in the same order.
+            - heading "(c) TL;DR time budget" [level=4] [ref=e1265]
+            - table [ref=e1267]:
+              - rowgroup [ref=e1268]:
+                - row "Time Phase What you're writing" [ref=e1269]:
+                  - columnheader "Time" [ref=e1270]
+                  - columnheader "Phase" [ref=e1271]
+                  - columnheader "What you're writing" [ref=e1272]
+              - rowgroup [ref=e1273]:
+                - row "0-2 min Roadmap Just talking" [ref=e1274]:
+                  - cell "0-2 min" [ref=e1275]
+                  - cell "Roadmap" [ref=e1276]
+                  - cell "Just talking" [ref=e1277]
+                - row "2-4 min Enums SpotSize, VehicleType, SpotStatus" [ref=e1278]:
+                  - cell "2-4 min" [ref=e1279]
+                  - cell "Enums" [ref=e1280]
+                  - cell "SpotSize, VehicleType, SpotStatus" [ref=e1281]:
+                    - code [ref=e1282]: SpotSize
+                    - text: ","
+                    - code [ref=e1283]: VehicleType
+                    - text: ","
+                    - code [ref=e1284]: SpotStatus
+                - row "4-9 min ParkingSpot state machine + lock" [ref=e1285]:
+                  - cell "4-9 min" [ref=e1286]
+                  - cell "ParkingSpot" [ref=e1287]:
+                    - code [ref=e1288]: ParkingSpot
+                  - cell "state machine + lock" [ref=e1289]
+                - row "9-11 min Strategy interface + best-fit" [ref=e1290]:
+                  - cell "9-11 min" [ref=e1291]
+                  - cell "Strategy" [ref=e1292]
+                  - cell "interface + best-fit" [ref=e1293]
+                - row "11-14 min Orchestrator skeleton constructor + signatures + no-op hook" [ref=e1294]:
+                  - cell "11-14 min" [ref=e1295]
+                  - cell "Orchestrator skeleton" [ref=e1296]
+                  - cell "constructor + signatures + no-op hook" [ref=e1297]
+                - row "14-21 min park full body + narration" [ref=e1298]:
+                  - cell "14-21 min" [ref=e1299]
+                  - cell "park" [ref=e1300]:
+                    - code [ref=e1301]: park
+                  - cell "full body + narration" [ref=e1302]
+                - row "21-25 min unpark full body + narration" [ref=e1303]:
+                  - cell "21-25 min" [ref=e1304]
+                  - cell "unpark" [ref=e1305]:
+                    - code [ref=e1306]: unpark
+                  - cell "full body + narration" [ref=e1307]
+                - row "25-29 min Demo / trace 5 cases" [ref=e1308]:
+                  - cell "25-29 min" [ref=e1309]
+                  - cell "Demo / trace" [ref=e1310]
+                  - cell "5 cases" [ref=e1311]
+                - row "29-32 min Concurrency verbal first, code if asked" [ref=e1312]:
+                  - cell "29-32 min" [ref=e1313]
+                  - cell "Concurrency" [ref=e1314]
+                  - cell "verbal first, code if asked" [ref=e1315]
+            - heading "(d) Mid-flight situations" [level=4] [ref=e1316]
+            - list [ref=e1317]:
+              - listitem [ref=e1318]:
+                - strong [ref=e1319]: Interviewer interrupts mid-method
+                - text: — stop writing, answer fully, then "where was I — finishing the guard block in
+                - code [ref=e1320]: park
+                - text: ."
+              - listitem [ref=e1321]:
+                - strong [ref=e1322]: Out of time at 40 min
+                - text: "— cut in order: first"
+                - code [ref=e1323]: unpark
+                - text: "body (describe it), then the demo, then §9 code. NEVER cut:"
+                - code [ref=e1324]: ParkingSpot
+                - text: state machine,
+                - code [ref=e1325]: park
+                - text: body, the concurrency flag.
+              - listitem [ref=e1326]:
+                - strong [ref=e1327]: Need a missing field mid-write
+                - text: "— voice it: \"actually I need the floor number on the spot for nearest-floor, adding it.\""
+              - listitem [ref=e1328]:
+                - strong [ref=e1329]: "\"What if X?\" mid-method"
+                - text: — defer if it's §9 ("let me finish then show concurrency"), pivot inline if it's a one-arg tweak.
+              - listitem [ref=e1330]:
+                - strong [ref=e1331]: Silence
+                - text: — keep a steady pace; at a method boundary ask "any thoughts before
+                - code [ref=e1332]: unpark
+                - text: "?\""
+            - blockquote [ref=e1333]: "\"Yahi flow practice karo: enum → spot → strategy → skeleton → park → unpark → demo. Interview mein natural lagega.\""
+            - separator [ref=e1334]
+            - heading "Enums" [level=3] [ref=e1335]
+            - generic [ref=e1336]:
+              - generic [ref=e1337]:
+                - generic [ref=e1338]: java
+                - button "copy" [ref=e1339] [cursor=pointer]
+              - code [ref=e1341]: "// SpotSize.java package com.interview.lld.parking.model; public enum SpotSize { COMPACT(1), LARGE(2), HANDICAPPED(0); // own bucket, matched by exact equality not rank private final int rank; SpotSize(int rank) { this.rank = rank; } public int rank() { return rank; } }"
+            - generic [ref=e1342]:
+              - generic [ref=e1343]:
+                - generic [ref=e1344]: java
+                - button "copy" [ref=e1345] [cursor=pointer]
+              - code [ref=e1347]: "// VehicleType.java package com.interview.lld.parking.model; public enum VehicleType { MOTORCYCLE(SpotSize.COMPACT), CAR(SpotSize.LARGE), HANDICAPPED(SpotSize.HANDICAPPED); private final SpotSize minSize; VehicleType(SpotSize minSize) { this.minSize = minSize; } public SpotSize minSize() { return minSize; } // One rule for \"can this vehicle use this spot\". public boolean fits(SpotSize spotSize) { if (this == HANDICAPPED || spotSize == SpotSize.HANDICAPPED) { return this == HANDICAPPED && spotSize == SpotSize.HANDICAPPED; } return spotSize.rank() >= minSize.rank(); } }"
+            - generic [ref=e1348]:
+              - generic [ref=e1349]:
+                - generic [ref=e1350]: java
+                - button "copy" [ref=e1351] [cursor=pointer]
+              - code [ref=e1353]: "// SpotStatus.java package com.interview.lld.parking.model; public enum SpotStatus { FREE, OCCUPIED }"
+            - heading "ParkingSpot — the state machine + lock holder" [level=3] [ref=e1354]:
+              - code [ref=e1355]: ParkingSpot
+              - text: — the state machine + lock holder
+            - paragraph [ref=e1356]: The only class allowed to change a spot's status, and the carrier of the per-spot lock.
+            - generic [ref=e1357]:
+              - generic [ref=e1358]:
+                - generic [ref=e1359]: java
+                - button "copy" [ref=e1360] [cursor=pointer]
+              - code [ref=e1362]: "package com.interview.lld.parking.model; import java.util.concurrent.locks.ReentrantLock; import javax.annotation.Nullable; public class ParkingSpot { private final String id; private final int floorNumber; private final SpotSize size; private SpotStatus status; @Nullable private Vehicle vehicle; private final ReentrantLock lock = new ReentrantLock(); // per-spot lock public ParkingSpot(String id, int floorNumber, SpotSize size) { this.id = id; this.floorNumber = floorNumber; this.size = size; this.status = SpotStatus.FREE; this.vehicle = null; } public String id() { return id; } public int floorNumber() { return floorNumber; } public SpotSize size() { return size; } public SpotStatus status() { return status; } public boolean isFree() { return status == SpotStatus.FREE; } @Nullable public Vehicle vehicle() { return vehicle; } public ReentrantLock lock() { return lock; } public void occupy(Vehicle v) { // WHY: guard the transition — a non-free spot cannot be occupied again. if (status != SpotStatus.FREE) { throw new InvalidSpotStateException(\"spot \" + id + \" is not FREE, cannot occupy\"); } this.status = SpotStatus.OCCUPIED; this.vehicle = v; } public void release() { // WHY: idempotent — releasing a free spot is a safe no-op. if (status == SpotStatus.OCCUPIED) { this.status = SpotStatus.FREE; this.vehicle = null; } } }"
+            - heading "SpotAllocationStrategy + BestFitNearestStrategy" [level=3] [ref=e1363]:
+              - code [ref=e1364]: SpotAllocationStrategy
+              - text: +
+              - code [ref=e1365]: BestFitNearestStrategy
+            - paragraph [ref=e1366]: The seam, then the default policy.
+            - generic [ref=e1367]:
+              - generic [ref=e1368]:
+                - generic [ref=e1369]: java
+                - button "copy" [ref=e1370] [cursor=pointer]
+              - code [ref=e1372]: "package com.interview.lld.parking.strategy; import java.util.List; import java.util.Optional; import com.interview.lld.parking.model.ParkingFloor; import com.interview.lld.parking.model.ParkingSpot; import com.interview.lld.parking.model.VehicleType; public interface SpotAllocationStrategy { Optional<ParkingSpot> findSpot(List<ParkingFloor> floors, VehicleType vehicleType); }"
+            - generic [ref=e1373]:
+              - generic [ref=e1374]:
+                - generic [ref=e1375]: java
+                - button "copy" [ref=e1376] [cursor=pointer]
+              - code [ref=e1378]: "package com.interview.lld.parking.strategy; import java.util.Comparator; import java.util.List; import java.util.Optional; import com.interview.lld.parking.model.*; public class BestFitNearestStrategy implements SpotAllocationStrategy { // smallest fitting size, then nearest floor, then id (deterministic) private static final Comparator<ParkingSpot> BEST_FIRST = Comparator.comparingInt((ParkingSpot s) -> s.size().rank()) .thenComparingInt(ParkingSpot::floorNumber) .thenComparing(ParkingSpot::id); @Override public Optional<ParkingSpot> findSpot(List<ParkingFloor> floors, VehicleType type) { return floors.stream() .flatMap(f -> f.spots().stream()) .filter(ParkingSpot::isFree) .filter(s -> type.fits(s.size())) .min(BEST_FIRST); } }"
+            - heading "Approach (the one comparison — how findSpot locates the right spot)" [level=4] [ref=e1379]:
+              - text: Approach (the one comparison — how
+              - code [ref=e1380]: findSpot
+              - text: locates the right spot)
+            - paragraph [ref=e1381]:
+              - strong [ref=e1382]: "Approach 1 — first-free-that-fits (rejected):"
+            - generic [ref=e1383]:
+              - button "copy" [ref=e1385] [cursor=pointer]
+              - code [ref=e1387]: "for each spot: if free and fits -> return it"
+            - blockquote [ref=e1388]:
+              - strong [ref=e1389]: Challenges
+              - text: returns
+              - emphasis [ref=e1390]: any
+              - text: fitting spot, so a motorcycle can grab a LARGE spot while a COMPACT sits empty — then a car arrives and there's no LARGE left. It wastes the scarce big spots. No notion of "best".
+            - paragraph [ref=e1391]:
+              - strong [ref=e1392]: "Approach 2 — per-size heap of free spots (rejected for this scale):"
+            - generic [ref=e1393]:
+              - button "copy" [ref=e1395] [cursor=pointer]
+              - code [ref=e1397]: "Map<SpotSize, PriorityQueue<ParkingSpot>> freeBySize park: pop from the smallest fitting size's heap unpark: push the freed spot back into its size's heap"
+            - blockquote [ref=e1398]:
+              - strong [ref=e1399]: Challenges
+              - text: state now lives in two places — the spot's status AND the heaps — and they must stay in sync. Forget to push on unpark and the spot vanishes from availability forever. I'd flip to this only when a lot crosses ~a few thousand spots.
+            - paragraph [ref=e1400]:
+              - strong [ref=e1401]:
+                - text: Chosen approach — scan + min by
+                - code [ref=e1402]: (size, floor, id)
+                - text: ":"
+            - generic [ref=e1403]:
+              - button "copy" [ref=e1405] [cursor=pointer]
+              - code [ref=e1407]: stream all spots -> filter free & compatible -> min by best-first comparator
+            - blockquote [ref=e1408]:
+              - strong [ref=e1409]: "Why it wins:"
+              - text: single source of truth — the spot owns its own status, no heaps to sync. Best-fit falls out of the comparator's first key, nearest-floor from the second, determinism from the third. O(n) but n is a few hundred — microseconds.
+            - heading "ParkingLotService — the orchestrator" [level=3] [ref=e1410]:
+              - code [ref=e1411]: ParkingLotService
+              - text: — the orchestrator
+            - heading "Skeleton (API tour)" [level=4] [ref=e1412]
+            - generic [ref=e1413]:
+              - generic [ref=e1414]:
+                - generic [ref=e1415]: java
+                - button "copy" [ref=e1416] [cursor=pointer]
+              - code [ref=e1418]: "package com.interview.lld.parking.service; // imports omitted in the tour; full file compiles in §7 public class ParkingLotService { private final List<ParkingFloor> floors; private final SpotAllocationStrategy strategy; private final Supplier<Instant> clock; private final long ratePerHourCents; private final Map<String, Ticket> openTickets = new ConcurrentHashMap<>(); // key = spot id private final AtomicLong ticketCounter = new AtomicLong(0); public ParkingLotService(List<ParkingFloor> floors, SpotAllocationStrategy strategy, Supplier<Instant> clock, long ratePerHourCents) { /* assign */ } protected <T> T withSpotGuard(ParkingSpot spot, Supplier<T> action) { return action.get(); } // no-op hook public Ticket park(Vehicle vehicle) { /* ... */ } public long unpark(String ticketId) { /* ... */ } public int occupiedCount() { /* ... */ } public long availableCountFor(VehicleType type) { /* ... */ } private String nextTicketId() { /* ... */ } private Ticket findOpenTicketById(String id) { /* ... */ } private ParkingSpot findSpotById(String spotId) { /* ... */ } private long computeFee(Instant entry, Instant exit) { /* ... */ } }"
+            - heading "park(Vehicle) — the pipeline" [level=4] [ref=e1419]:
+              - code [ref=e1420]: park(Vehicle)
+              - text: — the pipeline
+            - paragraph [ref=e1421]:
+              - strong [ref=e1422]: "1. Role:"
+              - text: the core deposit workflow — find the best spot and tie it to a ticket in one guarded step.
+            - paragraph [ref=e1423]:
+              - strong [ref=e1424]: "2. Core logic (happy path):"
+            - list [ref=e1425]:
+              - listitem [ref=e1426]: Ask the strategy for the best free compatible spot
+              - listitem [ref=e1427]: Enter the per-spot guard
+              - listitem [ref=e1428]: Re-check the spot is free (it may have been taken since step 1)
+              - listitem [ref=e1429]: Occupy it (the spot guards the transition)
+              - listitem [ref=e1430]: Build a ticket, index it by spot id, return it
+            - paragraph [ref=e1431]:
+              - strong [ref=e1432]: "3. Edge cases:"
+            - list [ref=e1433]:
+              - listitem [ref=e1434]: Null vehicle
+              - listitem [ref=e1435]: No compatible spot anywhere (lot full)
+              - listitem [ref=e1436]: Spot taken between selection and occupy (the race)
+            - paragraph [ref=e1437]:
+              - strong [ref=e1438]: "4. Code:"
+            - generic [ref=e1439]:
+              - generic [ref=e1440]:
+                - generic [ref=e1441]: java
+                - button "copy" [ref=e1442] [cursor=pointer]
+              - code [ref=e1444]: "public Ticket park(Vehicle vehicle) { if (vehicle == null) { throw new ParkingException(\"vehicle must not be null\"); } while (true) { // retry loop OUTSIDE the guard ParkingSpot candidate = strategy.findSpot(floors, vehicle.type()) .orElseThrow(() -> new NoSpotAvailableException( \"no free spot for vehicle type \" + vehicle.type())); Ticket ticket = withSpotGuard(candidate, () -> { if (!candidate.isFree()) { // WHY: re-check inside the guard return null; // taken meanwhile -> sentinel, retry } candidate.occupy(vehicle); // FREE -> OCCUPIED, guarded by the spot return new Ticket(nextTicketId(), candidate.id(), vehicle, clock.get()); }); // guard has released candidate's lock here — no lock held across the retry if (ticket != null) { openTickets.put(candidate.id(), ticket); return ticket; } // else: candidate was taken; loop and try the next-best spot } }"
+            - paragraph [ref=e1445]:
+              - strong [ref=e1446]: "5. Reasoning:"
+              - code [ref=e1447]: park
+              - text: is the pipeline. The interesting line is the re-check
+              - code [ref=e1448]: if (!candidate.isFree()) return null;
+              - text: — the strategy's answer is only a
+              - emphasis [ref=e1449]: hint
+              - text: that can go stale between selection and the moment we hold the guard, so I look again under the lock and, if the spot's gone, I return a sentinel and the loop
+              - emphasis [ref=e1450]: outside
+              - text: the guard retries, which finds the next-best spot. The retry deliberately lives outside
+              - code [ref=e1451]: withSpotGuard
+              - text: ": by the time we loop, candidate's lock is already released, so a thread holds at most ONE spot lock at a time and never grabs a second while holding the first — there's no lock-ordering cycle and so no deadlock by construction. Notice I'm"
+              - emphasis [ref=e1452]: not
+              - text: validating the vehicle type inside
+              - code [ref=e1453]: park
+              - text: — that's the strategy's job, which simply returns no spot for an incompatible vehicle. In the clean core
+              - code [ref=e1454]: withSpotGuard
+              - text: is a no-op, so this reads as straight-line code; the only thing that changes for thread safety is that the guard becomes a real per-spot lock. The
+              - code [ref=e1455]: occupy
+              - text: call goes through the spot's own state machine rather than a direct status write, so even if the lock were somehow removed, an illegal double-occupy throws instead of silently overwriting a car.
+            - blockquote [ref=e1456]: "🎙️ Say: \"Strategy picks a spot, then inside the guard I re-check it's free and occupy it. The re-check is what beats the race — the spot might've been taken since I looked. If it was, the guard hands back a null and my loop retries with a fresh strategy pick — and I've already let go of that spot's lock before retrying.\""
+            - blockquote [ref=e1457]:
+              - text: ⚠️ "What if two cars get the same spot from the strategy?" → "Inside the guard I re-check
+              - code [ref=e1458]: isFree
+              - text: . The loser sees OCCUPIED, the guard returns null, releasing the loser's lock, and the loop picks the next-best spot. With the per-spot lock in §9, only one car is ever inside the guard for that spot at a time, and no thread ever holds two spot locks at once."
+            - heading "unpark(String) — the completion path" [level=4] [ref=e1459]:
+              - code [ref=e1460]: unpark(String)
+              - text: — the completion path
+            - paragraph [ref=e1461]:
+              - strong [ref=e1462]: "1. Role:"
+              - text: free the spot and bill by time.
+            - paragraph [ref=e1463]:
+              - strong [ref=e1464]: "2. Core logic:"
+              - text: look up the ticket → find its spot → under the guard, release and drop the ticket → compute the fee.
+            - paragraph [ref=e1465]:
+              - strong [ref=e1466]: "3. Edge cases:"
+              - text: null ticket id, unknown/used ticket id, ticket pointing at an unknown spot (corrupt config).
+            - paragraph [ref=e1467]:
+              - strong [ref=e1468]: "4. Code:"
+            - generic [ref=e1469]:
+              - generic [ref=e1470]:
+                - generic [ref=e1471]: java
+                - button "copy" [ref=e1472] [cursor=pointer]
+              - code [ref=e1474]: "public long unpark(String ticketId) { if (ticketId == null) { throw new TicketNotFoundException(\"ticketId must not be null\"); } Ticket ticket = findOpenTicketById(ticketId); if (ticket == null) { throw new TicketNotFoundException(\"no open ticket with id \" + ticketId); } ParkingSpot spot = findSpotById(ticket.spotId()); withSpotGuard(spot, () -> { spot.release(); // OCCUPIED -> FREE (idempotent) openTickets.remove(spot.id()); // so the same ticket can't unpark twice return null; }); return computeFee(ticket.entryTime(), clock.get()); }"
+            - paragraph [ref=e1475]:
+              - strong [ref=e1476]: "5. Reasoning:"
+              - code [ref=e1477]: unpark
+              - text: is two guards then a release-and-bill. The
+              - code [ref=e1478]: spot.release()
+              - text: is idempotent, so a real unpark racing a future cleanup sweep is safe — whoever runs first frees the spot, the second call does nothing. I
+              - code [ref=e1479]: remove
+              - text: from the registry inside the same guard so the same ticket id can never be unparked twice. The fee is computed
+              - emphasis [ref=e1480]: outside
+              - text: the guard from the injected clock — releasing the spot has nothing to do with reading the entry time, so I don't hold the lock during billing.
+            - blockquote [ref=e1481]: "🎙️ Say: \"Look up the ticket, free the spot, drop it from the registry, then bill. Release is idempotent so a double-free is harmless.\""
+            - blockquote [ref=e1482]:
+              - text: ⚠️ "What if someone unparks the same ticket twice?" → "The first unpark removes it from the registry, so the second
+              - code [ref=e1483]: findOpenTicketById
+              - text: returns null and we throw
+              - code [ref=e1484]: TicketNotFoundException
+              - text: ."
+            - heading "Helper methods" [level=4] [ref=e1485]
+            - generic [ref=e1486]:
+              - generic [ref=e1487]:
+                - generic [ref=e1488]: java
+                - button "copy" [ref=e1489] [cursor=pointer]
+              - code [ref=e1491]: "private String nextTicketId() { return \"tkt-\" + ticketCounter.incrementAndGet(); // readable, thread-safe ids } private Ticket findOpenTicketById(String ticketId) { for (Ticket t : openTickets.values()) { // small set: only parked cars if (t.id().equals(ticketId)) return t; } return null; } private ParkingSpot findSpotById(String spotId) { for (ParkingFloor floor : floors) { for (ParkingSpot spot : floor.spots()) { if (spot.id().equals(spotId)) return spot; } } throw new TicketNotFoundException(\"ticket points at unknown spot \" + spotId); } private long computeFee(Instant entry, Instant exit) { long minutes = Math.max(0, Duration.between(entry, exit).toMinutes()); long hours = (minutes + 59) / 60; // round up partial hours if (hours == 0) hours = 1; // one-hour minimum return hours * ratePerHourCents; // cents, no float }"
+            - paragraph [ref=e1492]:
+              - code [ref=e1493]: computeFee
+              - text: rounds partial hours up with a one-hour minimum, all in
+              - code [ref=e1494]: long
+              - text: cents. The clock is injected so a test fast-forwards time instead of sleeping.
+            - heading "Verification — full-lifecycle dry runs" [level=3] [ref=e1495]
+            - paragraph [ref=e1496]:
+              - strong [ref=e1497]: Scenario 1 — Happy path
+              - text: (
+              - code [ref=e1498]: park → unpark
+              - text: ") on a fresh lot, rate 200c/hr: Initial: all spots FREE,"
+              - code [ref=e1499]: "openTickets={}"
+            - table [ref=e1501]:
+              - rowgroup [ref=e1502]:
+                - row "Step Call After" [ref=e1503]:
+                  - columnheader "Step" [ref=e1504]
+                  - columnheader "Call" [ref=e1505]
+                  - columnheader "After" [ref=e1506]
+              - rowgroup [ref=e1507]:
+                - 'row "1 park(CAR-1) L1-1: FREE→OCCUPIED; openTickets={ \"L1-1\": tkt-1 }" [ref=e1508]':
+                  - cell "1" [ref=e1509]
+                  - cell "park(CAR-1)" [ref=e1510]:
+                    - code [ref=e1511]: park(CAR-1)
+                  - 'cell "L1-1: FREE→OCCUPIED; openTickets={ \"L1-1\": tkt-1 }" [ref=e1512]':
+                    - text: "L1-1: FREE→OCCUPIED;"
+                    - code [ref=e1513]: "openTickets={ \"L1-1\": tkt-1 }"
+                - row "2 clock += 90 min (no state change)" [ref=e1514]:
+                  - cell "2" [ref=e1515]
+                  - cell "clock += 90 min" [ref=e1516]
+                  - cell "(no state change)" [ref=e1517]
+                - 'row "3 unpark(\"tkt-1\") L1-1: OCCUPIED→FREE; openTickets={}; returns 400 (2h × 200c)" [ref=e1518]':
+                  - cell "3" [ref=e1519]
+                  - cell "unpark(\"tkt-1\")" [ref=e1520]:
+                    - code [ref=e1521]: unpark("tkt-1")
+                  - 'cell "L1-1: OCCUPIED→FREE; openTickets={}; returns 400 (2h × 200c)" [ref=e1522]':
+                    - text: "L1-1: OCCUPIED→FREE;"
+                    - code [ref=e1523]: "openTickets={}"
+                    - text: ; returns 400 (2h × 200c)
+            - paragraph [ref=e1524]: Registry cleaned, spot freed, fee correct. ✓
+            - paragraph [ref=e1525]:
+              - strong [ref=e1526]: "Scenario 2 — Lot full rejection:"
+              - text: fill all 4 LARGE spots with cars; the 5th car's
+              - code [ref=e1527]: strategy.findSpot
+              - text: returns empty →
+              - code [ref=e1528]: park
+              - text: throws
+              - code [ref=e1529]: NoSpotAvailableException
+              - text: . No spot is touched. ✓
+            - paragraph [ref=e1530]:
+              - strong [ref=e1531]: "Scenario 3 — Race (plain English):"
+              - text: Two cars call
+              - code [ref=e1532]: park
+              - text: at once; both get L1-1 from the strategy.
+              - emphasis [ref=e1533]: Without
+              - text: the per-spot lock, both pass the
+              - code [ref=e1534]: isFree
+              - text: re-check and both occupy L1-1 — double-allocation.
+              - emphasis [ref=e1535]: With
+              - text: the lock (§9), the second car blocks until the first releases the lock, then its re-check sees L1-1 OCCUPIED, the guard returns null and releases L1-1's lock, and the loop re-runs the strategy and takes L1-2. Two cars, two distinct spots, and the loser never held L1-1's lock while reaching for L1-2's. ✓
+            - heading "Complexity Summary" [level=3] [ref=e1536]
+            - table [ref=e1538]:
+              - rowgroup [ref=e1539]:
+                - row "Operation Time Space Key reason" [ref=e1540]:
+                  - columnheader "Operation" [ref=e1541]
+                  - columnheader "Time" [ref=e1542]
+                  - columnheader "Space" [ref=e1543]
+                  - columnheader "Key reason" [ref=e1544]
+              - rowgroup [ref=e1545]:
+                - row "park(vehicle) O(n) O(1) strategy scans n spots; occupy + index are O(1)" [ref=e1546]:
+                  - cell "park(vehicle)" [ref=e1547]:
+                    - code [ref=e1548]: park(vehicle)
+                  - cell "O(n)" [ref=e1549]
+                  - cell "O(1)" [ref=e1550]
+                  - cell "strategy scans n spots; occupy + index are O(1)" [ref=e1551]
+                - row "unpark(ticketId) O(open + n) O(1) scan open tickets (bounded by capacity) + locate spot" [ref=e1552]:
+                  - cell "unpark(ticketId)" [ref=e1553]:
+                    - code [ref=e1554]: unpark(ticketId)
+                  - cell "O(open + n)" [ref=e1555]
+                  - cell "O(1)" [ref=e1556]
+                  - cell "scan open tickets (bounded by capacity) + locate spot" [ref=e1557]
+                - row "occupiedCount() O(1) O(1) registry size" [ref=e1558]:
+                  - cell "occupiedCount()" [ref=e1559]:
+                    - code [ref=e1560]: occupiedCount()
+                  - cell "O(1)" [ref=e1561]
+                  - cell "O(1)" [ref=e1562]
+                  - cell "registry size" [ref=e1563]
+                - row "availableCountFor(type) O(n) O(1) scan n spots" [ref=e1564]:
+                  - cell "availableCountFor(type)" [ref=e1565]:
+                    - code [ref=e1566]: availableCountFor(type)
+                  - cell "O(n)" [ref=e1567]
+                  - cell "O(1)" [ref=e1568]
+                  - cell "scan n spots" [ref=e1569]
+            - paragraph [ref=e1570]: (n = total spots in the lot; "open" = currently parked cars ≤ n.)
+            - separator [ref=e1571]
+            - heading "7. Putting It Together (verified run + JUnit 5 suite)" [level=2] [ref=e1572]
+            - heading "7.1 Main.java — narrated demo (real output)" [level=3] [ref=e1573]:
+              - text: "7.1"
+              - code [ref=e1574]: Main.java
+              - text: — narrated demo (real output)
+            - paragraph [ref=e1575]: "Command:"
+            - generic [ref=e1576]:
+              - button "copy" [ref=e1578] [cursor=pointer]
+              - code [ref=e1580]: mvn compile exec:java -Dexec.mainClass="com.interview.lld.parking.Main" -q
+            - paragraph [ref=e1581]: "Actual stdout:"
+            - generic [ref=e1582]:
+              - button "copy" [ref=e1584] [cursor=pointer]
+              - code [ref=e1586]: Case 1 happy park+unpark, fee=400c -> OK Case 2 best-fit moto -> C1-1 OK Case 3 lot full rejects overflow car -> OK Case 4 unknown ticket rejected -> OK Case 5 race 50 threads -> 5 parked on 5 distinct spots, 45 rejected -> OK ALL CASES PASSED
+            - list [ref=e1587]:
+              - listitem [ref=e1588]:
+                - strong [ref=e1589]: Case 1
+                - text: — park a car, fast-forward 90 min, unpark → 400c (2h rounded up). Spot freed.
+              - listitem [ref=e1590]:
+                - strong [ref=e1591]: Case 2
+                - text: — a motorcycle takes a COMPACT (
+                - code [ref=e1592]: C1-1
+                - text: ), not a LARGE — best fit at work.
+              - listitem [ref=e1593]:
+                - strong [ref=e1594]: Case 3
+                - text: — fill every LARGE spot, the next car is rejected with
+                - code [ref=e1595]: NoSpotAvailableException
+                - text: .
+              - listitem [ref=e1596]:
+                - strong [ref=e1597]: Case 4
+                - text: — unparking a bogus ticket throws
+                - code [ref=e1598]: TicketNotFoundException
+                - text: .
+              - listitem [ref=e1599]:
+                - strong [ref=e1600]: Case 5
+                - text: — 50 threads stampede 5 spots → exactly 5 park on 5
+                - emphasis [ref=e1601]: distinct
+                - text: spots, 45 rejected.
+            - heading "7.2 JUnit 5 suite — real output" [level=3] [ref=e1602]
+            - paragraph [ref=e1603]: "Command:"
+            - generic [ref=e1604]:
+              - button "copy" [ref=e1606] [cursor=pointer]
+              - code [ref=e1608]: mvn test
+            - paragraph [ref=e1609]: "Actual summary:"
+            - generic [ref=e1610]:
+              - button "copy" [ref=e1612] [cursor=pointer]
+              - code [ref=e1614]: "[INFO] Tests run: 15, Failures: 0, Errors: 0, Skipped: 0 [INFO] BUILD SUCCESS"
+            - paragraph [ref=e1615]:
+              - text: "Coverage: happy park/unpark, billing round-up + one-hour minimum, best-fit (moto→compact), handicapped exact-match (both directions), nearest-floor, lot-full rejection, unknown/null ticket, null vehicle, blank plate,"
+              - code [ref=e1616]: release
+              - text: idempotency, and
+              - strong [ref=e1617]: two concurrency tests
+              - text: — the 50-thread double-allocation race and a 20-thread park/unpark churn that must end with every spot FREE.
+            - paragraph [ref=e1618]: "The concurrency race test asserts the STRICT post-state, not just a count:"
+            - generic [ref=e1619]:
+              - generic [ref=e1620]:
+                - generic [ref=e1621]: java
+                - button "copy" [ref=e1622] [cursor=pointer]
+              - code [ref=e1624]: assertEquals(capacity, wins.get(), "exactly capacity threads parked"); assertEquals(capacity, wonSpots.size(), "every win is a DIFFERENT spot — no double-allocation"); assertEquals(threads - capacity, fulls.get(), "all others got the typed full error"); assertEquals(0, unexpected.get(), "no surprise exceptions"); long occupied = spots.stream().filter(s -> s.status() == SpotStatus.OCCUPIED).count(); assertEquals(capacity, occupied, "exactly capacity spots OCCUPIED");
+            - paragraph [ref=e1625]:
+              - text: The
+              - code [ref=e1626]: wonSpots.size() == capacity
+              - text: assertion is the trustworthy one — a plain
+              - code [ref=e1627]: wins == 5
+              - text: could pass even if all five reserved the
+              - emphasis [ref=e1628]: same
+              - text: box; counting
+              - emphasis [ref=e1629]: distinct
+              - text: won spots catches that.
+            - separator [ref=e1630]
+            - heading "8. Key Flow (sequence diagram)" [level=2] [ref=e1631]
+            - paragraph [ref=e1632]:
+              - strong [ref=e1633]: "Which flow and why:"
+              - text: I'm showing
+              - code [ref=e1634]: park
+              - text: because it touches every class — the service, the strategy, and the spot's state machine — and it's where the Strategy fires and the race lives.
+            - generic [ref=e1635]:
+              - document [ref=e1636]:
+                - generic [ref=e1639]: ParkingSpot
+                - generic [ref=e1642]: BestFitNearestStrategy
+                - generic [ref=e1645]: ParkingLotService
+                - generic [ref=e1649]: ParkingSpot
+                - generic [ref=e1653]: BestFitNearestStrategy
+                - generic [ref=e1657]: ParkingLotService
+                - generic [ref=e1662]: Driver
+                - generic [ref=e1663]: park(vehicle)
+                - generic [ref=e1664]: findSpot(floors, type)
+                - generic [ref=e1665]: scan free compatible spots then pick best by size floor id
+                - generic [ref=e1667]: Optional of candidate spot
+                - generic [ref=e1668]: withSpotGuard then re-check isFree
+                - generic [ref=e1669]: free is true
+                - generic [ref=e1670]: occupy(vehicle)
+                - generic [ref=e1671]: FREE to OCCUPIED guarded transition
+                - generic [ref=e1673]: build ticket then index by spot id
+                - generic [ref=e1675]: Ticket
+                - generic [ref=e1680]: Driver
+              - text: ⤢ tap to enlarge
+            - blockquote [ref=e1681]:
+              - text: 🎙️
+              - strong [ref=e1682]: "Walk the diagram arrow by arrow:"
+              - text: "\"The driver calls"
+              - code [ref=e1683]: park
+              - text: on the service. The service doesn't pick the spot itself — it delegates to
+              - code [ref=e1684]: findSpot
+              - text: on the strategy, which scans free compatible spots and returns the best one by size, floor, then id. That's the Strategy firing. Now the service enters the guard on that spot and re-checks
+              - code [ref=e1685]: isFree
+              - text: — the interesting moment, because the candidate could be stale. With the spot confirmed free, the service calls
+              - code [ref=e1686]: occupy
+              - text: ", and the"
+              - emphasis [ref=e1687]: spot itself
+              - text: flips FREE→OCCUPIED through its guarded transition — the service never writes the status directly. Finally the service builds the ticket, indexes it by spot id, and hands it back."
+            - blockquote [ref=e1688]:
+              - strong [ref=e1689]: "Why the sequence shows the design is good:"
+              - text: the service coordinates but implements no business logic — selection delegates to the strategy and the status change delegates to the spot's state machine. That's Open/Closed and Information Expert at runtime.
+            - separator [ref=e1690]
+            - heading "9. Concurrency, Thread-Safety, Edge Cases & Extensibility" [level=2] [ref=e1691]
+            - paragraph [ref=e1692]:
+              - strong [ref=e1693]: "DEFAULT: describe verbally. Write code only if asked."
+            - paragraph [ref=e1694]:
+              - text: 🗣️
+              - strong [ref=e1695]: "Step 1 — Name the exact race:"
+              - text: "\"The race is in"
+              - code [ref=e1696]: park
+              - text: . Two cars call it at the same time. The strategy hands both the same free spot, L1-1. Both pass the
+              - code [ref=e1697]: isFree
+              - text: re-check, both call
+              - code [ref=e1698]: occupy
+              - text: ", both succeed — two cars on one spot, and one ticket overwrites the other in the registry. That's a check-then-act race: the check ("
+              - code [ref=e1699]: isFree
+              - text: ) and the act (
+              - code [ref=e1700]: occupy
+              - text: ) aren't one atomic step."
+            - paragraph [ref=e1701]:
+              - text: 🗣️
+              - strong [ref=e1702]: "Step 2 — Solution:"
+              - text: "\"Each"
+              - code [ref=e1703]: ParkingSpot
+              - text: carries its own
+              - code [ref=e1704]: ReentrantLock
+              - text: . Before the check-and-occupy, the thread takes
+              - emphasis [ref=e1705]: that spot's
+              - text: lock. While it holds the lock, no other thread can enter for that spot. After occupy, it releases. Two cars racing for L1-1 now race for L1-1's lock — one wins, the other waits, then its re-check sees OCCUPIED, releases L1-1's lock, and the retry loop (which sits
+              - emphasis [ref=e1706]: outside
+              - text: the lock) re-runs the strategy and takes the next-best spot. Because the retry is outside the guard, the loser is never holding L1-1's lock while reaching for L1-2's — one lock at a time, no deadlock."
+            - paragraph [ref=e1707]:
+              - text: 🗣️
+              - strong [ref=e1708]: "Step 3 — Trade-off:"
+              - text: "\"I chose"
+              - emphasis [ref=e1709]: per-spot
+              - text: locks, not one global lock. A global lock is correct but serializes the whole building — one car parking blocks every other car. Per-spot locks let a hundred cars park into a hundred different spots fully in parallel; only two cars fighting for the
+              - emphasis [ref=e1710]: same
+              - text: spot ever serialize, and that's microseconds."
+            - paragraph [ref=e1711]:
+              - text: 🗣️
+              - strong [ref=e1712]: "Step 4 — Distributed:"
+              - text: "\"For multiple servers, an in-process lock only protects one JVM. I'd push atomicity to the database with a compare-and-set:"
+              - code [ref=e1713]: UPDATE spot SET status='OCCUPIED' WHERE id=? AND status='FREE'
+              - text: . Whoever's update affects 0 rows lost the race and retries or gets a clean error."
+            - paragraph [ref=e1714]:
+              - strong [ref=e1715]: Concurrency vocabulary
+            - table [ref=e1717]:
+              - rowgroup [ref=e1718]:
+                - row "Term Plain meaning Where it appears here" [ref=e1719]:
+                  - columnheader "Term" [ref=e1720]
+                  - columnheader "Plain meaning" [ref=e1721]
+                  - columnheader "Where it appears here" [ref=e1722]
+              - rowgroup [ref=e1723]:
+                - row "Race condition Two threads touch shared state at once; result depends on timing findSpot + occupy in park" [ref=e1724]:
+                  - cell "Race condition" [ref=e1725]
+                  - cell "Two threads touch shared state at once; result depends on timing" [ref=e1726]
+                  - cell "findSpot + occupy in park" [ref=e1727]:
+                    - code [ref=e1728]: findSpot
+                    - text: +
+                    - code [ref=e1729]: occupy
+                    - text: in
+                    - code [ref=e1730]: park
+                - row "Critical section The block that must run as one atomic step the re-check + occupy + index block" [ref=e1731]:
+                  - cell "Critical section" [ref=e1732]
+                  - cell "The block that must run as one atomic step" [ref=e1733]
+                  - cell "the re-check + occupy + index block" [ref=e1734]:
+                    - text: the re-check +
+                    - code [ref=e1735]: occupy
+                    - text: + index block
+                - row "Check-then-act Check a condition, then act — but state changed in between \"saw FREE, then occupied\"" [ref=e1736]:
+                  - cell "Check-then-act" [ref=e1737]
+                  - cell "Check a condition, then act — but state changed in between" [ref=e1738]
+                  - cell "\"saw FREE, then occupied\"" [ref=e1739]
+                - row "Atomic All-or-nothing; no half-done state observable what the per-spot lock guarantees" [ref=e1740]:
+                  - cell "Atomic" [ref=e1741]
+                  - cell "All-or-nothing; no half-done state observable" [ref=e1742]
+                  - cell "what the per-spot lock guarantees" [ref=e1743]
+                - row "Mutex / lock A token only one thread holds at a time ReentrantLock on each ParkingSpot" [ref=e1744]:
+                  - cell "Mutex / lock" [ref=e1745]
+                  - cell "A token only one thread holds at a time" [ref=e1746]
+                  - cell "ReentrantLock on each ParkingSpot" [ref=e1747]:
+                    - code [ref=e1748]: ReentrantLock
+                    - text: on each
+                    - code [ref=e1749]: ParkingSpot
+                - row "Reentrant Same thread can re-acquire a lock it holds a guarded method could call another on the same spot" [ref=e1750]:
+                  - cell "Reentrant" [ref=e1751]
+                  - cell "Same thread can re-acquire a lock it holds" [ref=e1752]
+                  - cell "a guarded method could call another on the same spot" [ref=e1753]
+                - row "Lock granularity How much one lock covers — coarse vs fine we chose per-SPOT, not one global lock" [ref=e1754]:
+                  - cell "Lock granularity" [ref=e1755]
+                  - cell "How much one lock covers — coarse vs fine" [ref=e1756]
+                  - cell "we chose per-SPOT, not one global lock" [ref=e1757]
+                - row "Pessimistic locking Grab the lock before touching state the in-process ReentrantLock" [ref=e1758]:
+                  - cell "Pessimistic locking" [ref=e1759]
+                  - cell "Grab the lock before touching state" [ref=e1760]
+                  - cell "the in-process ReentrantLock" [ref=e1761]:
+                    - text: the in-process
+                    - code [ref=e1762]: ReentrantLock
+                - row "Optimistic locking Don't lock; write conditionally and retry the DB compare-and-set for distributed" [ref=e1763]:
+                  - cell "Optimistic locking" [ref=e1764]
+                  - cell "Don't lock; write conditionally and retry" [ref=e1765]
+                  - cell "the DB compare-and-set for distributed" [ref=e1766]
+                - row "Compare-and-set Atomic \"update only if value is still X\" WHERE status='FREE'" [ref=e1767]:
+                  - cell "Compare-and-set" [ref=e1768]
+                  - cell "Atomic \"update only if value is still X\"" [ref=e1769]
+                  - cell "WHERE status='FREE'" [ref=e1770]:
+                    - code [ref=e1771]: WHERE status='FREE'
+                - 'row "Deadlock Two threads each hold a lock the other needs avoided: the retry loops OUTSIDE the guard, so a thread holds only ONE spot lock at a time and releases it before reaching for the next" [ref=e1772]':
+                  - cell "Deadlock" [ref=e1773]
+                  - cell "Two threads each hold a lock the other needs" [ref=e1774]
+                  - 'cell "avoided: the retry loops OUTSIDE the guard, so a thread holds only ONE spot lock at a time and releases it before reaching for the next" [ref=e1775]'
+                - row "Starvation A thread never gets the lock not a risk; locks are short-held" [ref=e1776]:
+                  - cell "Starvation" [ref=e1777]
+                  - cell "A thread never gets the lock" [ref=e1778]
+                  - cell "not a risk; locks are short-held" [ref=e1779]
+            - paragraph [ref=e1780]:
+              - strong [ref=e1781]: Concurrency follow-up Q&A
+            - blockquote [ref=e1782]: ❓ "Why per-spot locks and not one global lock?"
+            - blockquote [ref=e1783]: "\"A global lock serializes every park in the building through one bottleneck even though different spots share no state. Per-spot locks let cars going to different spots run fully parallel; only same-spot contenders serialize, microseconds each.\""
+            - blockquote [ref=e1784]:
+              - text: ❓ "Why
+              - code [ref=e1785]: ReentrantLock
+              - text: and not a plain non-reentrant lock?"
+            - blockquote [ref=e1786]: "\"If a guarded method ever calls another guarded method on the same spot, a non-reentrant lock would deadlock on the second acquire by the same thread. Reentrant lets the owning thread re-enter and only fully releases at the outermost unlock. Today my call graph holds exactly one spot lock at a time — the retry loop sits outside the guard, so the lock is released before the next attempt — but reentrant is the safe default and costs nothing.\""
+            - blockquote [ref=e1787]: ❓ "What's the deadlock risk?"
+            - blockquote [ref=e1788]:
+              - text: "\"Deadlock needs two locks acquired in different orders. Here a"
+              - code [ref=e1789]: park
+              - text: holds exactly ONE spot lock and never grabs a second while holding it — the strategy scan happens
+              - emphasis [ref=e1790]: before
+              - text: the lock, billing happens
+              - emphasis [ref=e1791]: after
+              - text: ", and the retry loop is"
+              - emphasis [ref=e1792]: outside
+              - text: the guard, so when a re-check fails the guard returns a sentinel and releases that spot's lock
+              - emphasis [ref=e1793]: before
+              - text: the loop picks and locks the next-best spot. A thread is therefore never holding spot A's lock while reaching for spot B's, so no lock-ordering cycle can form. No cycle, no deadlock."
+            - blockquote [ref=e1794]: ❓ "Why is the strategy scan outside the lock?"
+            - blockquote [ref=e1795]: "\"The scan only reads spot status; it's a hint. Holding a lock across a scan of every spot would serialize the whole lot. I scan lock-free, then take just the one candidate spot's lock and re-check under it — so the expensive part is parallel and only the tiny check-and-occupy is serialized.\""
+            - blockquote [ref=e1796]: ❓ "Pessimistic or optimistic — which and why?"
+            - blockquote [ref=e1797]: "\"Pessimistic in-process: the critical section is tiny (a re-check and a status flip) and same-spot contention is rare, so a short-held lock is simpler than a retry loop. For the distributed case I flip to optimistic — a DB compare-and-set — because you can't hold a JVM lock across servers.\""
+            - blockquote [ref=e1798]: ❓ "What if the lock-holder thread crashes mid-critical-section?"
+            - blockquote [ref=e1799]: "\"In-process, a crash takes the JVM down, so the half-done state dies with it — no orphaned lock. In the DB version the compare-and-set is one atomic statement: it either fully committed or didn't.\""
+            - paragraph [ref=e1800]:
+              - text: ❓
+              - strong [ref=e1801]: "IF ASKED — the thread-safe version:"
+            - paragraph [ref=e1802]:
+              - strong [ref=e1803]: "Part A — the no-op hook + subclass:"
+            - generic [ref=e1804]:
+              - generic [ref=e1805]:
+                - generic [ref=e1806]: java
+                - button "copy" [ref=e1807] [cursor=pointer]
+              - code [ref=e1809]: "// ─── §6 base (clean): the hook does nothing ────────────────────────────────── protected <T> T withSpotGuard(ParkingSpot spot, Supplier<T> action) { return action.get(); } // ─── §9 subclass (thread-safe): override ONLY this one method ───────────────── @Override protected <T> T withSpotGuard(ParkingSpot spot, Supplier<T> action) { ReentrantLock lock = spot.lock(); // each spot carries its OWN lock lock.lock(); try { return action.get(); } finally { lock.unlock(); // always unlock, even on exception } }"
+            - list [ref=e1810]:
+              - listitem [ref=e1811]:
+                - strong [ref=e1812]:
+                  - text: Why
+                  - code [ref=e1813]: ReentrantLock
+                  - text: ":"
+                - text: a guarded method may call another guarded helper on the same spot; reentrant avoids a self-deadlock.
+              - listitem [ref=e1814]:
+                - strong [ref=e1815]: "Why per-spot, not global:"
+                - text: different spots can be parked into in parallel — no global bottleneck.
+              - listitem [ref=e1816]:
+                - strong [ref=e1817]: "No double-lock-map idiom needed:"
+                - text: the lock lives
+                - emphasis [ref=e1818]: on the spot
+                - text: ", so there's no"
+                - code [ref=e1819]: Map<id,Lock>
+                - text: to lock first — the spot reference IS the lock owner.
+            - paragraph [ref=e1820]:
+              - strong [ref=e1821]: Part B — the exact modified method.
+              - code [ref=e1822]: park
+              - text: itself does NOT change between §6 and §9 — the only difference is which
+              - code [ref=e1823]: withSpotGuard
+              - text: "runs. That's the whole point of the Template Method:"
+            - generic [ref=e1824]:
+              - generic [ref=e1825]:
+                - generic [ref=e1826]: java
+                - button "copy" [ref=e1827] [cursor=pointer]
+              - code [ref=e1829]: "// IDENTICAL in §6 and §9 — only withSpotGuard differs (no-op vs locked) public Ticket park(Vehicle vehicle) { if (vehicle == null) { throw new ParkingException(\"vehicle must not be null\"); } while (true) { // retry loop OUTSIDE the lock ParkingSpot candidate = strategy.findSpot(floors, vehicle.type()) // outside lock: read-only scan .orElseThrow(() -> new NoSpotAvailableException( \"no free spot for vehicle type \" + vehicle.type())); Ticket ticket = withSpotGuard(candidate, () -> { // §6: no-op | §9: locks candidate if (!candidate.isFree()) { // re-check INSIDE the lock return null; // taken meanwhile -> sentinel } candidate.occupy(vehicle); // now atomic with the re-check return new Ticket(nextTicketId(), candidate.id(), vehicle, clock.get()); }); // candidate's lock released here BEFORE any retry -> never two spot locks at once if (ticket != null) { openTickets.put(candidate.id(), ticket); return ticket; } // else: loop, re-run the strategy, take the next-best spot's lock } }"
+            - blockquote [ref=e1830]:
+              - text: 🎙️ "The diff from §6 to §9 is
+              - emphasis [ref=e1831]:
+                - text: zero lines in
+                - code [ref=e1832]: park
+              - text: — only the
+              - code [ref=e1833]: withSpotGuard
+              - text: "hook changes from a no-op to a per-spot lock. Outside the guard: the strategy scan (read-only) and the retry loop. Inside the guard: the re-check and occupy, which must be one atomic step. Crucially the retry loops"
+              - emphasis [ref=e1834]: outside
+              - text: the guard, so the loser's lock on its candidate is released before it reaches for the next spot's lock — a thread holds at most one spot lock at a time. The template-method hook means §6 never changes; I just override
+              - code [ref=e1835]: withSpotGuard
+              - text: in the subclass."
+            - paragraph [ref=e1836]:
+              - strong [ref=e1837]: "Part C — the concurrency test (real, passing):"
+              - text: 50 threads, 5 spots, a
+              - code [ref=e1838]: CyclicBarrier
+              - text: so all 50 hit
+              - code [ref=e1839]: park
+              - text: "at the same instant:"
+            - generic [ref=e1840]:
+              - generic [ref=e1841]:
+                - generic [ref=e1842]: java
+                - button "copy" [ref=e1843] [cursor=pointer]
+              - code [ref=e1845]: "@Test void concurrentParkNeverDoubleAllocatesSameSpot() throws Exception { int threads = 50, capacity = 5; // ... build a lot with exactly 5 LARGE spots ... CyclicBarrier barrier = new CyclicBarrier(threads); // ... 50 threads: barrier.await(); then park(); count wins/fulls; record won spot ids ... assertEquals(capacity, wins.get()); assertEquals(capacity, wonSpots.size()); // 5 DISTINCT spots — no double-alloc assertEquals(threads - capacity, fulls.get()); assertEquals(0, unexpected.get()); }"
+            - paragraph [ref=e1846]:
+              - text: "Result:"
+              - code [ref=e1847]: "Tests run: 15, Failures: 0"
+              - text: . The
+              - code [ref=e1848]: wonSpots.size() == 5
+              - text: assertion proves no two winners landed on the same spot — the double-allocation race is closed.
+            - paragraph [ref=e1849]:
+              - strong [ref=e1850]: Edge cases handled
+            - list [ref=e1851]:
+              - listitem [ref=e1852]:
+                - text: Lot full → typed
+                - code [ref=e1853]: NoSpotAvailableException
+                - text: ", never null."
+              - listitem [ref=e1854]:
+                - text: Unknown / null / reused ticket →
+                - code [ref=e1855]: TicketNotFoundException
+                - text: .
+              - listitem [ref=e1856]:
+                - text: Null vehicle / blank plate →
+                - code [ref=e1857]: ParkingException
+                - text: at the boundary.
+              - listitem [ref=e1858]:
+                - text: Double-free of a spot → idempotent
+                - code [ref=e1859]: release
+                - text: ", no error."
+              - listitem [ref=e1860]: Handicapped exact-match → a car can never take a handicapped spot, both directions.
+              - listitem [ref=e1861]: Partial-hour and sub-hour stays → rounded up, one-hour minimum.
+            - paragraph [ref=e1862]:
+              - strong [ref=e1863]: Extensibility (extension points, not wired in v1)
+            - list [ref=e1864]:
+              - listitem [ref=e1865]:
+                - strong [ref=e1866]: New allocation policy
+                - text: (cheapest-first, spread-across-floors) → new
+                - code [ref=e1867]: SpotAllocationStrategy
+                - text: class.
+              - listitem [ref=e1868]:
+                - strong [ref=e1869]: Tiered / peak pricing
+                - text: → inject a
+                - code [ref=e1870]: Pricer
+                - text: strategy in place of the flat
+                - code [ref=e1871]: computeFee
+                - text: .
+              - listitem [ref=e1872]:
+                - strong [ref=e1873]: Reservations / online pre-booking
+                - text: → add a
+                - code [ref=e1874]: RESERVED
+                - code [ref=e1875]: SpotStatus
+                - text: ; the spot's state machine already centralizes transitions.
+              - listitem [ref=e1876]:
+                - strong [ref=e1877]: Cleanup sweep
+                - text: for cars that left without unparking → a
+                - code [ref=e1878]: releaseStale()
+                - text: method a timer calls;
+                - code [ref=e1879]: release
+                - text: is already idempotent, so it's safe.
+            - heading "🎙️ 30-second summary" [level=3] [ref=e1880]
+            - paragraph [ref=e1881]:
+              - text: "\"It's a parking lot with three moving parts: a"
+              - code [ref=e1882]: ParkingSpot
+              - text: that's a self-guarding state machine and carries its own lock; a pluggable best-fit Strategy that the service asks for a spot; and a
+              - code [ref=e1883]: ParkingLotService
+              - text: that coordinates and owns the open-ticket registry. The smart move is per-spot locking — each spot has its own
+              - code [ref=e1884]: ReentrantLock
+              - text: ", so cars going to different spots park in parallel and only same-spot contenders serialize. The thread-safe version overrides exactly one hook,"
+              - code [ref=e1885]: withSpotGuard
+              - text: . I proved no double-allocation with a 50-thread race test that asserts exactly 5 winners on 5 distinct spots."
+          - generic [ref=e1887] [cursor=pointer]:
+            - generic [ref=e1888]: ✎
+            - generic [ref=e1889]: write_file
+            - generic [ref=e1890]: pom.xml
+            - generic [ref=e1891]: done
+          - generic [ref=e1893] [cursor=pointer]:
+            - generic [ref=e1894]: ✎
+            - generic [ref=e1895]: write_file
+            - generic [ref=e1896]: src/main/java/com/interview/lld/parking/model/InvalidSpotStateException.java
+            - generic [ref=e1897]: done
+          - generic [ref=e1899] [cursor=pointer]:
+            - generic [ref=e1900]: ✎
+            - generic [ref=e1901]: write_file
+            - generic [ref=e1902]: src/main/java/com/interview/lld/parking/model/NoSpotAvailableException.java
+            - generic [ref=e1903]: done
+          - generic [ref=e1905] [cursor=pointer]:
+            - generic [ref=e1906]: ✎
+            - generic [ref=e1907]: write_file
+            - generic [ref=e1908]: src/main/java/com/interview/lld/parking/model/ParkingException.java
+            - generic [ref=e1909]: done
+          - generic [ref=e1911] [cursor=pointer]:
+            - generic [ref=e1912]: ✎
+            - generic [ref=e1913]: write_file
+            - generic [ref=e1914]: src/main/java/com/interview/lld/parking/model/ParkingFloor.java
+            - generic [ref=e1915]: done
+          - generic [ref=e1917] [cursor=pointer]:
+            - generic [ref=e1918]: ✎
+            - generic [ref=e1919]: write_file
+            - generic [ref=e1920]: src/main/java/com/interview/lld/parking/model/ParkingSpot.java
+            - generic [ref=e1921]: done
+          - generic [ref=e1923] [cursor=pointer]:
+            - generic [ref=e1924]: ✎
+            - generic [ref=e1925]: write_file
+            - generic [ref=e1926]: src/main/java/com/interview/lld/parking/model/SpotSize.java
+            - generic [ref=e1927]: done
+          - generic [ref=e1929] [cursor=pointer]:
+            - generic [ref=e1930]: ✎
+            - generic [ref=e1931]: write_file
+            - generic [ref=e1932]: src/main/java/com/interview/lld/parking/model/SpotStatus.java
+            - generic [ref=e1933]: done
+          - generic [ref=e1935] [cursor=pointer]:
+            - generic [ref=e1936]: ✎
+            - generic [ref=e1937]: write_file
+            - generic [ref=e1938]: src/main/java/com/interview/lld/parking/model/Ticket.java
+            - generic [ref=e1939]: done
+          - generic [ref=e1941] [cursor=pointer]:
+            - generic [ref=e1942]: ✎
+            - generic [ref=e1943]: write_file
+            - generic [ref=e1944]: src/main/java/com/interview/lld/parking/model/TicketNotFoundException.java
+            - generic [ref=e1945]: done
+          - generic [ref=e1947] [cursor=pointer]:
+            - generic [ref=e1948]: ✎
+            - generic [ref=e1949]: write_file
+            - generic [ref=e1950]: src/main/java/com/interview/lld/parking/model/Vehicle.java
+            - generic [ref=e1951]: done
+          - generic [ref=e1953] [cursor=pointer]:
+            - generic [ref=e1954]: ✎
+            - generic [ref=e1955]: write_file
+            - generic [ref=e1956]: src/main/java/com/interview/lld/parking/model/VehicleType.java
+            - generic [ref=e1957]: done
+          - generic [ref=e1959] [cursor=pointer]:
+            - generic [ref=e1960]: ✎
+            - generic [ref=e1961]: write_file
+            - generic [ref=e1962]: src/main/java/com/interview/lld/parking/strategy/BestFitNearestStrategy.java
+            - generic [ref=e1963]: done
+          - generic [ref=e1965] [cursor=pointer]:
+            - generic [ref=e1966]: ✎
+            - generic [ref=e1967]: write_file
+            - generic [ref=e1968]: src/main/java/com/interview/lld/parking/strategy/SpotAllocationStrategy.java
+            - generic [ref=e1969]: done
+          - generic [ref=e1971] [cursor=pointer]:
+            - generic [ref=e1972]: ✎
+            - generic [ref=e1973]: write_file
+            - generic [ref=e1974]: src/main/java/com/interview/lld/parking/service/ParkingLotService.java
+            - generic [ref=e1975]: done
+          - generic [ref=e1977] [cursor=pointer]:
+            - generic [ref=e1978]: ✎
+            - generic [ref=e1979]: write_file
+            - generic [ref=e1980]: src/main/java/com/interview/lld/parking/service/ThreadSafeParkingLotService.java
+            - generic [ref=e1981]: done
+          - generic [ref=e1983] [cursor=pointer]:
+            - generic [ref=e1984]: ✎
+            - generic [ref=e1985]: write_file
+            - generic [ref=e1986]: src/main/java/com/interview/lld/parking/Main.java
+            - generic [ref=e1987]: done
+          - generic [ref=e1989] [cursor=pointer]:
+            - generic [ref=e1990]: ✎
+            - generic [ref=e1991]: write_file
+            - generic [ref=e1992]: src/test/java/com/interview/lld/parking/ParkingLotServiceTest.java
+            - generic [ref=e1993]: done
+          - generic [ref=e1995] [cursor=pointer]:
+            - generic [ref=e1996]: $
+            - generic [ref=e1997]: run_command
+            - generic [ref=e1998]: cd workspace/java-lld-parking-001_lld && mvn compile exec:java -Dexec.mainClass="com.interview.lld.parking.Main" -q
+            - generic [ref=e1999]: done
+          - generic [ref=e2001] [cursor=pointer]:
+            - generic [ref=e2002]: $
+            - generic [ref=e2003]: run_command
+            - generic [ref=e2004]: cd workspace/java-lld-parking-001_lld && mvn test -q
+            - generic [ref=e2005]: done
+          - generic [ref=e2006]:
+            - generic [ref=e2007]:
+              - heading "Complete Code Implementation" [level=2] [ref=e2008]
+              - button "copy all" [ref=e2009] [cursor=pointer]
+            - paragraph [ref=e2010]: While most companies only require pseudocode during interviews, some ask for full implementations. Below is the complete working implementation, file by file.
+            - generic [ref=e2011]:
+              - tablist [ref=e2012]:
+                - button "pom.xml 69" [ref=e2013] [cursor=pointer]:
+                  - generic [ref=e2014]: pom.xml
+                  - generic [ref=e2015]: "69"
+                - button "src/main/java/com/interview/lld/parking/model/InvalidSpotStateException.java 16" [ref=e2016] [cursor=pointer]:
+                  - generic [ref=e2017]: src/main/java/com/interview/lld/parking/model/InvalidSpotStateException.java
+                  - generic [ref=e2018]: "16"
+                - button "src/main/java/com/interview/lld/parking/model/NoSpotAvailableException.java 15" [ref=e2019] [cursor=pointer]:
+                  - generic [ref=e2020]: src/main/java/com/interview/lld/parking/model/NoSpotAvailableException.java
+                  - generic [ref=e2021]: "15"
+                - button "src/main/java/com/interview/lld/parking/model/ParkingException.java 15" [ref=e2022] [cursor=pointer]:
+                  - generic [ref=e2023]: src/main/java/com/interview/lld/parking/model/ParkingException.java
+                  - generic [ref=e2024]: "15"
+                - button "src/main/java/com/interview/lld/parking/model/ParkingFloor.java 36" [ref=e2025] [cursor=pointer]:
+                  - generic [ref=e2026]: src/main/java/com/interview/lld/parking/model/ParkingFloor.java
+                  - generic [ref=e2027]: "36"
+                - button "src/main/java/com/interview/lld/parking/model/ParkingSpot.java 121" [ref=e2028] [cursor=pointer]:
+                  - generic [ref=e2029]: src/main/java/com/interview/lld/parking/model/ParkingSpot.java
+                  - generic [ref=e2030]: "121"
+                - button "src/main/java/com/interview/lld/parking/model/SpotSize.java 29" [ref=e2031] [cursor=pointer]:
+                  - generic [ref=e2032]: src/main/java/com/interview/lld/parking/model/SpotSize.java
+                  - generic [ref=e2033]: "29"
+                - button "src/main/java/com/interview/lld/parking/model/SpotStatus.java 14" [ref=e2034] [cursor=pointer]:
+                  - generic [ref=e2035]: src/main/java/com/interview/lld/parking/model/SpotStatus.java
+                  - generic [ref=e2036]: "14"
+                - button "src/main/java/com/interview/lld/parking/model/Ticket.java 22" [ref=e2037] [cursor=pointer]:
+                  - generic [ref=e2038]: src/main/java/com/interview/lld/parking/model/Ticket.java
+                  - generic [ref=e2039]: "22"
+                - button "src/main/java/com/interview/lld/parking/model/TicketNotFoundException.java 14" [ref=e2040] [cursor=pointer]:
+                  - generic [ref=e2041]: src/main/java/com/interview/lld/parking/model/TicketNotFoundException.java
+                  - generic [ref=e2042]: "14"
+                - button "src/main/java/com/interview/lld/parking/model/Vehicle.java 25" [ref=e2043] [cursor=pointer]:
+                  - generic [ref=e2044]: src/main/java/com/interview/lld/parking/model/Vehicle.java
+                  - generic [ref=e2045]: "25"
+                - button "src/main/java/com/interview/lld/parking/model/VehicleType.java 42" [ref=e2046] [cursor=pointer]:
+                  - generic [ref=e2047]: src/main/java/com/interview/lld/parking/model/VehicleType.java
+                  - generic [ref=e2048]: "42"
+                - button "src/main/java/com/interview/lld/parking/strategy/BestFitNearestStrategy.java 58" [ref=e2049] [cursor=pointer]:
+                  - generic [ref=e2050]: src/main/java/com/interview/lld/parking/strategy/BestFitNearestStrategy.java
+                  - generic [ref=e2051]: "58"
+                - button "src/main/java/com/interview/lld/parking/strategy/SpotAllocationStrategy.java 30" [ref=e2052] [cursor=pointer]:
+                  - generic [ref=e2053]: src/main/java/com/interview/lld/parking/strategy/SpotAllocationStrategy.java
+                  - generic [ref=e2054]: "30"
+                - button "src/main/java/com/interview/lld/parking/service/ParkingLotService.java 250" [ref=e2055] [cursor=pointer]:
+                  - generic [ref=e2056]: src/main/java/com/interview/lld/parking/service/ParkingLotService.java
+                  - generic [ref=e2057]: "250"
+                - button "src/main/java/com/interview/lld/parking/service/ThreadSafeParkingLotService.java 60" [ref=e2058] [cursor=pointer]:
+                  - generic [ref=e2059]: src/main/java/com/interview/lld/parking/service/ThreadSafeParkingLotService.java
+                  - generic [ref=e2060]: "60"
+                - button "src/main/java/com/interview/lld/parking/Main.java 175" [ref=e2061] [cursor=pointer]:
+                  - generic [ref=e2062]: src/main/java/com/interview/lld/parking/Main.java
+                  - generic [ref=e2063]: "175"
+                - button "src/test/java/com/interview/lld/parking/ParkingLotServiceTest.java 253" [ref=e2064] [cursor=pointer]:
+                  - generic [ref=e2065]: src/test/java/com/interview/lld/parking/ParkingLotServiceTest.java
+                  - generic [ref=e2066]: "253"
+              - generic [ref=e2068]:
+                - generic [ref=e2069]:
+                  - generic [ref=e2070]: xml
+                  - button "copy" [ref=e2071] [cursor=pointer]
+                - code [ref=e2073]: "<?xml version=\"1.0\" encoding=\"UTF-8\"?> <project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\"> <modelVersion>4.0.0</modelVersion> <groupId>com.interview.lld</groupId> <artifactId>parking</artifactId> <version>1.0-SNAPSHOT</version> <packaging>jar</packaging> <properties> <maven.compiler.source>17</maven.compiler.source> <maven.compiler.target>17</maven.compiler.target> <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding> <junit.version>5.10.0</junit.version> <exec.mainClass>com.interview.lld.parking.Main</exec.mainClass> </properties> <dependencies> <!-- JUnit 5 for testing --> <dependency> <groupId>org.junit.jupiter</groupId> <artifactId>junit-jupiter</artifactId> <version>${junit.version}</version> <scope>test</scope> </dependency> <!-- Optional: annotations for nullability --> <dependency> <groupId>com.google.code.findbugs</groupId> <artifactId>jsr305</artifactId> <version>3.0.2</version> <scope>provided</scope> </dependency> </dependencies> <build> <plugins> <!-- Compiler plugin --> <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-compiler-plugin</artifactId> <version>3.11.0</version> <configuration> <release>17</release> </configuration> </plugin> <!-- Surefire for running tests --> <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-surefire-plugin</artifactId> <version>3.1.2</version> </plugin> <!-- Exec plugin for running Main class --> <plugin> <groupId>org.codehaus.mojo</groupId> <artifactId>exec-maven-plugin</artifactId> <version>3.1.0</version> <configuration> <mainClass>${exec.mainClass}</mainClass> </configuration> </plugin> </plugins> </build> </project>"
+        - generic [ref=e2074]:
+          - button "🧩 Design Patterns" [ref=e2075] [cursor=pointer]
+          - button "📊 Sequence Diagram" [ref=e2076] [cursor=pointer]
+          - button "🔒 Error Handling" [ref=e2077] [cursor=pointer]
+          - button "🧪 Unit Tests" [ref=e2078] [cursor=pointer]
+  - generic [ref=e2079]:
+    - button "Dictate by voice" [ref=e2080] [cursor=pointer]:
+      - img [ref=e2081]
+    - button "Attach image" [ref=e2084] [cursor=pointer]:
+      - img [ref=e2085]
+    - textbox "Problem input" [ref=e2087]:
+      - /placeholder: Name an OOD problem (e.g. design a parking lot) — or dictate it…
+    - button "Send" [ref=e2088] [cursor=pointer]:
+      - img [ref=e2089]

@@ -139,6 +139,7 @@ function enterLpTab() {
     b.setAttribute("aria-selected", b === lpTab ? "true" : "false");
   });
   tryLoadLpIframe();
+  if (window.AlgoraNav) AlgoraNav.refresh();
 }
 
 function exitLpTab() {
@@ -147,6 +148,7 @@ function exitLpTab() {
   panels.hidden = false;
   form.hidden = false;
   lpPanel.hidden = true;
+  if (window.AlgoraNav) AlgoraNav.refresh();
 }
 
 lpTab.addEventListener("click", enterLpTab);
@@ -168,6 +170,7 @@ function switchTab(mode) {
   input.placeholder = PLACEHOLDERS[mode];
   renderAttachments();
   syncComposer();
+  if (window.AlgoraNav) AlgoraNav.refresh();
 }
 document.querySelectorAll(".tab[data-mode]").forEach((b) =>
   b.addEventListener("click", () => switchTab(b.dataset.mode))
@@ -753,26 +756,72 @@ function renderInlineFullCode(turn) {
     `file by file.</p>` +
     `<div class="ifc-viewer">` +
     `<div class="ifc-tabs" role="tablist"></div>` +
+    `<select class="ifc-select" aria-label="Choose a file"></select>` +
+    `<div class="ifc-path"></div>` +
     `<div class="ifc-pane"></div>` +
     `</div>`;
 
   const tabsEl = section.querySelector(".ifc-tabs");
+  const selectEl = section.querySelector(".ifc-select");
+  const pathEl = section.querySelector(".ifc-path");
   const paneEl = section.querySelector(".ifc-pane");
 
+  // Deeply-nested paths (Java/Maven: src/main/java/com/.../Foo.java) made every tab span
+  // the full path — a 9000px-wide tab strip, unusable on a phone. So tabs/options show just
+  // the filename; the full relative path lives in a breadcrumb + the tab's title tooltip.
+  const meta = files.map((f) => splitPath(f.path));
+
   files.forEach((f, idx) => {
+    const m = meta[idx];
     const tab = document.createElement("button");
     tab.className = "ifc-tab" + (idx === 0 ? " active" : "");
     tab.type = "button";
     tab.dataset.i = String(idx);
+    tab.title = f.path;
     tab.innerHTML =
-      `<span class="ifc-tab-name">${escapeHtml(f.path)}</span>` +
+      `<span class="ifc-tab-name">${escapeHtml(m.name)}</span>` +
       `<span class="ifc-tab-meta">${f.content.split("\n").length}</span>`;
     tabsEl.appendChild(tab);
   });
 
+  // Native <select> for phones: iOS renders a comfortable wheel picker. Grouped by folder
+  // so 18 files stay navigable. Mirrors the tab strip; CSS shows one per breakpoint.
+  const groups = new Map();
+  meta.forEach((m, idx) => {
+    const key = m.fullDir || "(root)";
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(idx);
+  });
+  groups.forEach((idxs, dir) => {
+    const og = document.createElement("optgroup");
+    og.label = dir;
+    idxs.forEach((idx) => {
+      const o = document.createElement("option");
+      o.value = String(idx);
+      o.textContent = meta[idx].name;
+      og.appendChild(o);
+    });
+    selectEl.appendChild(og);
+  });
+
   const show = (idx) => {
-    paneEl.innerHTML = renderCodeBlock(langFromPath(files[idx].path), files[idx].content);
-    tabsEl.querySelectorAll(".ifc-tab").forEach((t, k) => t.classList.toggle("active", k === idx));
+    const m = meta[idx];
+    paneEl.innerHTML = renderCodeBlock(langFromPath(files[idx].path), files[idx].content, { gutter: true });
+    tabsEl.querySelectorAll(".ifc-tab").forEach((t, k) => {
+      const on = k === idx;
+      t.classList.toggle("active", on);
+      // Keep the active tab visible without ever nudging the page vertically: scroll only
+      // the strip horizontally to centre it.
+      if (on && t.offsetParent) {
+        tabsEl.scrollTo({ left: t.offsetLeft - tabsEl.clientWidth / 2 + t.clientWidth / 2, behavior: "smooth" });
+      }
+    });
+    selectEl.value = String(idx);
+    pathEl.innerHTML =
+      `<span class="ifc-path-ico" aria-hidden="true">📄</span>` +
+      (m.shortDir ? `<span class="ifc-path-dir">${escapeHtml(m.shortDir)}</span>` : "") +
+      `<span class="ifc-path-name">${escapeHtml(m.name)}</span>`;
+    pathEl.title = files[idx].path;
     paneEl.scrollTop = 0;
   };
   show(0);
@@ -781,6 +830,7 @@ function renderInlineFullCode(turn) {
     const b = e.target.closest(".ifc-tab");
     if (b) show(+b.dataset.i);
   });
+  selectEl.addEventListener("change", () => show(+selectEl.value));
 
   // The "copy all" button; per-file copy uses the existing panels-level `.copy-btn`
   // handler since the rendered code-block already includes its own copy button.
@@ -806,6 +856,18 @@ function renderInlineFullCode(turn) {
 // ============================================================
 function langFromPath(p) { return (String(p).split(".").pop() || "").toLowerCase(); }
 
+// Split "src/main/java/com/interview/lld/parking/model/Ticket.java" into a short, readable
+// breadcrumb. `name` = basename, `fullDir` = directory (for grouping/tooltip), `shortDir` =
+// last two folders with a leading "…/" when truncated (e.g. "…/parking/model/").
+function splitPath(p) {
+  const parts = String(p).split("/").filter(Boolean);
+  const name = parts.pop() || String(p);
+  const fullDir = parts.join("/");
+  let shortDir = "";
+  if (parts.length) shortDir = (parts.length > 2 ? "…/" : "") + parts.slice(-2).join("/") + "/";
+  return { name, fullDir, shortDir, full: String(p) };
+}
+
 function openCodeModal(files) {
   if (!files || !files.length) return;
   const overlay = document.createElement("div");
@@ -822,16 +884,24 @@ function openCodeModal(files) {
   const filesEl = overlay.querySelector(".cm-files");
   const codeEl = overlay.querySelector(".cm-code");
   files.forEach((f, idx) => {
+    const m = splitPath(f.path);
     const t = document.createElement("button");
     t.className = "cm-file" + (idx === 0 ? " active" : "");
     t.type = "button";
-    t.textContent = f.path;
+    t.title = f.path;
     t.dataset.i = String(idx);
+    t.innerHTML =
+      `<span class="cm-file-name">${escapeHtml(m.name)}</span>` +
+      (m.shortDir ? `<span class="cm-file-dir">${escapeHtml(m.shortDir)}</span>` : "");
     filesEl.appendChild(t);
   });
   const show = (idx) => {
-    codeEl.innerHTML = renderCodeBlock(langFromPath(files[idx].path), files[idx].content);
-    filesEl.querySelectorAll(".cm-file").forEach((t, k) => t.classList.toggle("active", k === idx));
+    codeEl.innerHTML = renderCodeBlock(langFromPath(files[idx].path), files[idx].content, { gutter: true });
+    filesEl.querySelectorAll(".cm-file").forEach((t, k) => {
+      const on = k === idx;
+      t.classList.toggle("active", on);
+      if (on && t.offsetParent) t.scrollIntoView({ block: "nearest", inline: "nearest" });
+    });
     codeEl.scrollTop = 0;
   };
   show(0);
@@ -1038,11 +1108,32 @@ async function restoreConversation(id, mode) {
   syncComposer();
   closeHistory();
   t.el.scrollTop = t.el.scrollHeight;
+  if (window.AlgoraNav) AlgoraNav.refresh();
 }
 
 $("history-btn").addEventListener("click", openHistory);
 $("history-close").addEventListener("click", closeHistory);
 historyBackdrop.addEventListener("click", closeHistory);
+
+// Mobile overflow ("⋯") menu — toggles the popover holding devices/history/new.
+// On desktop the menu is display:contents so this just no-ops visually.
+(function setupMoreMenu() {
+  const btn = $("more-btn");
+  const menu = $("more-menu");
+  if (!btn || !menu) return;
+  const close = () => { menu.classList.remove("open"); btn.setAttribute("aria-expanded", "false"); };
+  btn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    const open = menu.classList.toggle("open");
+    btn.setAttribute("aria-expanded", open ? "true" : "false");
+  });
+  // Any action inside the menu closes it; so does an outside click or Escape.
+  menu.addEventListener("click", () => close());
+  document.addEventListener("click", (e) => {
+    if (menu.classList.contains("open") && !menu.contains(e.target) && e.target !== btn) close();
+  });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") close(); });
+})();
 
 // ============================================================
 //  Cross-device: "open on another device" + live conversation sync
@@ -1210,6 +1301,113 @@ let lanHosts = [];  // this server's LAN IP(s) — for the "open on another devi
   } else {
     setUrlSession(cur().sessionId);
   }
+})();
+
+// ============================================================
+//  Long-answer navigation — reading progress, back-to-top, section outline.
+//  LLD/HLD answers can run to tens of thousands of pixels; these controls let a
+//  candidate see how far along they are and jump straight to any section. The module
+//  is self-contained: it builds its own DOM, tracks the active transcript, and rebuilds
+//  the section list from the rendered `.prose h2` headings each time it's opened.
+// ============================================================
+(function setupNav() {
+  const panelsEl = document.querySelector(".panels");
+  if (!panelsEl) return;
+
+  const progress = document.createElement("div");
+  progress.className = "reading-progress";
+  progress.innerHTML = "<i></i>";
+  panelsEl.appendChild(progress);
+  const fill = progress.querySelector("i");
+
+  const cluster = document.createElement("div");
+  cluster.className = "nav-fab-cluster";
+  cluster.innerHTML =
+    `<div class="outline-pop" hidden></div>` +
+    `<button class="nav-fab outline-btn" type="button" title="Jump to a section" aria-label="Jump to a section">` +
+      `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>` +
+      `<span>Sections</span>` +
+    `</button>` +
+    `<button class="nav-fab icon-only top-btn" type="button" title="Back to top" aria-label="Back to top">` +
+      `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>` +
+    `</button>`;
+  panelsEl.appendChild(cluster);
+
+  const pop = cluster.querySelector(".outline-pop");
+  const outlineBtn = cluster.querySelector(".outline-btn");
+  const topBtn = cluster.querySelector(".top-btn");
+
+  function activeEl() {
+    if (typeof lpActive !== "undefined" && lpActive) return null;
+    const t = cur();
+    return t && t.el && !t.el.hidden ? t.el : null;
+  }
+  function headings(el) {
+    return [...el.querySelectorAll(".prose h2, .inline-fullcode .ifc-title")];
+  }
+  function offsetIn(el, node) {
+    return node.getBoundingClientRect().top - el.getBoundingClientRect().top + el.scrollTop;
+  }
+
+  let markNodes = [];
+  function markActive(el) {
+    if (pop.hidden || !markNodes.length) return;
+    const y = el.scrollTop + el.clientHeight * 0.28;
+    let idx = 0;
+    markNodes.forEach((h, i) => { if (offsetIn(el, h) <= y) idx = i; });
+    pop.querySelectorAll(".outline-item").forEach((b, i) => b.classList.toggle("active", i === idx));
+  }
+
+  function update() {
+    const el = activeEl();
+    if (!el) { progress.classList.remove("show"); outlineBtn.classList.remove("show"); topBtn.classList.remove("show"); closePop(); return; }
+    const max = el.scrollHeight - el.clientHeight;
+    const pct = max > 40 ? Math.min(100, (el.scrollTop / max) * 100) : 0;
+    fill.style.width = pct + "%";
+    progress.classList.toggle("show", max > 240);
+    topBtn.classList.toggle("show", el.scrollTop > 480);
+    outlineBtn.classList.toggle("show", headings(el).length >= 3);
+    markActive(el);
+  }
+
+  function buildPop(el) {
+    const hs = headings(el);
+    markNodes = hs;
+    pop.innerHTML = `<div class="outline-head">Sections</div>` +
+      hs.map((h, i) => {
+        const sub = h.tagName === "H2" && /^\d+\.\d/.test(h.textContent.trim());
+        return `<button class="outline-item${sub ? " lvl-sub" : ""}" type="button" data-i="${i}">${escapeHtml(h.textContent.trim())}</button>`;
+      }).join("");
+    pop.querySelectorAll(".outline-item").forEach((b) => {
+      b.addEventListener("click", () => {
+        const h = hs[+b.dataset.i];
+        if (h) el.scrollTo({ top: Math.max(0, offsetIn(el, h) - 12), behavior: "smooth" });
+        closePop();
+      });
+    });
+    markActive(el);
+  }
+  function openPop() {
+    const el = activeEl(); if (!el) return;
+    buildPop(el);
+    pop.hidden = false;
+    requestAnimationFrame(() => pop.classList.add("show"));
+  }
+  function closePop() { pop.classList.remove("show"); pop.hidden = true; }
+
+  outlineBtn.addEventListener("click", (e) => { e.stopPropagation(); pop.hidden ? openPop() : closePop(); });
+  topBtn.addEventListener("click", () => { const el = activeEl(); if (el) el.scrollTo({ top: 0, behavior: "smooth" }); });
+  document.addEventListener("click", (e) => { if (!pop.hidden && !cluster.contains(e.target)) closePop(); });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !pop.hidden) closePop(); });
+
+  // One scroll listener per transcript (they persist for the page's life); only the
+  // active one drives the UI.
+  document.querySelectorAll(".transcript").forEach((el) =>
+    el.addEventListener("scroll", () => { if (el === activeEl()) update(); }, { passive: true })
+  );
+
+  window.AlgoraNav = { refresh: () => { closePop(); update(); } };
+  update();
 })();
 
 

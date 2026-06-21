@@ -1,38 +1,54 @@
-# Portable Claude Code session
+# Claude Code Session Backup
 
-This folder carries **one** Claude Code session ("abcd") and this project's
-memory so the conversation can be resumed on another laptop via git.
+This directory contains the Claude Code session transcript and memory files from the original machine.
 
-| | |
-|---|---|
-| Session name | `abcd` |
-| Session ID | `24061c8a-2a69-4177-88e2-49dfff5310e9` |
-| Transcript | `sessions/24061c8a-2a69-4177-88e2-49dfff5310e9.jsonl` (~38 MB) |
-| Memory | `memory/MEMORY.md`, `memory/uber-interview-prep.md` |
+## Contents
 
-## Restore on the other laptop
+- `session.jsonl` — Full conversation transcript (session UUID: `24061c8a-2a69-4177-88e2-49dfff5310e9`)
+- `memory/` — Project memory files (auto-memory system)
 
-1. Clone/pull this repo.
-2. From the repo root, run:
+## Restoring on Another Machine
+
+**IMPORTANT:** The session file name in `~/.claude/projects/` depends on the project path. The directory name is path-encoded (slashes → dashes).
+
+### Steps to restore:
+
+1. **Clone the repo** on the new machine
+2. **Find the encoded path:**
    ```bash
-   bash .claude-session/restore.sh
+   # If project is at /Users/anshul/projects/algora
+   echo "-Users-anshul-projects-algora"
    ```
-3. Launch Claude Code in this project and resume:
+3. **Copy files to Claude's project directory:**
    ```bash
-   claude --resume 24061c8a-2a69-4177-88e2-49dfff5310e9
+   # Create the directory structure
+   mkdir -p ~/.claude/projects/<encoded-path>/memory
+   
+   # Copy session transcript (keep the original UUID)
+   cp .claude-session/session.jsonl \
+      ~/.claude/projects/<encoded-path>/24061c8a-2a69-4177-88e2-49dfff5310e9.jsonl
+   
+   # Copy memory files
+   cp .claude-session/memory/* \
+      ~/.claude/projects/<encoded-path>/memory/
    ```
-   (or `claude --resume` and pick the session named **abcd**)
+4. **Launch Claude Code** in the project directory
+5. The conversation should appear in your session history
 
-## Why the restore script (don't just copy the file)
+### Example (if new path is `/Users/anshul/projects/algora`):
 
-Claude Code finds sessions at
-`~/.claude/projects/<encoded-project-path>/<id>.jsonl`, where
-`<encoded-project-path>` is the project's absolute path with every `/` turned
-into `-`. That string depends on the machine's username and clone location, so
-`restore.sh` recomputes it on the target machine instead of hard-coding this
-laptop's path.
+```bash
+cd ~/projects/algora
+ENCODED_PATH="-Users-anshul-projects-algora"
+mkdir -p ~/.claude/projects/$ENCODED_PATH/memory
+cp .claude-session/session.jsonl ~/.claude/projects/$ENCODED_PATH/24061c8a-2a69-4177-88e2-49dfff5310e9.jsonl
+cp .claude-session/memory/* ~/.claude/projects/$ENCODED_PATH/memory/
+```
 
-## Not included (on purpose)
+## What's NOT included (intentional)
 
-`~/.claude/settings.json`, global `CLAUDE.md`, and `RTK.md` are user-private and
-may contain secrets — they are intentionally left out.
+- `~/.claude/settings.json` — Contains API keys and personal settings
+- Other sessions from this project
+- Global Claude Code configuration
+
+Only this specific session and its project memory are included.

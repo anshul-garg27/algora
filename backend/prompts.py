@@ -1924,7 +1924,7 @@ PACING — this is the single most important behaviour for LIVE practice; follow
 order EXACTLY. Lead with the DESIGN as streamed prose, and DO NOT call any tool until
 you have finished section 5.
 - FIRST produce sections 1-5.5 (Requirements & Clarifications, Use Cases, Core Entities,
-  the Class Diagram, Design Patterns, Core Algorithms & Approach) as text plus the Mermaid
+  the API / System Interface, the Class Diagram, Design Patterns, Core Algorithms & Approach) as text plus the Mermaid
   diagram — pure design narration, ZERO write_file/run/Edit calls. This lets the candidate
   start reading and narrating within seconds instead of waiting through a wall of tool calls.
 - THEN implement: write the code modules, run them, and fix-and-rerun until green. ALL
@@ -1954,9 +1954,10 @@ so they are never lost about what comes next. Format it as a clean table:
 | Time | What you do | Mode |
 |------|-------------|------|
 | 0–5 min | **Say §1-2 out loud** — restate problem, ask clarifying questions. Do not write yet. | 🗣️ SAY |
-| 5–12 min | **Draw the core class diagram** — ONLY the 5-6 boxes that matter (see §4). Verbally mention the simple ones (Theatre, Movie, Screen, User) in one sentence, do not draw them. | ✍️ DRAW |
-| 12–14 min | **State patterns + concurrency flag** — name your patterns (§5), then immediately flag the race condition: "I see a check-then-hold in select_seats that's a race — I'll show how I'd fix it at the end." | 🗣️ SAY |
-| 14–18 min | **Walk §5.5 approach** — state the key insight, explain select_seats algorithm in plain words. | 🗣️ SAY |
+| 5–8 min | **Pin the API surface (§3.5)** — after listing entities, state the 3-7 public methods (name, args, returns, raises) out loud. "Before I design classes, here's the interface external code calls." Shows you design to a contract. | 🗣️ SAY |
+| 8–14 min | **Draw the core class diagram** — ONLY the 5-6 boxes that matter (see §4). Verbally mention the simple ones (Theatre, Movie, Screen, User) in one sentence, do not draw them. | ✍️ DRAW |
+| 14–16 min | **State patterns + concurrency flag** — name your patterns (§5), then immediately flag the race condition: "I see a check-then-hold in select_seats that's a race — I'll show how I'd fix it at the end." | 🗣️ SAY |
+| 16–18 min | **Walk §5.5 approach** — state the key insight, explain select_seats algorithm in plain words. | 🗣️ SAY |
 | 18–38 min | **Write code in interview order** (see §6 — follow the ✍️ WRITE sequence exactly): enums → ShowSeat state machine → BookingService skeleton → select_seats() → make_payment() | ✍️ WRITE |
 | 38–45 min | **Demo Case 1 + Case 3** — walk through both scenarios verbally pointing at your code. If it's a coding environment (Uber-style), run main.py here. | 🗣️ SAY / run |
 | 45–55 min | **Concurrency answer** — describe the solution (per-resource lock, no-op hook pattern). Write the thread-safe subclass ONLY if the interviewer specifically asks. | 🗣️ SAY (❓ code if asked) |
@@ -2164,6 +2165,55 @@ GROUNDING NOTE: every entity in §3.2 must show up unchanged in the §4 class di
 the §6 code. If you're tempted to add an entity here that won't have any code in §6, \
 either delete it or move it to §3.1's REJECTED list with a reason.
 
+## 3.5 API / System Interface (the public surface, before the classes)
+This section is MANDATORY and comes BEFORE §4 — exactly the hellointerview ordering \
+(Requirements → Core Entities → API/Interface → design). The point: once the entities \
+exist, the candidate pins down the PUBLIC SURFACE of the system — the small set of \
+methods external code actually calls — BEFORE designing internal class structure. \
+Interviewers read this as "this person designs to a contract, not to an implementation." \
+It is the single most-skipped section by weak candidates.
+
+WHAT IT IS — the orchestrator's public methods ONLY. NOT internal/private helpers, NOT \
+entity methods (those derive in §4.1). One row per public operation that an actor from §2 \
+triggers. Every operation must trace back to a §1.3 functional requirement; if a \
+requirement has no API method, you missed one — if an API method has no requirement, \
+delete it.
+
+Render it as ONE typed contract table with EXACTLY these columns:
+
+> | Method | Signature | Returns | Raises | Purpose |
+> |---|---|---|---|---|
+> | `request_elevator` | `(floor: int, direction: Direction) -> str` | id of the assigned car | `InvalidFloor`, `InvalidDirection`, `NoCarAvailable` | A passenger on a floor presses UP/DOWN; system picks a car |
+> | `select_floor` | `(car_id: str, floor: int) -> None` | — | `UnknownElevator`, `InvalidFloor` | A passenger inside a car picks a destination |
+> | `tick` | `() -> list[StopEvent]` | the stops that happened this tick | — | Advance the simulation one step (all cars move per SCAN) |
+> | `set_maintenance` | `(car_id: str, on: bool) -> None` | — | `UnknownElevator` | Take a car in/out of service |
+
+RULES for the table:
+  - **Signature** uses real Python 3.11+ type hints (`list[X]`, `X | None`) — these \
+signatures MUST match the §4.1 operations table, the §4.2 diagram, and the §6 code \
+one-for-one. This table is a binding contract, not a sketch.
+  - **Raises** lists the SPECIFIC typed exceptions (all subclasses of the one domain base \
+from §3.2) — never bare `Exception`. Each distinct failure mode is its own row entry. A \
+method that can't fail shows `—`.
+  - **Returns** is the success value in plain words + the type. Use `—` for `None`.
+  - **Purpose** is ONE plain-English line tying the method to the actor/flow from §2 — not \
+a restatement of the signature.
+  - Keep it to the 3-7 genuinely public methods. If the surface is bigger than ~7 \
+methods, that's a smell — say so and group the secondary ones.
+
+Close with ONE 🎙️ spoken line (not a paragraph) the candidate says as they finish the \
+table — it should call out what the surface REVEALS about the design:
+> 🎙️ "So the entire system is four public calls — two that take requests in \
+(`request_elevator`, `select_floor`), one that drives time forward (`tick`), and one \
+admin toggle. Everything else is internal: the cars move themselves, the strategy picks \
+the car. If I were handed this interface cold, I'd know exactly what the system does \
+without seeing a single class."
+
+GROUNDING NOTE: every method in §3.5 MUST appear as a public method on the orchestrator \
+in §4.1, in the §4.2 diagram, and in the §6 code — identical name and signature. The \
+reverse also holds: the orchestrator has NO public method that isn't in this table. This \
+table is the contract §4–§7 implement.
+
 ## 4. Class Design (per-class derivation, then the diagram)
 
 This section has TWO halves. The first half DERIVES each class from the requirements \
@@ -2211,7 +2261,13 @@ Pick one and state your reasoning in one sentence.
 > | "Carrier deposits a package by specifying size" | `depositPackage(size) -> token \| error` |
 > | "User retrieves package by entering access token" | `pickup(tokenCode) -> void \| error` |
 
-Then write the final class block (state + constructor + methods):
+Then — **THIS IS MANDATORY, NEVER SKIP IT** — write the COMPLETE class block: the \
+state fields from (b) PLUS the constructor PLUS every method from the (c) table above, \
+in one fenced block. This is the per-class "contract card" — the RESULT of the \
+derivation, the thing §4.2's diagram and §6's code transcribe one-for-one. The (c) table \
+shows the DERIVATION (need → method); this block shows the finished class. The table does \
+NOT replace the block — a subsection that ends (c) with only a table is INCOMPLETE and \
+WRONG. Always render it:
 > ```
 > class Locker:
 >     - compartments: Compartment[]
@@ -2233,9 +2289,18 @@ Use this format:
 > don't need a compartment ID. Errors are thrown with specific messages (invalid / expired) \
 > so the failure mode is clear.
 
-Repeat this whole (a)→(d) block for every accepted entity from §3. Keep the subsections \
-SHORT — 4-block structure is mandatory but each block is tight. The point is to show \
-DERIVATION and DEFENSIBLE CHOICES, not to write a textbook.
+Repeat this whole (a)→(d) block for every accepted entity from §3 — IN FULL, with the \
+SAME completeness for the 2nd, 3rd, 4th class as for the orchestrator. The single most \
+common failure here is: the FIRST class (the orchestrator) gets the full treatment — (b) \
+state block AND (c) final class block — but later classes (`Elevator`, `Booking`, \
+`ParkingSpot`, etc.) degrade to "table only" and SKIP the final class block. DO NOT DO \
+THIS. Every accepted entity — entity, value object, AND strategy/interface — ends its \
+subsection with its own COMPLETE fenced class block (state + constructor + methods, or \
+`interface` + methods for a strategy). If a class is a pure interface it still gets a \
+fenced block showing the interface and its method signatures. No class subsection may end \
+on a bare (c) table. Keep the subsections SHORT — 4-block structure is mandatory but each \
+block is tight. The point is to show DERIVATION and DEFENSIBLE CHOICES, not to write a \
+textbook — but "tight" means concise prose, NOT dropping the final class block.
 
 ### 4.2 Final consolidated class diagram
 

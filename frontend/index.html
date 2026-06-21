@@ -4,10 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="theme-color" content="#0e0f13" />
+  <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <title>Algora · Agentic DSA Solver</title>
-  <link rel="stylesheet" href="/styles.css" />
+  <link rel="stylesheet" href="/styles.css?v=8" />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>" />
 </head>
 <body>
@@ -32,9 +33,14 @@
         <button id="thinking-toggle" class="chip-toggle is-on" title="Extended thinking">
           <span class="dot"></span> thinking
         </button>
-        <button id="devices-btn" class="ghost-btn" title="Open on your phone or iPad">📱</button>
-        <button id="history-btn" class="ghost-btn" title="Chat history">history</button>
-        <button id="reset-btn" class="ghost-btn" title="Start a new conversation">new</button>
+        <div class="more-wrap">
+          <button id="more-btn" class="ghost-btn more-btn" type="button" aria-haspopup="true" aria-expanded="false" title="More actions">⋯</button>
+          <div class="more-menu" id="more-menu">
+            <button id="devices-btn" class="ghost-btn" title="Open on your phone or iPad">📱 <span class="more-label">Open on device</span></button>
+            <button id="history-btn" class="ghost-btn" title="Chat history">history</button>
+            <button id="reset-btn" class="ghost-btn" title="Start a new conversation">new</button>
+          </div>
+        </div>
         <span id="status-dot" class="status-dot" title="connecting…"></span>
       </div>
     </header>
@@ -192,8 +198,10 @@
     <div id="history-list" class="history-list"></div>
   </aside>
 
-  <script src="/markdown.js"></script>
-  <script src="/audio.js"></script>
-  <script src="/app.js"></script>
+  <!-- ?v= cache-buster: bump this token whenever a frontend asset changes so a plain
+       browser refresh always loads the latest CSS/JS (no stale frontend after updates). -->
+  <script src="/markdown.js?v=6"></script>
+  <script src="/audio.js?v=6"></script>
+  <script src="/app.js?v=6"></script>
 </body>
 </html>

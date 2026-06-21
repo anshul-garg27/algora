@@ -1,0 +1,59 @@
+- generic [ref=e2]:
+  - banner [ref=e3]:
+    - generic [ref=e4]:
+      - generic [ref=e5]: ⚡
+      - generic [ref=e6]:
+        - heading "Algora" [level=1] [ref=e7]
+        - paragraph [ref=e8]: autonomous DSA agent — writes code, runs it, proves it
+    - generic [ref=e9]:
+      - generic "Model" [ref=e10]:
+        - generic [ref=e11]: model
+        - combobox "model" [ref=e12] [cursor=pointer]:
+          - option "Opus 4.8" [selected]
+          - option "Sonnet 4.6"
+          - option "Haiku 4.5"
+      - button "thinking" [ref=e13] [cursor=pointer]: thinking
+      - button "📱" [ref=e15] [cursor=pointer]
+      - button "history" [ref=e16] [cursor=pointer]
+      - button "new" [ref=e17] [cursor=pointer]
+      - generic "connecting…" [ref=e18]
+  - tablist "Mode" [ref=e19]:
+    - tab "⏱ Online Assessment" [selected] [ref=e20] [cursor=pointer]:
+      - generic [ref=e21]: ⏱
+      - text: Online Assessment
+    - tab "🎙 Coding Interview" [ref=e22] [cursor=pointer]:
+      - generic [ref=e23]: 🎙
+      - text: Coding Interview
+    - tab "🧩 Low Level Design" [ref=e24] [cursor=pointer]:
+      - generic [ref=e25]: 🧩
+      - text: Low Level Design
+    - tab "🏛 System Design (HLD)" [ref=e26] [cursor=pointer]:
+      - generic [ref=e27]: 🏛
+      - text: System Design (HLD)
+    - tab "💼 Behavioral / HM" [ref=e28] [cursor=pointer]:
+      - generic [ref=e29]: 💼
+      - text: Behavioral / HM
+    - tab "🏷 LP Coach" [ref=e30] [cursor=pointer]:
+      - generic [ref=e31]: 🏷
+      - text: LP Coach
+  - main [ref=e32]:
+    - generic [ref=e34]:
+      - generic [ref=e35]: ∑
+      - heading "Drop a problem. Watch it get solved." [level=2] [ref=e36]
+      - paragraph [ref=e37]:
+        - text: Paste a DSA problem, or attach a screenshot. The agent analyses the constraints, writes Python,
+        - emphasis [ref=e38]: actually runs it
+        - text: against sample and adversarial edge cases, fixes failures, and only then answers. Built for timed online assessments.
+      - generic [ref=e39]:
+        - button "Two Sum" [ref=e40] [cursor=pointer]
+        - button "Longest Substring" [ref=e41] [cursor=pointer]
+        - button "Course Schedule" [ref=e42] [cursor=pointer]
+  - generic [ref=e43]:
+    - button "Dictate by voice" [ref=e44] [cursor=pointer]:
+      - img [ref=e45]
+    - button "Attach image" [ref=e48] [cursor=pointer]:
+      - img [ref=e49]
+    - textbox "Problem input" [ref=e51]:
+      - /placeholder: Describe the problem, or paste a screenshot…
+    - button "Send" [ref=e52] [cursor=pointer]:
+      - img [ref=e53]

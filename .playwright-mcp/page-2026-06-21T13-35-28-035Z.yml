@@ -1,0 +1,2734 @@
+- generic [ref=e2]:
+  - banner [ref=e3]:
+    - generic [ref=e4]:
+      - generic [ref=e5]: ⚡
+      - generic [ref=e6]:
+        - heading "Algora" [level=1] [ref=e7]
+        - paragraph [ref=e8]: autonomous DSA agent — writes code, runs it, proves it
+    - generic [ref=e9]:
+      - generic "Model" [ref=e10]:
+        - generic [ref=e11]: model
+        - combobox "model" [ref=e12] [cursor=pointer]:
+          - option "Opus 4.8" [selected]
+          - option "Sonnet 4.6"
+          - option "Haiku 4.5"
+      - button "thinking" [ref=e13] [cursor=pointer]: thinking
+      - button "📱" [ref=e15] [cursor=pointer]
+      - button "history" [ref=e16] [cursor=pointer]
+      - button "new" [ref=e17] [cursor=pointer]
+      - generic "ready" [ref=e18]
+  - tablist "Mode" [ref=e19]:
+    - tab "⏱ Online Assessment" [ref=e20] [cursor=pointer]:
+      - generic [ref=e21]: ⏱
+      - text: Online Assessment
+    - tab "🎙 Coding Interview" [ref=e22] [cursor=pointer]:
+      - generic [ref=e23]: 🎙
+      - text: Coding Interview
+    - tab "🧩 Low Level Design" [selected] [ref=e24] [cursor=pointer]:
+      - generic [ref=e25]: 🧩
+      - text: Low Level Design
+    - tab "🏛 System Design (HLD)" [ref=e26] [cursor=pointer]:
+      - generic [ref=e27]: 🏛
+      - text: System Design (HLD)
+    - tab "💼 Behavioral / HM" [ref=e28] [cursor=pointer]:
+      - generic [ref=e29]: 💼
+      - text: Behavioral / HM
+    - tab "🏷 LP Coach" [ref=e30] [cursor=pointer]:
+      - generic [ref=e31]: 🏷
+      - text: LP Coach
+  - main [ref=e32]:
+    - generic [ref=e33]:
+      - generic [ref=e35]: "Design a vending machine: insert coins, select a product, dispense the product with correct change, refund on cancel. The machine moves through states (IDLE, COLLECTING_MONEY, DISPENSING). Reject invalid selections, insufficient funds, out-of-stock. Thread-safe for a single machine."
+      - generic [ref=e36]:
+        - generic [ref=e38]: Algora
+        - generic [ref=e39]:
+          - generic [ref=e40]:
+            - heading "Design a Vending Machine System" [level=1] [ref=e41]
+            - blockquote [ref=e42]:
+              - strong [ref=e43]: "Problem statement:"
+              - text: "Design a vending machine: insert coins, select a product, dispense the product with correct change, refund on cancel. The machine moves through states (IDLE → COLLECTING_MONEY → DISPENSING). Reject invalid selections, insufficient funds, out-of-stock. Thread-safe for a single machine."
+            - heading "⏱️ 60-Minute Interview Plan" [level=2] [ref=e44]
+            - table [ref=e46]:
+              - rowgroup [ref=e47]:
+                - row "Time What you do Mode" [ref=e48]:
+                  - columnheader "Time" [ref=e49]
+                  - columnheader "What you do" [ref=e50]
+                  - columnheader "Mode" [ref=e51]
+              - rowgroup [ref=e52]:
+                - row "0–5 min Say §1-2 out loud — restate the problem, ask clarifying questions, lock the coin set + single-machine scope. Do not write yet. 🗣️ SAY" [ref=e53]:
+                  - cell "0–5 min" [ref=e54]
+                  - cell "Say §1-2 out loud — restate the problem, ask clarifying questions, lock the coin set + single-machine scope. Do not write yet." [ref=e55]:
+                    - strong [ref=e56]: Say §1-2 out loud
+                    - text: — restate the problem, ask clarifying questions, lock the coin set + single-machine scope. Do not write yet.
+                  - cell "🗣️ SAY" [ref=e57]
+                - 'row "5–8 min Pin the API surface (§3.5) — say the 5 public methods out loud: insert_coin, select_product, dispense, cancel, refill. \"Before classes, here''s the contract a customer/UI calls.\" 🗣️ SAY" [ref=e58]':
+                  - cell "5–8 min" [ref=e59]
+                  - 'cell "Pin the API surface (§3.5) — say the 5 public methods out loud: insert_coin, select_product, dispense, cancel, refill. \"Before classes, here''s the contract a customer/UI calls.\"" [ref=e60]':
+                    - strong [ref=e61]: Pin the API surface (§3.5)
+                    - text: "— say the 5 public methods out loud:"
+                    - code [ref=e62]: insert_coin
+                    - text: ","
+                    - code [ref=e63]: select_product
+                    - text: ","
+                    - code [ref=e64]: dispense
+                    - text: ","
+                    - code [ref=e65]: cancel
+                    - text: ","
+                    - code [ref=e66]: refill
+                    - text: . "Before classes, here's the contract a customer/UI calls."
+                  - cell "🗣️ SAY" [ref=e67]
+                - row "8–14 min Draw the core class diagram — VendingService + the State hierarchy (Idle, HasMoney, Dispensing) + Slot, CoinBank. Mention Product, DispenseResult, Coin verbally as data holders. ✍️ DRAW" [ref=e68]:
+                  - cell "8–14 min" [ref=e69]
+                  - cell "Draw the core class diagram — VendingService + the State hierarchy (Idle, HasMoney, Dispensing) + Slot, CoinBank. Mention Product, DispenseResult, Coin verbally as data holders." [ref=e70]:
+                    - strong [ref=e71]: Draw the core class diagram
+                    - text: —
+                    - code [ref=e72]: VendingService
+                    - text: + the State hierarchy (
+                    - code [ref=e73]: Idle
+                    - text: ","
+                    - code [ref=e74]: HasMoney
+                    - text: ","
+                    - code [ref=e75]: Dispensing
+                    - text: ) +
+                    - code [ref=e76]: Slot
+                    - text: ","
+                    - code [ref=e77]: CoinBank
+                    - text: . Mention
+                    - code [ref=e78]: Product
+                    - text: ","
+                    - code [ref=e79]: DispenseResult
+                    - text: ","
+                    - code [ref=e80]: Coin
+                    - text: verbally as data holders.
+                  - cell "✍️ DRAW" [ref=e81]
+                - 'row "14–16 min State patterns + concurrency flag — \"Primary pattern is State: one class per machine state. Concurrency: the whole insert→select→dispense transaction is a race; I''ll guard the machine with one lock at the end.\" 🗣️ SAY" [ref=e82]':
+                  - cell "14–16 min" [ref=e83]
+                  - 'cell "State patterns + concurrency flag — \"Primary pattern is State: one class per machine state. Concurrency: the whole insert→select→dispense transaction is a race; I''ll guard the machine with one lock at the end.\"" [ref=e84]':
+                    - strong [ref=e85]: State patterns + concurrency flag
+                    - text: — "Primary pattern is
+                    - strong [ref=e86]: State
+                    - text: ": one class per machine state. Concurrency: the whole insert→select→dispense transaction is a race; I'll guard the machine with one lock at the end.\""
+                  - cell "🗣️ SAY" [ref=e87]
+                - 'row "16–18 min Walk §5.5 approach — key insight: model the machine as a finite state machine; dispense re-validates at the moment of truth, all-or-nothing. 🗣️ SAY" [ref=e88]':
+                  - cell "16–18 min" [ref=e89]
+                  - 'cell "Walk §5.5 approach — key insight: model the machine as a finite state machine; dispense re-validates at the moment of truth, all-or-nothing." [ref=e90]':
+                    - strong [ref=e91]: Walk §5.5 approach
+                    - text: "— key insight: model the machine as a finite state machine; dispense re-validates at the moment of truth, all-or-nothing."
+                  - cell "🗣️ SAY" [ref=e92]
+                - 'row "18–38 min Write code in interview order (see §6.0): Coin/exceptions → Slot/CoinBank → State classes → VendingService skeleton → dispense() → cancel(). ✍️ WRITE" [ref=e93]':
+                  - cell "18–38 min" [ref=e94]
+                  - 'cell "Write code in interview order (see §6.0): Coin/exceptions → Slot/CoinBank → State classes → VendingService skeleton → dispense() → cancel()." [ref=e95]':
+                    - strong [ref=e96]: Write code in interview order
+                    - text: "(see §6.0):"
+                    - code [ref=e97]: Coin
+                    - text: /exceptions →
+                    - code [ref=e98]: Slot
+                    - text: /
+                    - code [ref=e99]: CoinBank
+                    - text: → State classes →
+                    - code [ref=e100]: VendingService
+                    - text: skeleton →
+                    - code [ref=e101]: dispense()
+                    - text: →
+                    - code [ref=e102]: cancel()
+                    - text: .
+                  - cell "✍️ WRITE" [ref=e103]
+                - row "38–45 min Demo Case 1 + Case 5 — buy-with-change and last-unit out-of-stock. Run main.py if it's a coding environment. 🗣️ SAY / run" [ref=e104]:
+                  - cell "38–45 min" [ref=e105]
+                  - cell "Demo Case 1 + Case 5 — buy-with-change and last-unit out-of-stock. Run main.py if it's a coding environment." [ref=e106]:
+                    - strong [ref=e107]: Demo Case 1 + Case 5
+                    - text: — buy-with-change and last-unit out-of-stock. Run
+                    - code [ref=e108]: main.py
+                    - text: if it's a coding environment.
+                  - cell "🗣️ SAY / run" [ref=e109]
+                - row "45–55 min Concurrency answer — one reentrant lock around the whole transaction (single machine = single unit of contention), Template-Method _lock hook overridden in a subclass. Write the subclass only if asked. 🗣️ SAY (❓ code if asked)" [ref=e110]:
+                  - cell "45–55 min" [ref=e111]
+                  - cell "Concurrency answer — one reentrant lock around the whole transaction (single machine = single unit of contention), Template-Method _lock hook overridden in a subclass. Write the subclass only if asked." [ref=e112]:
+                    - strong [ref=e113]: Concurrency answer
+                    - text: — one reentrant lock around the whole transaction (single machine = single unit of contention), Template-Method
+                    - code [ref=e114]: _lock
+                    - text: hook overridden in a subclass. Write the subclass only if asked.
+                  - cell "🗣️ SAY (❓ code if asked)" [ref=e115]
+                - row "55–60 min Follow-ups — change-making algorithm, distributed machines, two-phase physical dispense. ❓ IF ASKED" [ref=e116]:
+                  - cell "55–60 min" [ref=e117]
+                  - cell "Follow-ups — change-making algorithm, distributed machines, two-phase physical dispense." [ref=e118]:
+                    - strong [ref=e119]: Follow-ups
+                    - text: — change-making algorithm, distributed machines, two-phase physical dispense.
+                  - cell "❓ IF ASKED" [ref=e120]
+            - paragraph [ref=e121]:
+              - strong [ref=e122]: "Two interview modes — pick one at the top:"
+            - list [ref=e123]:
+              - listitem [ref=e124]:
+                - strong [ref=e125]: "Mode A — Whiteboard / no-run (Amazon, Google):"
+                - text: Skip §7 run output. Demo the IDLE→COLLECTING_MONEY→DISPENSING transitions verbally as a state table. Write code, do not execute.
+              - listitem [ref=e126]:
+                - strong [ref=e127]: "Mode B — Coding environment (Uber, Meta, startups):"
+                - text: Write and RUN
+                - code [ref=e128]: main.py
+                - text: in §7. Show actual terminal output. This write-up is Mode B.
+            - paragraph [ref=e129]:
+              - strong [ref=e130]: "The one thing that makes interviewers flag you \"strong hire\":"
+              - text: right after drawing the diagram, say
+              - emphasis [ref=e131]: "\"I see a race — concurrent button presses can corrupt the state machine and double-dispense the last unit. I'll keep the core clean and single-threaded, then guard the whole transaction with one lock at the end.\""
+              - text: Said proactively, before being asked.
+            - separator [ref=e132]
+            - heading "1. Understanding the Problem & Clarifying Questions" [level=2] [ref=e133]
+            - heading "1.1 What we're building (plain words)" [level=3] [ref=e134]
+            - blockquote [ref=e135]: "💬 \"So we're modelling a physical vending machine. A customer drops coins in one at a time, picks a product by its slot code, and the machine drops the product and any change. If they bail, they hit cancel and get their coins back. The whole thing is a little state machine — it's idle, then it's collecting money, then it's dispensing — and it has to reject the obvious bad cases: a slot that doesn't exist, not enough money, or a sold-out slot. It's one physical machine, so only one person uses it at a time.\""
+            - heading "1.2 Clarifying questions (candidate-led)" [level=3] [ref=e136]
+            - paragraph [ref=e137]:
+              - strong [ref=e138]: "You:"
+              - text: "\"I'll model the coin set as a fixed list — penny, nickel, dime, quarter, dollar — and prices in whole cents so there's no floating-point mess. Sound right?\""
+              - strong [ref=e139]: "Interviewer:"
+              - text: "\"Yep, cents and that coin set is fine.\""
+              - emphasis [ref=e140]: "✓ scoped: integer cents, US coin denominations — change-making is plain integer arithmetic."
+            - paragraph [ref=e141]:
+              - strong [ref=e142]: "You:"
+              - text: "\"The lifecycle is IDLE → COLLECTING_MONEY → DISPENSING and back to IDLE. I'd let the customer either pre-select a product and then pay, or pay first and then select — both end in the same place. OK to support both orders?\""
+              - strong [ref=e143]: "Interviewer:"
+              - text: "\"Sure, support both.\""
+              - emphasis [ref=e144]: ✓ select works from IDLE and from COLLECTING_MONEY; dispense is only legal once money + selection are both present.
+            - paragraph [ref=e145]:
+              - strong [ref=e146]: "You:"
+              - text: "\"For change: the machine has its own coin bank, and if it physically can't form the exact change owed, I'll reject the sale with a typed error and keep the customer's money fully refundable — never dispense and short-change them. Agreed?\""
+              - strong [ref=e147]: "Interviewer:"
+              - text: "\"Agreed — that's the right failure mode.\""
+              - emphasis [ref=e148]: ✓ make-change is all-or-nothing; a sale that can't make change does not vend.
+            - paragraph [ref=e149]:
+              - strong [ref=e150]: "You:"
+              - text: "\"I'll treat the physical hardware — motors, the actual coin mechanism, the door sensor — as out of scope. The dispense is synchronous in my model. OK?\""
+              - strong [ref=e151]: "Interviewer:"
+              - text: "\"Yes, keep it in-memory.\""
+              - emphasis [ref=e152]: ✓ DISPENSING is modelled as a real state but the vend completes synchronously; no hardware layer.
+            - paragraph [ref=e153]:
+              - strong [ref=e154]: "You:"
+              - text: "\"Last one — it's a single machine, so 'thread-safe' here means concurrent button presses on the SAME machine must not corrupt the state machine or double-dispense. Not a fleet of machines. Right?\""
+              - strong [ref=e155]: "Interviewer:"
+              - text: "\"Correct — single machine, but make the concurrency real.\""
+              - emphasis [ref=e156]: ✓ one machine = one unit of contention; the whole transaction is the critical section.
+            - heading "1.3 Final Requirements (the whiteboard summary)" [level=3] [ref=e157]
+            - paragraph [ref=e158]:
+              - strong [ref=e159]: Functional Requirements
+            - list [ref=e160]:
+              - listitem [ref=e161]:
+                - strong [ref=e162]: Insert a coin
+                - text: — customer feeds one coin at a time.
+            - list [ref=e163]:
+              - listitem [ref=e164]:
+                - text: "Input: a"
+                - code [ref=e165]: Coin
+                - text: . Returns the running balance in cents. Moves IDLE → COLLECTING_MONEY on the first coin.
+            - list [ref=e166]:
+              - listitem [ref=e167]:
+                - strong [ref=e168]: Select a product
+                - text: by slot code.
+            - list [ref=e169]:
+              - listitem [ref=e170]: "Input: a slot code string. Validates the code exists and is in stock, else a typed error. Legal from IDLE or COLLECTING_MONEY."
+            - list [ref=e171]:
+              - listitem [ref=e172]:
+                - strong [ref=e173]: Dispense
+                - text: the selected product.
+            - list [ref=e174]:
+              - listitem [ref=e175]: "Re-validates: product selected, still in stock, funds ≥ price, exact change formable. On success returns the product + change coins and resets to IDLE. Else a typed error and the money stays refundable."
+            - list [ref=e176]:
+              - listitem [ref=e177]:
+                - strong [ref=e178]: Cancel
+                - text: — refund everything.
+            - list [ref=e179]:
+              - listitem [ref=e180]: Returns all inserted coins, drops any selection, resets to IDLE. No-op when already idle.
+            - list [ref=e181]:
+              - listitem [ref=e182]:
+                - strong [ref=e183]: Refill
+                - text: a slot (operator).
+            - list [ref=e184]:
+              - listitem [ref=e185]: "Input: slot code + positive count. Restocks; rejects unknown slot or non-positive count."
+            - paragraph [ref=e186]:
+              - strong [ref=e187]: Out of scope
+            - list [ref=e188]:
+              - listitem [ref=e189]: Physical hardware (motors, coin mechanism, door sensor) — below our system boundary.
+              - listitem [ref=e190]: A fleet of machines / central inventory — single machine only.
+              - listitem [ref=e191]: Card/contactless payment — coins only for v1.
+              - listitem [ref=e192]: Auditing / sales reporting — downstream concern.
+            - blockquote [ref=e193]:
+              - text: 💬
+              - strong [ref=e194]: "What you say to open:"
+              - text: "\"OK, before I model anything I want to lock down two things: prices and coins are in integer cents, and 'thread-safe' means one physical machine with concurrent button presses — not a fleet. With that, let me walk through the actors and flows.\""
+            - separator [ref=e195]
+            - heading "2. Actors & Core Flows" [level=2] [ref=e196]
+            - paragraph [ref=e197]:
+              - strong [ref=e198]: Actors
+            - list [ref=e199]:
+              - listitem [ref=e200]:
+                - strong [ref=e201]: Customer
+                - text: — inserts coins, selects a product, triggers dispense, or cancels.
+              - listitem [ref=e202]:
+                - strong [ref=e203]: Operator
+                - text: — refills slots (and in production reloads the coin bank).
+            - paragraph [ref=e204]:
+              - strong [ref=e205]: Core flows
+            - list [ref=e206]:
+              - listitem [ref=e207]: "Customer: insert coins → select product → dispense → product + change returned, machine returns to IDLE."
+              - listitem [ref=e208]: "Customer: select product first → insert coins until enough → dispense → done."
+              - listitem [ref=e209]: "Customer: insert coins → cancel → all coins refunded, machine back to IDLE."
+              - listitem [ref=e210]: "Customer: select a sold-out slot → rejected with OutOfStock (no state change)."
+              - listitem [ref=e211]: "Operator: refill a slot → quantity increases, slot sellable again."
+            - separator [ref=e212]
+            - heading "3. Core Entities (with explicit accept / reject reasoning)" [level=2] [ref=e213]
+            - heading "3.1 Candidate noun walkthrough" [level=3] [ref=e214]
+            - blockquote [ref=e215]:
+              - strong [ref=e216]: Vending Machine
+              - text: — the whole system. It owns the working memory (coins inserted so far, the chosen slot), the catalog of slots, the coin bank, and the current state. This is the orchestrator.
+              - emphasis [ref=e217]:
+                - text: Accepted — as
+                - code [ref=e218]: VendingService
+                - text: .
+            - blockquote [ref=e219]
+            - blockquote [ref=e220]:
+              - strong [ref=e221]: State (Idle / CollectingMoney / Dispensing)
+              - text: — the machine's lifecycle. The tempting-but-wrong move is a
+              - code [ref=e222]: status
+              - text: string with a big if/else. Instead each state is its own class that knows which actions are legal and what the next state is.
+              - emphasis [ref=e223]:
+                - text: Accepted — as a
+                - code [ref=e224]: MachineState
+                - text: hierarchy (the State pattern).
+            - blockquote [ref=e225]
+            - blockquote [ref=e226]:
+              - strong [ref=e227]: Slot
+              - text: — a physical shelf position holding one product type and a count. It has data (which product, how many) AND behavior (vend one, refill) and guards "count never goes negative."
+              - emphasis [ref=e228]: Accepted.
+            - blockquote [ref=e229]
+            - blockquote [ref=e230]:
+              - strong [ref=e231]: Product
+              - text: "— the catalog fact: code, name, price. It never changes after stocking."
+              - emphasis [ref=e232]:
+                - text: Accepted — as a frozen value object. Its stock count is NOT here; that changes, so it lives on
+                - code [ref=e233]: Slot
+                - text: .
+            - blockquote [ref=e234]
+            - blockquote [ref=e235]:
+              - strong [ref=e236]: Coin
+              - text: — a fixed, finite set of denominations with a cents value, no behavior of its own.
+              - emphasis [ref=e237]:
+                - text: Rejected as an entity — modelled as an
+                - code [ref=e238]: Enum
+                - text: .
+            - blockquote [ref=e239]
+            - blockquote [ref=e240]:
+              - strong [ref=e241]: Coin Bank / Float
+              - text: — the coins the machine holds to give back as change, plus the coins customers feed in. It owns the make-change algorithm and the "all-or-nothing" rule.
+              - emphasis [ref=e242]:
+                - text: Accepted — as
+                - code [ref=e243]: CoinBank
+                - text: .
+            - blockquote [ref=e244]
+            - blockquote [ref=e245]:
+              - strong [ref=e246]: Change
+              - text: — the coins returned on a sale. It's an output, not a stored thing.
+              - emphasis [ref=e247]:
+                - text: Rejected as an entity — it's a field on the
+                - code [ref=e248]: DispenseResult
+                - text: value object.
+            - blockquote [ref=e249]
+            - blockquote [ref=e250]:
+              - strong [ref=e251]: DispenseResult
+              - text: "— what a successful sale produces: the product and the change coins."
+              - emphasis [ref=e252]: Accepted — as a frozen value object so a completed sale can't be rewritten.
+            - blockquote [ref=e253]
+            - blockquote [ref=e254]:
+              - strong [ref=e255]: Customer / Operator
+              - text: — actors. They CALL the machine; the machine doesn't store them.
+              - emphasis [ref=e256]: Rejected — actors live outside the model.
+            - blockquote [ref=e257]
+            - blockquote [ref=e258]:
+              - strong [ref=e259]: Balance / Inserted amount
+              - text: — the running total of coins fed in. It's derived state the machine recomputes from the inserted-coins list.
+              - emphasis [ref=e260]: Rejected as an entity — it's a list field on the service + a sum.
+            - heading "3.2 Final entity table" [level=3] [ref=e261]
+            - table [ref=e263]:
+              - rowgroup [ref=e264]:
+                - row "Entity Responsibility Key fields (typed) Invariant it guards" [ref=e265]:
+                  - columnheader "Entity" [ref=e266]
+                  - columnheader "Responsibility" [ref=e267]
+                  - columnheader "Key fields (typed)" [ref=e268]
+                  - columnheader "Invariant it guards" [ref=e269]
+              - rowgroup [ref=e270]:
+                - 'row "VendingService Coordinate the machine: hold working memory, route each action to the current state _slots: dict[str, Slot], _coin_bank: CoinBank, _inserted: list[Coin], _selected_code: str | None, _state: MachineState Every action is handled by exactly one state; transitions only happen via state objects" [ref=e271]':
+                  - cell "VendingService" [ref=e272]:
+                    - code [ref=e273]: VendingService
+                  - 'cell "Coordinate the machine: hold working memory, route each action to the current state" [ref=e274]'
+                  - 'cell "_slots: dict[str, Slot], _coin_bank: CoinBank, _inserted: list[Coin], _selected_code: str | None, _state: MachineState" [ref=e275]':
+                    - code [ref=e276]: "_slots: dict[str, Slot]"
+                    - text: ","
+                    - code [ref=e277]: "_coin_bank: CoinBank"
+                    - text: ","
+                    - code [ref=e278]: "_inserted: list[Coin]"
+                    - text: ","
+                    - code [ref=e279]: "_selected_code: str | None"
+                    - text: ","
+                    - code [ref=e280]: "_state: MachineState"
+                  - cell "Every action is handled by exactly one state; transitions only happen via state objects" [ref=e281]
+                - 'row "MachineState (Idle/HasMoney/Dispensing) Decide, per state, what each action does and the next state name: MachineStateName Illegal actions in a state raise — no illegal transition is reachable" [ref=e282]':
+                  - cell "MachineState (Idle/HasMoney/Dispensing)" [ref=e283]:
+                    - code [ref=e284]: MachineState
+                    - text: (Idle/HasMoney/Dispensing)
+                  - cell "Decide, per state, what each action does and the next state" [ref=e285]
+                  - 'cell "name: MachineStateName" [ref=e286]':
+                    - code [ref=e287]: "name: MachineStateName"
+                  - cell "Illegal actions in a state raise — no illegal transition is reachable" [ref=e288]
+                - 'row "Slot Hold one product type + a count; vend/refill product: Product, quantity: int quantity never goes below 0" [ref=e289]':
+                  - cell "Slot" [ref=e290]:
+                    - code [ref=e291]: Slot
+                  - cell "Hold one product type + a count; vend/refill" [ref=e292]
+                  - 'cell "product: Product, quantity: int" [ref=e293]':
+                    - code [ref=e294]: "product: Product"
+                    - text: ","
+                    - code [ref=e295]: "quantity: int"
+                  - cell "quantity never goes below 0" [ref=e296]:
+                    - code [ref=e297]: quantity
+                    - text: never goes below 0
+                - 'row "Product Catalog fact (immutable) code: str (id), name: str, price_cents: int Price/name never change after stocking" [ref=e298]':
+                  - cell "Product" [ref=e299]:
+                    - code [ref=e300]: Product
+                  - cell "Catalog fact (immutable)" [ref=e301]
+                  - 'cell "code: str (id), name: str, price_cents: int" [ref=e302]':
+                    - code [ref=e303]: "code: str"
+                    - text: (id),
+                    - code [ref=e304]: "name: str"
+                    - text: ","
+                    - code [ref=e305]: "price_cents: int"
+                  - cell "Price/name never change after stocking" [ref=e306]
+                - 'row "CoinBank Hold the coin float; make exact change all-or-nothing inventory: dict[Coin, int] A failed make-change leaves inventory unchanged" [ref=e307]':
+                  - cell "CoinBank" [ref=e308]:
+                    - code [ref=e309]: CoinBank
+                  - cell "Hold the coin float; make exact change all-or-nothing" [ref=e310]
+                  - 'cell "inventory: dict[Coin, int]" [ref=e311]':
+                    - code [ref=e312]: "inventory: dict[Coin, int]"
+                  - cell "A failed make-change leaves inventory unchanged" [ref=e313]
+                - 'row "DispenseResult The output of a successful sale (immutable) product: Product, change: tuple[Coin, ...] A completed sale can''t be rewritten" [ref=e314]':
+                  - cell "DispenseResult" [ref=e315]:
+                    - code [ref=e316]: DispenseResult
+                  - cell "The output of a successful sale (immutable)" [ref=e317]
+                  - 'cell "product: Product, change: tuple[Coin, ...]" [ref=e318]':
+                    - code [ref=e319]: "product: Product"
+                    - text: ","
+                    - code [ref=e320]: "change: tuple[Coin, ...]"
+                  - cell "A completed sale can't be rewritten" [ref=e321]
+            - paragraph [ref=e322]:
+              - strong [ref=e323]: Enums
+            - list [ref=e324]:
+              - listitem [ref=e325]:
+                - code [ref=e326]: Coin
+                - text: —
+                - code [ref=e327]: PENNY=1, NICKEL=5, DIME=10, QUARTER=25, DOLLAR=100
+                - text: (value = cents).
+              - listitem [ref=e328]:
+                - code [ref=e329]: MachineStateName
+                - text: —
+                - code [ref=e330]: IDLE, COLLECTING_MONEY, DISPENSING
+                - text: (a readable label; the behavior lives in the State classes).
+            - heading "3.3 🎙️ Spoken intro" [level=3] [ref=e331]
+            - blockquote [ref=e332]:
+              - text: 🎙️ "OK so the model has six objects.
+              - code [ref=e333]: VendingService
+              - text: "is the brain — it owns the slots, the coin bank, the coins inserted so far, and a reference to the current state. The interesting one is the state machine:"
+              - code [ref=e334]: Idle
+              - text: ","
+              - code [ref=e335]: HasMoney
+              - text: ", and"
+              - code [ref=e336]: Dispensing
+              - text: are three little classes, and the service never asks 'what status am I in?' — it just forwards the button press to the current state and lets it return the next state.
+              - code [ref=e337]: Slot
+              - text: owns its own stock count so 'never go negative' lives in one place, and
+              - code [ref=e338]: CoinBank
+              - text: owns the make-change algorithm and the all-or-nothing rule.
+              - code [ref=e339]: Product
+              - text: and
+              - code [ref=e340]: DispenseResult
+              - text: are frozen value objects. The nouns I deliberately left OUT are Coin — that's just an enum — Balance, which is derived, and Customer/Operator, which are actors outside the model."
+            - separator [ref=e341]
+            - heading "3.5 API / System Interface" [level=2] [ref=e342]
+            - paragraph [ref=e343]:
+              - text: The public surface of
+              - code [ref=e344]: VendingService
+              - text: — the small set of methods a customer or a UI actually calls. Everything else (state transitions, change-making) is internal.
+            - table [ref=e346]:
+              - rowgroup [ref=e347]:
+                - row "Method Signature Returns Raises Purpose" [ref=e348]:
+                  - columnheader "Method" [ref=e349]
+                  - columnheader "Signature" [ref=e350]
+                  - columnheader "Returns" [ref=e351]
+                  - columnheader "Raises" [ref=e352]
+                  - columnheader "Purpose" [ref=e353]
+              - rowgroup [ref=e354]:
+                - 'row "insert_coin (coin: Coin) -> int running balance in cents InvalidStateError Customer feeds one coin; moves IDLE → COLLECTING_MONEY" [ref=e355]':
+                  - cell "insert_coin" [ref=e356]:
+                    - code [ref=e357]: insert_coin
+                  - 'cell "(coin: Coin) -> int" [ref=e358]':
+                    - code [ref=e359]: "(coin: Coin) -> int"
+                  - cell "running balance in cents" [ref=e360]
+                  - cell "InvalidStateError" [ref=e361]:
+                    - code [ref=e362]: InvalidStateError
+                  - cell "Customer feeds one coin; moves IDLE → COLLECTING_MONEY" [ref=e363]
+                - 'row "select_product (code: str) -> None — InvalidSelectionError, OutOfStockError, InvalidStateError Customer picks a slot; validated and remembered" [ref=e364]':
+                  - cell "select_product" [ref=e365]:
+                    - code [ref=e366]: select_product
+                  - 'cell "(code: str) -> None" [ref=e367]':
+                    - code [ref=e368]: "(code: str) -> None"
+                  - cell "—" [ref=e369]
+                  - cell "InvalidSelectionError, OutOfStockError, InvalidStateError" [ref=e370]:
+                    - code [ref=e371]: InvalidSelectionError
+                    - text: ","
+                    - code [ref=e372]: OutOfStockError
+                    - text: ","
+                    - code [ref=e373]: InvalidStateError
+                  - cell "Customer picks a slot; validated and remembered" [ref=e374]
+                - row "dispense () -> DispenseResult the product + the change coins InvalidStateError, OutOfStockError, InsufficientFundsError, CannotMakeChangeError Vend the selected product with correct change" [ref=e375]:
+                  - cell "dispense" [ref=e376]:
+                    - code [ref=e377]: dispense
+                  - cell "() -> DispenseResult" [ref=e378]:
+                    - code [ref=e379]: () -> DispenseResult
+                  - cell "the product + the change coins" [ref=e380]
+                  - cell "InvalidStateError, OutOfStockError, InsufficientFundsError, CannotMakeChangeError" [ref=e381]:
+                    - code [ref=e382]: InvalidStateError
+                    - text: ","
+                    - code [ref=e383]: OutOfStockError
+                    - text: ","
+                    - code [ref=e384]: InsufficientFundsError
+                    - text: ","
+                    - code [ref=e385]: CannotMakeChangeError
+                  - cell "Vend the selected product with correct change" [ref=e386]
+                - row "cancel () -> tuple[Coin, ...] the coins to refund — Refund everything inserted, reset to IDLE" [ref=e387]:
+                  - cell "cancel" [ref=e388]:
+                    - code [ref=e389]: cancel
+                  - cell "() -> tuple[Coin, ...]" [ref=e390]:
+                    - code [ref=e391]: () -> tuple[Coin, ...]
+                  - cell "the coins to refund" [ref=e392]
+                  - cell "—" [ref=e393]
+                  - cell "Refund everything inserted, reset to IDLE" [ref=e394]
+                - 'row "refill (code: str, units: int) -> None — InvalidSelectionError Operator restocks a slot" [ref=e395]':
+                  - cell "refill" [ref=e396]:
+                    - code [ref=e397]: refill
+                  - 'cell "(code: str, units: int) -> None" [ref=e398]':
+                    - code [ref=e399]: "(code: str, units: int) -> None"
+                  - cell "—" [ref=e400]
+                  - cell "InvalidSelectionError" [ref=e401]:
+                    - code [ref=e402]: InvalidSelectionError
+                  - cell "Operator restocks a slot" [ref=e403]
+            - blockquote [ref=e404]:
+              - text: 🎙️ "The whole machine is five public calls — three the customer drives (
+              - code [ref=e405]: insert_coin
+              - text: ","
+              - code [ref=e406]: select_product
+              - text: ","
+              - code [ref=e407]: dispense
+              - text: ), one escape hatch (
+              - code [ref=e408]: cancel
+              - text: ), and one operator call (
+              - code [ref=e409]: refill
+              - text: ). Notice none of them take a 'status' argument — the machine remembers its own state. If you handed me this interface cold, you'd know exactly what a vending machine does without seeing a single class."
+            - separator [ref=e410]
+            - heading "4. Class Design" [level=2] [ref=e411]
+            - heading "4.1 Per-class derivation" [level=3] [ref=e412]
+            - heading "VendingService (orchestrator) — first" [level=4] [ref=e413]:
+              - code [ref=e414]: VendingService
+              - text: (orchestrator) — first
+            - paragraph [ref=e415]:
+              - strong [ref=e416]: (a) Role
+              - text: — the system's public API and the holder of working memory. Every customer action flows through here and is routed to the current state.
+            - paragraph [ref=e417]:
+              - strong [ref=e418]: (b) State derivation
+            - table [ref=e420]:
+              - rowgroup [ref=e421]:
+                - row "Requirement What this class must remember" [ref=e422]:
+                  - columnheader "Requirement" [ref=e423]
+                  - columnheader "What this class must remember" [ref=e424]
+              - rowgroup [ref=e425]:
+                - 'row "\"select a product by slot code\" / \"out-of-stock\" The collection of slots: dict[str, Slot]" [ref=e426]':
+                  - cell "\"select a product by slot code\" / \"out-of-stock\"" [ref=e427]
+                  - 'cell "The collection of slots: dict[str, Slot]" [ref=e428]':
+                    - text: "The collection of slots:"
+                    - code [ref=e429]: dict[str, Slot]
+                - 'row "\"dispense with correct change\" / \"refund on cancel\" The coin bank: CoinBank" [ref=e430]':
+                  - cell "\"dispense with correct change\" / \"refund on cancel\"" [ref=e431]
+                  - 'cell "The coin bank: CoinBank" [ref=e432]':
+                    - text: "The coin bank:"
+                    - code [ref=e433]: CoinBank
+                - 'row "\"insert coins one at a time\", \"refund everything\" The coins inserted so far: list[Coin]" [ref=e434]':
+                  - cell "\"insert coins one at a time\", \"refund everything\"" [ref=e435]
+                  - 'cell "The coins inserted so far: list[Coin]" [ref=e436]':
+                    - text: "The coins inserted so far:"
+                    - code [ref=e437]: list[Coin]
+                - 'row "\"select then pay, or pay then select\" The currently selected code: str | None" [ref=e438]':
+                  - cell "\"select then pay, or pay then select\"" [ref=e439]
+                  - 'cell "The currently selected code: str | None" [ref=e440]':
+                    - text: "The currently selected code:"
+                    - code [ref=e441]: str | None
+                - 'row "\"machine moves through states\" The current state object: MachineState" [ref=e442]':
+                  - cell "\"machine moves through states\"" [ref=e443]
+                  - 'cell "The current state object: MachineState" [ref=e444]':
+                    - text: "The current state object:"
+                    - code [ref=e445]: MachineState
+            - generic [ref=e446]:
+              - button "copy" [ref=e448] [cursor=pointer]
+              - code [ref=e450]: "class VendingService: - slots: Map<string, Slot> - coin_bank: CoinBank - inserted: Coin[] - selected_code: string | None - state: MachineState"
+            - paragraph [ref=e451]:
+              - emphasis [ref=e452]: "State placement trade-off:"
+              - text: the
+              - strong [ref=e453]: physical
+              - text: stock count lives on
+              - code [ref=e454]: Slot
+              - text: (it describes the slot's condition), while the
+              - strong [ref=e455]: relational/working
+              - text: state — which coins are in right now, what's selected, what lifecycle phase we're in — lives on the service because it describes the in-progress transaction the machine manages, not any one slot.
+            - paragraph [ref=e456]:
+              - strong [ref=e457]: (c) Operations derivation
+            - table [ref=e459]:
+              - rowgroup [ref=e460]:
+                - row "Need from requirements Method on this class" [ref=e461]:
+                  - columnheader "Need from requirements" [ref=e462]
+                  - columnheader "Method on this class" [ref=e463]
+              - rowgroup [ref=e464]:
+                - row "\"insert coins one at a time\" insert_coin(coin) -> int" [ref=e465]:
+                  - cell "\"insert coins one at a time\"" [ref=e466]
+                  - cell "insert_coin(coin) -> int" [ref=e467]:
+                    - code [ref=e468]: insert_coin(coin) -> int
+                - row "\"select a product by slot code\" select_product(code) -> void | error" [ref=e469]:
+                  - cell "\"select a product by slot code\"" [ref=e470]
+                  - cell "select_product(code) -> void | error" [ref=e471]:
+                    - code [ref=e472]: select_product(code) -> void | error
+                - row "\"dispense with correct change\" dispense() -> DispenseResult | error" [ref=e473]:
+                  - cell "\"dispense with correct change\"" [ref=e474]
+                  - cell "dispense() -> DispenseResult | error" [ref=e475]:
+                    - code [ref=e476]: dispense() -> DispenseResult | error
+                - row "\"refund on cancel\" cancel() -> Coin[]" [ref=e477]:
+                  - cell "\"refund on cancel\"" [ref=e478]
+                  - cell "cancel() -> Coin[]" [ref=e479]:
+                    - code [ref=e480]: cancel() -> Coin[]
+                - row "operator restock refill(code, units) -> void | error" [ref=e481]:
+                  - cell "operator restock" [ref=e482]
+                  - cell "refill(code, units) -> void | error" [ref=e483]:
+                    - code [ref=e484]: refill(code, units) -> void | error
+            - generic [ref=e485]:
+              - button "copy" [ref=e487] [cursor=pointer]
+              - code [ref=e489]: "class VendingService: - slots: Map<string, Slot> - coin_bank: CoinBank - inserted: Coin[] - selected_code: string | None - state: MachineState + VendingService(slots, coin_bank) + insert_coin(coin) -> int + select_product(code) -> void | error + dispense() -> DispenseResult | error + cancel() -> Coin[] + refill(code, units) -> void | error + _lock() -> contextmanager # no-op hook; thread-safe subclass overrides"
+            - paragraph [ref=e490]:
+              - strong [ref=e491]: (d) Design choices
+            - list [ref=e492]:
+              - listitem [ref=e493]:
+                - strong [ref=e494]: Why does the service hold no business logic?
+                - text: It delegates every action to the current state object. That keeps the "what's legal in this phase" rules in the state classes, so adding a phase is a new class, not edits scattered across five methods.
+              - listitem [ref=e495]:
+                - strong [ref=e496]:
+                  - text: Why a
+                  - code [ref=e497]: _lock()
+                  - text: no-op hook?
+                - text: The clean core has zero lock code. The thread-safe version is a subclass overriding only this one method. The diff is five lines.
+              - listitem [ref=e498]:
+                - strong [ref=e499]:
+                  - text: Why does
+                  - code [ref=e500]: insert_coin
+                  - text: return an int?
+                - text: A UI needs the running balance to display; returning it avoids a separate
+                - code [ref=e501]: get_balance
+                - text: round-trip.
+            - separator [ref=e502]
+            - heading "MachineState + IdleState / HasMoneyState / DispensingState" [level=4] [ref=e503]:
+              - code [ref=e504]: MachineState
+              - text: +
+              - code [ref=e505]: IdleState
+              - text: /
+              - code [ref=e506]: HasMoneyState
+              - text: /
+              - code [ref=e507]: DispensingState
+            - paragraph [ref=e508]:
+              - strong [ref=e509]: (a) Role
+              - text: — the State pattern. Each concrete state decides, for its phase, what each of the four actions does and which state comes next.
+            - paragraph [ref=e510]:
+              - strong [ref=e511]: (b) State derivation
+            - table [ref=e513]:
+              - rowgroup [ref=e514]:
+                - row "Requirement What this class must remember" [ref=e515]:
+                  - columnheader "Requirement" [ref=e516]
+                  - columnheader "What this class must remember" [ref=e517]
+              - rowgroup [ref=e518]:
+                - row "\"machine moves through states\" A name label (IDLE/COLLECTING_MONEY/DISPENSING)" [ref=e519]:
+                  - cell "\"machine moves through states\"" [ref=e520]
+                  - cell "A name label (IDLE/COLLECTING_MONEY/DISPENSING)" [ref=e521]:
+                    - text: A
+                    - code [ref=e522]: name
+                    - text: label (
+                    - code [ref=e523]: IDLE
+                    - text: /
+                    - code [ref=e524]: COLLECTING_MONEY
+                    - text: /
+                    - code [ref=e525]: DISPENSING
+                    - text: )
+                - row "(all working data) Nothing — states are behavior-only; they read/mutate the service via a VendingContext" [ref=e526]:
+                  - cell "(all working data)" [ref=e527]
+                  - cell "Nothing — states are behavior-only; they read/mutate the service via a VendingContext" [ref=e528]:
+                    - text: Nothing — states are behavior-only; they read/mutate the service via a
+                    - code [ref=e529]: VendingContext
+            - generic [ref=e530]:
+              - button "copy" [ref=e532] [cursor=pointer]
+              - code [ref=e534]: "abstract class MachineState: - name: MachineStateName"
+            - paragraph [ref=e535]:
+              - strong [ref=e536]: (c) Operations derivation
+            - table [ref=e538]:
+              - rowgroup [ref=e539]:
+                - row "Need from requirements Method on this class" [ref=e540]:
+                  - columnheader "Need from requirements" [ref=e541]
+                  - columnheader "Method on this class" [ref=e542]
+              - rowgroup [ref=e543]:
+                - row "\"insert coins\" insert_coin(ctx, coin) -> MachineState" [ref=e544]:
+                  - cell "\"insert coins\"" [ref=e545]
+                  - cell "insert_coin(ctx, coin) -> MachineState" [ref=e546]:
+                    - code [ref=e547]: insert_coin(ctx, coin) -> MachineState
+                - row "\"select a product\" select(ctx, code) -> MachineState" [ref=e548]:
+                  - cell "\"select a product\"" [ref=e549]
+                  - cell "select(ctx, code) -> MachineState" [ref=e550]:
+                    - code [ref=e551]: select(ctx, code) -> MachineState
+                - row "\"dispense with change\" dispense(ctx) -> (MachineState, DispenseResult)" [ref=e552]:
+                  - cell "\"dispense with change\"" [ref=e553]
+                  - cell "dispense(ctx) -> (MachineState, DispenseResult)" [ref=e554]:
+                    - code [ref=e555]: dispense(ctx) -> (MachineState, DispenseResult)
+                - row "\"refund on cancel\" cancel(ctx) -> (MachineState, Coin[])" [ref=e556]:
+                  - cell "\"refund on cancel\"" [ref=e557]
+                  - cell "cancel(ctx) -> (MachineState, Coin[])" [ref=e558]:
+                    - code [ref=e559]: cancel(ctx) -> (MachineState, Coin[])
+            - generic [ref=e560]:
+              - button "copy" [ref=e562] [cursor=pointer]
+              - code [ref=e564]: "abstract class MachineState: - name: MachineStateName + insert_coin(ctx, coin) -> MachineState + select(ctx, code) -> MachineState + dispense(ctx) -> (MachineState, DispenseResult) + cancel(ctx) -> (MachineState, Coin[]) class IdleState(MachineState): # name = IDLE + insert_coin -> HasMoneyState # first coin + select -> HasMoneyState # pre-select allowed + dispense -> raises InvalidStateError + cancel -> (IdleState, []) # nothing to refund class HasMoneyState(MachineState): # name = COLLECTING_MONEY + insert_coin -> self + select -> self + dispense -> (IdleState, DispenseResult) # the heart + cancel -> (IdleState, refundCoins) class DispensingState(MachineState): # name = DISPENSING + insert_coin / select / dispense / cancel -> raises InvalidStateError"
+            - paragraph [ref=e565]:
+              - strong [ref=e566]: (d) Design choices
+            - list [ref=e567]:
+              - listitem [ref=e568]:
+                - strong [ref=e569]: Why return the next state instead of mutating a status field?
+                - text: "The transition table is then explicit and local: each method's return type IS the diagram edge. No method can forget to update the status."
+              - listitem [ref=e570]:
+                - strong [ref=e571]:
+                  - text: Why is
+                  - code [ref=e572]: DispensingState
+                  - text: modelled if the vend completes synchronously?
+                - text: It's in the problem's required lifecycle, and it documents the rule "while a product is physically dropping, every action is rejected." It's the natural home for a future async/hardware dispense.
+              - listitem [ref=e573]:
+                - strong [ref=e574]:
+                  - text: Why does
+                  - code [ref=e575]: dispense
+                  - text: return a tuple
+                  - code [ref=e576]: (next_state, result)
+                  - text: "?"
+                - text: The other actions only need to return the next state; dispense also produces output, so it returns both. Keeping the signature honest beats stashing the result on the context.
+            - separator [ref=e577]
+            - heading "Slot" [level=4] [ref=e578]:
+              - code [ref=e579]: Slot
+            - paragraph [ref=e580]:
+              - strong [ref=e581]: (a) Role
+              - text: "— a physical shelf position: one product type, a count, and the rule that count never goes negative."
+            - paragraph [ref=e582]:
+              - strong [ref=e583]: (b) State derivation
+            - table [ref=e585]:
+              - rowgroup [ref=e586]:
+                - row "Requirement What this class must remember" [ref=e587]:
+                  - columnheader "Requirement" [ref=e588]
+                  - columnheader "What this class must remember" [ref=e589]
+              - rowgroup [ref=e590]:
+                - row "\"select a product\" The product it holds" [ref=e591]:
+                  - cell "\"select a product\"" [ref=e592]
+                  - cell "The product it holds" [ref=e593]:
+                    - text: The
+                    - code [ref=e594]: product
+                    - text: it holds
+                - row "\"out-of-stock\" / \"dispense\" The quantity left" [ref=e595]:
+                  - cell "\"out-of-stock\" / \"dispense\"" [ref=e596]
+                  - cell "The quantity left" [ref=e597]:
+                    - text: The
+                    - code [ref=e598]: quantity
+                    - text: left
+            - generic [ref=e599]:
+              - button "copy" [ref=e601] [cursor=pointer]
+              - code [ref=e603]: "class Slot: - product: Product - quantity: int"
+            - paragraph [ref=e604]:
+              - strong [ref=e605]: (c) Operations derivation
+            - table [ref=e607]:
+              - rowgroup [ref=e608]:
+                - row "Need from requirements Method on this class" [ref=e609]:
+                  - columnheader "Need from requirements" [ref=e610]
+                  - columnheader "Method on this class" [ref=e611]
+              - rowgroup [ref=e612]:
+                - row "check sellable is_in_stock() -> bool" [ref=e613]:
+                  - cell "check sellable" [ref=e614]
+                  - cell "is_in_stock() -> bool" [ref=e615]:
+                    - code [ref=e616]: is_in_stock() -> bool
+                - row "\"dispense the product\" vend_one() -> void | error" [ref=e617]:
+                  - cell "\"dispense the product\"" [ref=e618]
+                  - cell "vend_one() -> void | error" [ref=e619]:
+                    - code [ref=e620]: vend_one() -> void | error
+                - row "operator restock refill(units) -> void | error" [ref=e621]:
+                  - cell "operator restock" [ref=e622]
+                  - cell "refill(units) -> void | error" [ref=e623]:
+                    - code [ref=e624]: refill(units) -> void | error
+            - generic [ref=e625]:
+              - button "copy" [ref=e627] [cursor=pointer]
+              - code [ref=e629]: "class Slot: - product: Product - quantity: int + Slot(product, quantity) + is_in_stock() -> bool + vend_one() -> void | error # decrement; raises OutOfStock if empty + refill(units) -> void | error"
+            - paragraph [ref=e630]:
+              - strong [ref=e631]: (d) Design choices
+            - list [ref=e632]:
+              - listitem [ref=e633]:
+                - strong [ref=e634]:
+                  - text: Why does the Slot own
+                  - code [ref=e635]: vend_one
+                  - text: instead of the service decrementing directly?
+                - text: So the "never negative" invariant lives in one place. Even if a buggy path called it on an empty slot, the slot raises — the invariant is true by construction, not by every caller remembering to check.
+            - separator [ref=e636]
+            - heading "CoinBank" [level=4] [ref=e637]:
+              - code [ref=e638]: CoinBank
+            - paragraph [ref=e639]:
+              - strong [ref=e640]: (a) Role
+              - text: "— the machine's wallet: holds the coin float, accepts inserted coins, and makes exact change all-or-nothing."
+            - paragraph [ref=e641]:
+              - strong [ref=e642]: (b) State derivation
+            - table [ref=e644]:
+              - rowgroup [ref=e645]:
+                - row "Requirement What this class must remember" [ref=e646]:
+                  - columnheader "Requirement" [ref=e647]
+                  - columnheader "What this class must remember" [ref=e648]
+              - rowgroup [ref=e649]:
+                - 'row "\"dispense with correct change\" inventory: dict[Coin, int] — how many of each coin it holds" [ref=e650]':
+                  - cell "\"dispense with correct change\"" [ref=e651]
+                  - 'cell "inventory: dict[Coin, int] — how many of each coin it holds" [ref=e652]':
+                    - code [ref=e653]: "inventory: dict[Coin, int]"
+                    - text: — how many of each coin it holds
+            - generic [ref=e654]:
+              - button "copy" [ref=e656] [cursor=pointer]
+              - code [ref=e658]: "class CoinBank: - inventory: Map<Coin, int>"
+            - paragraph [ref=e659]:
+              - strong [ref=e660]: (c) Operations derivation
+            - table [ref=e662]:
+              - rowgroup [ref=e663]:
+                - row "Need from requirements Method on this class" [ref=e664]:
+                  - columnheader "Need from requirements" [ref=e665]
+                  - columnheader "Method on this class" [ref=e666]
+              - rowgroup [ref=e667]:
+                - row "accept inserted coins into the float deposit(coin, count) / deposit_many(coins)" [ref=e668]:
+                  - cell "accept inserted coins into the float" [ref=e669]
+                  - cell "deposit(coin, count) / deposit_many(coins)" [ref=e670]:
+                    - code [ref=e671]: deposit(coin, count)
+                    - text: /
+                    - code [ref=e672]: deposit_many(coins)
+                - row "\"dispense with correct change\" make_change(amount_cents) -> Coin[] | error" [ref=e673]:
+                  - cell "\"dispense with correct change\"" [ref=e674]
+                  - cell "make_change(amount_cents) -> Coin[] | error" [ref=e675]:
+                    - code [ref=e676]: make_change(amount_cents) -> Coin[] | error
+            - generic [ref=e677]:
+              - button "copy" [ref=e679] [cursor=pointer]
+              - code [ref=e681]: "class CoinBank: - inventory: Map<Coin, int> + CoinBank(inventory) + deposit(coin, count=1) -> void + deposit_many(coins) -> void + make_change(amount_cents) -> Coin[] | error # all-or-nothing"
+            - paragraph [ref=e682]:
+              - strong [ref=e683]: (d) Design choices
+            - list [ref=e684]:
+              - listitem [ref=e685]:
+                - strong [ref=e686]:
+                  - text: Why all-or-nothing in
+                  - code [ref=e687]: make_change
+                  - text: "?"
+                - text: It computes the full coin plan in a scratch dict and only deducts from the real inventory once it knows the exact amount can be formed. A half-deducted bank that then fails would silently lose coins.
+              - listitem [ref=e688]:
+                - strong [ref=e689]: Why greedy largest-first?
+                - text: For the US coin set (1,5,10,25,100) greedy is optimal — each denomination divides cleanly enough that taking the biggest coin first never strands a remainder you can't fill. (For an arbitrary coin set you'd switch to a DP; see §9.)
+            - separator [ref=e690]
+            - heading "Product and DispenseResult (frozen value objects)" [level=4] [ref=e691]:
+              - code [ref=e692]: Product
+              - text: and
+              - code [ref=e693]: DispenseResult
+              - text: (frozen value objects)
+            - paragraph [ref=e694]:
+              - strong [ref=e695]: (a) Role
+              - text: — immutable facts.
+              - code [ref=e696]: Product
+              - text: is the catalog entry;
+              - code [ref=e697]: DispenseResult
+              - text: is the output of a sale.
+            - paragraph [ref=e698]:
+              - strong [ref=e699]: (b) State derivation
+              - text: — both are pure data; nothing mutates after creation.
+            - paragraph [ref=e700]:
+              - strong [ref=e701]: (c) Operations derivation
+              - text: —
+              - code [ref=e702]: DispenseResult
+              - text: exposes one derived helper,
+              - code [ref=e703]: change_cents
+              - text: .
+            - generic [ref=e704]:
+              - button "copy" [ref=e706] [cursor=pointer]
+              - code [ref=e708]: "@frozen class Product: - code: string # id - name: string - price_cents: int @frozen class DispenseResult: - product: Product - change: Coin[] + change_cents() -> int # sum of the change coins"
+            - paragraph [ref=e709]:
+              - strong [ref=e710]: (d) Design choices
+            - list [ref=e711]:
+              - listitem [ref=e712]:
+                - strong [ref=e713]: Why frozen?
+                - text: A stocked product's price must not drift mid-session, and a completed sale is history. Freezing makes accidental writes a hard error.
+            - heading "4.2 Final consolidated class diagram" [level=3] [ref=e714]
+            - paragraph [ref=e715]:
+              - text: 🗣️
+              - strong [ref=e716]: "Say (don't draw):"
+              - text: "\"I also have"
+              - code [ref=e717]: Product
+              - text: ","
+              - code [ref=e718]: DispenseResult
+              - text: ", and the"
+              - code [ref=e719]: Coin
+              - text: enum — those are just data holders, nothing interesting; I'll focus the diagram on the classes with real logic."
+            - paragraph [ref=e720]:
+              - text: ✍️
+              - strong [ref=e721]: "Draw these:"
+            - generic [ref=e723]: "classDiagram class VendingService { -slots: dict[str, Slot] -coin_bank: CoinBank -inserted: list[Coin] -selected_code: str | None -state: MachineState +insert_coin(coin) int +select_product(code) None +dispense() DispenseResult +cancel() tuple +refill(code, units) None +_lock() contextmanager } class ThreadSafeVendingService { -machine_lock: RLock +_lock() contextmanager } class MachineState { <<abstract>> +name: MachineStateName +insert_coin(ctx, coin) MachineState +select(ctx, code) MachineState +dispense(ctx) tuple +cancel(ctx) tuple } class IdleState class HasMoneyState class DispensingState class Slot { +product: Product +quantity: int +is_in_stock() bool +vend_one() None +refill(units) None } class CoinBank { +inventory: dict +deposit(coin, count) None +deposit_many(coins) None +make_change(amount) tuple } ThreadSafeVendingService --|> VendingService IdleState --|> MachineState HasMoneyState --|> MachineState DispensingState --|> MachineState VendingService o-- \"1\" MachineState : current state VendingService *-- \"many\" Slot : owns VendingService *-- \"1\" CoinBank : owns MachineState ..> VendingService : reads/mutates via context"
+            - paragraph [ref=e724]:
+              - strong [ref=e725]: "Relationships, one at a time:"
+            - list [ref=e726]:
+              - listitem [ref=e727]:
+                - strong [ref=e728]:
+                  - code [ref=e729]: ThreadSafeVendingService --|> VendingService
+                  - text: "(inheritance):"
+                - text: the thread-safe machine IS a vending service that overrides only the
+                - code [ref=e730]: _lock
+                - text: hook. Solid arrow = extends.
+              - listitem [ref=e731]:
+                - strong [ref=e732]:
+                  - code [ref=e733]: IdleState
+                  - text: /
+                  - code [ref=e734]: HasMoneyState
+                  - text: /
+                  - code [ref=e735]: DispensingState --|> MachineState
+                  - text: "(realization of the abstract base):"
+                - text: each concrete state fulfils the four-action contract. This is the
+                - strong [ref=e736]: State pattern
+                - text: "— the extensibility seam: a new phase is a new subclass."
+              - listitem [ref=e737]:
+                - strong [ref=e738]:
+                  - code [ref=e739]: VendingService o-- MachineState
+                  - text: "(aggregation, 1):"
+                - text: the service holds a
+                - emphasis [ref=e740]: reference
+                - text: to whichever state is current and swaps it. The state object's lifetime isn't bound to the service (states are cheap, created on transition) — open diamond.
+              - listitem [ref=e741]:
+                - strong [ref=e742]:
+                  - code [ref=e743]: VendingService *-- Slot
+                  - text: "(composition, many):"
+                - text: the machine OWNS its slots — kill the machine and the slots go with it. Filled diamond.
+              - listitem [ref=e744]:
+                - strong [ref=e745]:
+                  - code [ref=e746]: VendingService *-- CoinBank
+                  - text: "(composition, 1):"
+                - text: the machine owns its one coin bank.
+              - listitem [ref=e747]:
+                - strong [ref=e748]:
+                  - code [ref=e749]: MachineState ..> VendingService
+                  - text: "(dependency):"
+                - text: states transiently read/mutate the service's working memory through the
+                - code [ref=e750]: VendingContext
+                - text: interface, without owning it. Dashed arrow.
+            - paragraph [ref=e751]:
+              - strong [ref=e752]: Pattern Map
+            - table [ref=e754]:
+              - rowgroup [ref=e755]:
+                - row "Class / Interface Pattern One-line reason" [ref=e756]:
+                  - columnheader "Class / Interface" [ref=e757]
+                  - columnheader "Pattern" [ref=e758]
+                  - columnheader "One-line reason" [ref=e759]
+              - rowgroup [ref=e760]:
+                - row "MachineState + Idle/HasMoney/Dispensing State each phase is its own class; the service delegates and adopts the returned state" [ref=e761]:
+                  - cell "MachineState + Idle/HasMoney/Dispensing" [ref=e762]:
+                    - code [ref=e763]: MachineState
+                    - text: + Idle/HasMoney/Dispensing
+                  - cell "State" [ref=e764]:
+                    - strong [ref=e765]: State
+                  - cell "each phase is its own class; the service delegates and adopts the returned state" [ref=e766]
+                - row "CoinBank.make_change (algorithm, optional Strategy) greedy today, pluggable DP for arbitrary coin sets — see §9" [ref=e767]:
+                  - cell "CoinBank.make_change" [ref=e768]:
+                    - code [ref=e769]: CoinBank.make_change
+                  - cell "(algorithm, optional Strategy)" [ref=e770]
+                  - cell "greedy today, pluggable DP for arbitrary coin sets — see §9" [ref=e771]
+                - row "VendingService._lock hook Template Method no-op in the clean core; the thread-safe subclass overrides one method" [ref=e772]:
+                  - cell "VendingService._lock hook" [ref=e773]:
+                    - code [ref=e774]: VendingService._lock
+                    - text: hook
+                  - cell "Template Method" [ref=e775]:
+                    - strong [ref=e776]: Template Method
+                  - cell "no-op in the clean core; the thread-safe subclass overrides one method" [ref=e777]
+            - blockquote [ref=e778]:
+              - text: 🎙️
+              - strong [ref=e779]: "Script — walk the diagram:"
+              - text: "\"I put"
+              - code [ref=e780]: VendingService
+              - text: in the center because every button press flows through it. Hanging off it on the left are the
+              - code [ref=e781]: Slot
+              - text: s — it composes them, they're the physical shelves. Below sits the one
+              - code [ref=e782]: CoinBank
+              - text: ". On the right is the star:"
+              - code [ref=e783]: MachineState
+              - text: is abstract, and
+              - code [ref=e784]: Idle
+              - text: ","
+              - code [ref=e785]: HasMoney
+              - text: ","
+              - code [ref=e786]: Dispensing
+              - text: realize it — that's the State pattern. The service holds ONE current state and just swaps it for whatever the state returns. The key seam is
+              - code [ref=e787]: MachineState
+              - text: ": the service never knows which phase it's in, so a new phase is a new class with zero changes to the service.\""
+            - paragraph [ref=e788]:
+              - text: ⚠️
+              - strong [ref=e789]: "Proactive concurrency flag:"
+              - text: "\"I notice a race in"
+              - code [ref=e790]: dispense
+              - text: — two customers (or two button-press threads) on the same machine both check 'last gum in stock', both pass, both vend, and stock goes negative. Worse, concurrent presses can corrupt the shared inserted-coins tally and the state pointer. I'll keep the core clean and single-threaded, and at the end guard the
+              - emphasis [ref=e791]: whole transaction
+              - text: with one reentrant lock — because on a single machine there's no per-slot parallelism to win; the machine itself is the unit of mutual exclusion."
+            - separator [ref=e792]
+            - heading "5. Design Patterns & Principles" [level=2] [ref=e793]
+            - heading "5.1 Information Expert" [level=3] [ref=e794]
+            - blockquote [ref=e795]:
+              - text: "\"I followed Information Expert: each class owns the state and behavior closest to its data."
+              - code [ref=e796]: VendingService
+              - text: owns the in-progress transaction (inserted coins, selection, current phase) because it's the only thing that sees the whole interaction.
+              - code [ref=e797]: Slot
+              - text: owns its stock count and the 'never negative' rule because the count is intrinsic to that shelf.
+              - code [ref=e798]: CoinBank
+              - text: owns the float and the make-change algorithm because it's the only thing that knows what coins exist. And each
+              - code [ref=e799]: MachineState
+              - text: owns the rules for its own phase —
+              - code [ref=e800]: Idle
+              - text: knows you can't dispense yet,
+              - code [ref=e801]: Dispensing
+              - text: knows you can't cancel mid-drop."
+            - heading "5.2 Applied patterns" [level=3] [ref=e802]
+            - paragraph [ref=e803]:
+              - strong [ref=e804]: State (primary)
+            - list [ref=e805]:
+              - listitem [ref=e806]:
+                - strong [ref=e807]: "Why it fits HERE:"
+                - text: the problem literally says "the machine moves through states IDLE → COLLECTING_MONEY → DISPENSING," and the legal actions differ per phase. Instead of a
+                - code [ref=e808]: status
+                - text: field with a giant if/else in every method, each phase is a class that answers the four actions and returns the next state.
+              - listitem [ref=e809]:
+                - strong [ref=e810]: "Interface + concretes:"
+                - code [ref=e811]: MachineState.dispense(ctx) → (next_state, result)
+                - text: realized by
+                - code [ref=e812]: IdleState
+                - text: (raises),
+                - code [ref=e813]: HasMoneyState
+                - text: (vends),
+                - code [ref=e814]: DispensingState
+                - text: (rejects).
+              - listitem [ref=e815]:
+                - strong [ref=e816]: "🎙️ Script:"
+                - text: "\"The machine is a finite state machine. The service forwards each action to the current state object and adopts whatever state it hands back. Illegal transitions — dispensing while idle — are impossible because"
+                - code [ref=e817]: IdleState.dispense
+                - text: simply raises."
+              - listitem [ref=e818]:
+                - strong [ref=e819]: "💬 Layman gloss:"
+                - text: "\"It's like the machine wears a different 'hat' for each phase, and the hat decides what the buttons do. Swapping hats is the whole transition.\""
+            - paragraph [ref=e820]:
+              - strong [ref=e821]: Template Method (for concurrency)
+            - list [ref=e822]:
+              - listitem [ref=e823]:
+                - strong [ref=e824]: "Why it fits HERE:"
+                - text: I want the clean core to have zero lock code, and the thread-safe version to differ by a few lines.
+              - listitem [ref=e825]:
+                - strong [ref=e826]: "Interface + concrete:"
+                - code [ref=e827]: VendingService._lock()
+                - text: is a no-op context manager;
+                - code [ref=e828]: ThreadSafeVendingService._lock()
+                - text: overrides it with a real
+                - code [ref=e829]: RLock
+                - text: .
+              - listitem [ref=e830]:
+                - strong [ref=e831]: "🎙️ Script:"
+                - text: "\"The core wraps every operation in"
+                - code [ref=e832]: _lock()
+                - text: ", which does nothing. The thread-safe subclass overrides only"
+                - code [ref=e833]: _lock
+                - text: . So §6 is lock-free and readable, and §9 is a five-line subclass."
+              - listitem [ref=e834]:
+                - strong [ref=e835]: "💬 Layman gloss:"
+                - text: "\"There's a placeholder step that does nothing; the thread-safe version fills it in with a real lock. Everything else is untouched.\""
+            - heading "5.3 SOLID" [level=3] [ref=e836]
+            - list [ref=e837]:
+              - listitem [ref=e838]:
+                - strong [ref=e839]: "Single Responsibility:"
+                - code [ref=e840]: Slot
+                - text: owns physical stock,
+                - code [ref=e841]: CoinBank
+                - text: owns money + change, each
+                - code [ref=e842]: MachineState
+                - text: owns one phase's rules,
+                - code [ref=e843]: VendingService
+                - text: owns coordination. Four reasons to change, four classes.
+              - listitem [ref=e844]:
+                - strong [ref=e845]: "Open/Closed:"
+                - text: a new phase (e.g.
+                - code [ref=e846]: OutOfServiceState
+                - text: ) is a new
+                - code [ref=e847]: MachineState
+                - text: subclass; the service doesn't change. A new change-making algorithm is a swap in
+                - code [ref=e848]: CoinBank
+                - text: .
+              - listitem [ref=e849]:
+                - strong [ref=e850]: "Liskov:"
+                - code [ref=e851]: ThreadSafeVendingService
+                - text: is a drop-in for
+                - code [ref=e852]: VendingService
+                - text: — same public behavior, only stronger safety.
+              - listitem [ref=e853]:
+                - strong [ref=e854]: "Dependency Inversion:"
+                - code [ref=e855]: VendingService
+                - text: depends on the
+                - code [ref=e856]: MachineState
+                - text: abstraction, never on a specific concrete state.
+            - heading "5.4 Earn your patterns" [level=3] [ref=e857]
+            - list [ref=e858]:
+              - listitem [ref=e859]:
+                - strong [ref=e860]: State
+                - text: "— visible: a real abstract"
+                - code [ref=e861]: MachineState
+                - text: with three concrete subclasses, and the service stores + swaps
+                - code [ref=e862]: self._state
+                - text: . Survives Cmd-F.
+              - listitem [ref=e863]:
+                - strong [ref=e864]: Template Method
+                - text: "— visible:"
+                - code [ref=e865]: _lock
+                - text: is a real
+                - code [ref=e866]: "@contextmanager"
+                - text: overridden in the subclass.
+              - listitem [ref=e867]:
+                - text: I do
+                - strong [ref=e868]: not
+                - text: claim Strategy as wired-in for change-making in v1 — the greedy algorithm is a method on
+                - code [ref=e869]: CoinBank
+                - text: . It's an
+                - strong [ref=e870]: extension point (not wired in v1)
+                - text: ": if arbitrary coin sets were required I'd extract a"
+                - code [ref=e871]: ChangeStrategy
+                - text: (see §9). I won't name-drop it as applied.
+              - listitem [ref=e872]:
+                - text: I do
+                - strong [ref=e873]: not
+                - text: claim Singleton — there's nothing enforcing a single instance; the machine is just constructed once.
+            - heading "5.5 Core Algorithms & Approach" [level=2] [ref=e874]
+            - heading "A. The Key Insight" [level=3] [ref=e875]
+            - blockquote [ref=e876]:
+              - strong [ref=e877]: "Insight:"
+              - text: Model the machine as a finite state machine with one class per state, and make
+              - code [ref=e878]: dispense
+              - text: re-validate
+              - emphasis [ref=e879]: everything at the moment of truth
+              - text: — selection, stock, funds, and change — committing all-or-nothing.
+            - blockquote [ref=e880]
+            - blockquote [ref=e881]:
+              - strong [ref=e882]: Why it works
+              - text: "A vending machine has a small, ordered set of legal phases and the legal actions differ sharply per phase. That structure maps exactly onto the State pattern: the phase object IS the source of truth for \"what can happen next.\" And because a customer can insert coins and change their selection between checking and dispensing, the only safe place to validate is at dispense time — so dispense re-reads stock, funds, and change together and only mutates if all pass."
+            - blockquote [ref=e883]
+            - blockquote [ref=e884]:
+              - strong [ref=e885]: "What breaks without it:"
+              - text: The naive version keeps a
+              - code [ref=e886]: status
+              - text: string and validates piecemeal — checks stock in
+              - code [ref=e887]: select
+              - text: ", trusts it in"
+              - code [ref=e888]: dispense
+              - text: . Six months in, someone adds a refill path or a second buyer, and now
+              - code [ref=e889]: dispense
+              - text: vends a slot that went empty between select and dispense — stock goes negative, or two customers both get "the last one." By re-validating atomically in
+              - code [ref=e890]: dispense
+              - text: and letting
+              - code [ref=e891]: Slot.vend_one
+              - text: guard its own count, that bug is impossible by construction.
+            - heading "B. Per-Operation Algorithm" [level=3] [ref=e892]
+            - paragraph [ref=e893]:
+              - strong [ref=e894]:
+                - code [ref=e895]: insert_coin(coin)
+            - list [ref=e896]:
+              - listitem [ref=e897]:
+                - text: Forward to current state's
+                - code [ref=e898]: insert_coin
+                - text: .
+              - listitem [ref=e899]:
+                - text: If IDLE → append coin to
+                - code [ref=e900]: inserted
+                - text: ", return"
+                - code [ref=e901]: HasMoneyState
+                - text: .
+              - listitem [ref=e902]: If COLLECTING_MONEY → append coin, stay.
+              - listitem [ref=e903]:
+                - text: If DISPENSING → raise
+                - code [ref=e904]: InvalidStateError
+                - text: .
+              - listitem [ref=e905]:
+                - text: Return running balance (sum of
+                - code [ref=e906]: inserted
+                - text: ).
+            - blockquote [ref=e907]: 🎙️ "This is a one-liner that just feeds the current state. The only subtlety is the first coin flips IDLE → COLLECTING_MONEY (step 2) — the state transition is the return value."
+            - paragraph [ref=e908]:
+              - strong [ref=e909]:
+                - code [ref=e910]: select_product(code)
+            - list [ref=e911]:
+              - listitem [ref=e912]:
+                - text: Forward to current state's
+                - code [ref=e913]: select
+                - text: .
+              - listitem [ref=e914]:
+                - text: "Validate: slot exists (else"
+                - code [ref=e915]: InvalidSelectionError
+                - text: ), slot in stock (else
+                - code [ref=e916]: OutOfStockError
+                - text: ).
+              - listitem [ref=e917]:
+                - text: Remember
+                - code [ref=e918]: selected_code
+                - text: ; stay in / move to COLLECTING_MONEY.
+              - listitem [ref=e919]:
+                - text: If DISPENSING → raise
+                - code [ref=e920]: InvalidStateError
+                - text: .
+            - blockquote [ref=e921]:
+              - text: 🎙️ "Select is two guards then a remember. Note it validates stock here for a fast reject, but
+              - code [ref=e922]: dispense
+              - text: validates AGAIN — select-time stock can go stale, so dispense never trusts it."
+            - paragraph [ref=e923]:
+              - strong [ref=e924]:
+                - code [ref=e925]: dispense()
+                - text: — the pipeline (race-prone)
+            - list [ref=e926]:
+              - listitem [ref=e927]:
+                - text: Forward to current state's
+                - code [ref=e928]: dispense
+                - text: . (IDLE raises immediately.)
+              - listitem [ref=e929]:
+                - text: "In HasMoney: read"
+                - code [ref=e930]: selected_code
+                - text: ; if None →
+                - code [ref=e931]: InvalidStateError
+                - text: .
+              - listitem [ref=e932]:
+                - text: "Re-validate the slot: exists + in stock (else"
+                - code [ref=e933]: OutOfStockError
+                - text: ).
+                - strong [ref=e934]: ← this is the check half of the race.
+              - listitem [ref=e935]:
+                - text: Read price and paid amount; if paid < price →
+                - code [ref=e936]: InsufficientFundsError
+                - text: .
+              - listitem [ref=e937]: Deposit the customer's coins into the bank (they become available as change).
+              - listitem [ref=e938]:
+                - text: Ask the bank for exact change for
+                - code [ref=e939]: paid - price
+                - text: ; if it can't form it → roll the coins back out and raise
+                - code [ref=e940]: CannotMakeChangeError
+                - text: .
+              - listitem [ref=e941]:
+                - code [ref=e942]: slot.vend_one()
+                - text: — decrement stock (guards never-negative).
+                - strong [ref=e943]: ← this is the act half of the race.
+              - listitem [ref=e944]:
+                - text: Build the
+                - code [ref=e945]: DispenseResult
+                - text: ", clear"
+                - code [ref=e946]: inserted
+                - text: ", clear"
+                - code [ref=e947]: selected_code
+                - text: .
+              - listitem [ref=e948]:
+                - text: Return
+                - code [ref=e949]: (IdleState, result)
+                - text: .
+            - blockquote [ref=e950]: "🎙️ \"This is the pipeline and it has the check-then-act race. Step 3 checks stock, step 7 takes the unit — between them, an unlocked second thread could also pass step 3. Steps 3–7 are the critical section; in §9 the whole transaction runs under one lock. The non-obvious step is 6: I deposit the coins FIRST so they're usable as change, but if change can't be made I roll them back out (step 6's except) so cancel still refunds the customer — never keep money for a sale that didn't happen.\""
+            - paragraph [ref=e951]:
+              - strong [ref=e952]:
+                - code [ref=e953]: cancel()
+            - list [ref=e954]:
+              - listitem [ref=e955]:
+                - text: Forward to current state's
+                - code [ref=e956]: cancel
+                - text: .
+              - listitem [ref=e957]:
+                - text: In IDLE → return
+                - code [ref=e958]: ()
+                - text: (nothing to refund).
+              - listitem [ref=e959]:
+                - text: In COLLECTING_MONEY → snapshot
+                - code [ref=e960]: inserted
+                - text: as the refund, clear
+                - code [ref=e961]: inserted
+                - text: and
+                - code [ref=e962]: selected_code
+                - text: ", return to IDLE."
+              - listitem [ref=e963]:
+                - text: In DISPENSING → raise
+                - code [ref=e964]: InvalidStateError
+                - text: (too late).
+            - blockquote [ref=e965]: "🎙️ \"Cancel is lookup-then-release. Idempotent in IDLE — calling it twice just returns empty. The one rule it enforces: you cannot cancel once the product is dropping (step 4).\""
+            - paragraph [ref=e966]:
+              - strong [ref=e967]:
+                - code [ref=e968]: refill(code, units)
+            - list [ref=e969]:
+              - listitem [ref=e970]:
+                - text: Look up the slot; if missing →
+                - code [ref=e971]: InvalidSelectionError
+                - text: .
+              - listitem [ref=e972]:
+                - code [ref=e973]: slot.refill(units)
+                - text: — guards positive units.
+            - blockquote [ref=e974]: 🎙️ "Operator path. One guard, one delegate — the slot owns the 'positive units' rule."
+            - paragraph [ref=e975]:
+              - strong [ref=e976]:
+                - code [ref=e977]: CoinBank.make_change(amount)
+            - list [ref=e978]:
+              - listitem [ref=e979]:
+                - text: If amount < 0 →
+                - code [ref=e980]: CannotMakeChangeError
+                - text: .
+              - listitem [ref=e981]:
+                - text: Walk denominations largest → smallest; take
+                - code [ref=e982]: min(needed, available)
+                - text: of each into a scratch plan.
+              - listitem [ref=e983]:
+                - text: If any remainder left →
+                - code [ref=e984]: CannotMakeChangeError
+                - text: (inventory untouched).
+              - listitem [ref=e985]: Otherwise deduct the plan from real inventory and return the flat coin tuple.
+            - blockquote [ref=e986]: 🎙️ "This is the all-or-nothing one. I build the plan in a scratch dict (step 2) and only touch the real inventory after I know it's exact (step 4). If I deducted as I went and then failed, I'd silently eat coins."
+            - paragraph [ref=e987]:
+              - strong [ref=e988]:
+                - text: (3) Dry run —
+                - code [ref=e989]: dispense()
+                - text: "after inserting $1.00 and selecting A1 (Cola, 75c):"
+            - paragraph [ref=e990]:
+              - text: "Initial:"
+              - code [ref=e991]: inserted=[Q,Q,Q,Q]
+              - text: (100c),
+              - code [ref=e992]: selected_code="A1"
+              - text: ", slot A1 qty=3, bank"
+              - code [ref=e993]: "{Q:10,D:10,N:10,P:20}"
+              - text: .
+            - table [ref=e995]:
+              - rowgroup [ref=e996]:
+                - row "Step Action State change" [ref=e997]:
+                  - columnheader "Step" [ref=e998]
+                  - columnheader "Action" [ref=e999]
+                  - columnheader "State change" [ref=e1000]
+              - rowgroup [ref=e1001]:
+                - row "2 read selection code=\"A1\" ✓" [ref=e1002]:
+                  - cell "2" [ref=e1003]
+                  - cell "read selection" [ref=e1004]
+                  - cell "code=\"A1\" ✓" [ref=e1005]:
+                    - code [ref=e1006]: code="A1"
+                    - text: ✓
+                - row "3 re-validate A1 exists, qty 3 > 0 ✓" [ref=e1007]:
+                  - cell "3" [ref=e1008]
+                  - cell "re-validate A1" [ref=e1009]
+                  - cell "exists, qty 3 > 0 ✓" [ref=e1010]
+                - row "4 price 75 ≤ paid 100 funds OK ✓" [ref=e1011]:
+                  - cell "4" [ref=e1012]
+                  - cell "price 75 ≤ paid 100" [ref=e1013]
+                  - cell "funds OK ✓" [ref=e1014]
+                - 'row "5 deposit 4 quarters into bank bank {Q:14,...}" [ref=e1015]':
+                  - cell "5" [ref=e1016]
+                  - cell "deposit 4 quarters into bank" [ref=e1017]
+                  - 'cell "bank {Q:14,...}" [ref=e1018]':
+                    - text: bank
+                    - code [ref=e1019]: "{Q:14,...}"
+                - 'row "6 make_change(25) plan {Q:1} → bank {Q:13,...}, returns (QUARTER,)" [ref=e1020]':
+                  - cell "6" [ref=e1021]
+                  - cell "make_change(25)" [ref=e1022]:
+                    - code [ref=e1023]: make_change(25)
+                  - 'cell "plan {Q:1} → bank {Q:13,...}, returns (QUARTER,)" [ref=e1024]':
+                    - text: plan
+                    - code [ref=e1025]: "{Q:1}"
+                    - text: → bank
+                    - code [ref=e1026]: "{Q:13,...}"
+                    - text: ", returns"
+                    - code [ref=e1027]: (QUARTER,)
+                - 'row "7 slot.vend_one() A1 qty: 3 → 2" [ref=e1028]':
+                  - cell "7" [ref=e1029]
+                  - cell "slot.vend_one()" [ref=e1030]:
+                    - code [ref=e1031]: slot.vend_one()
+                  - 'cell "A1 qty: 3 → 2" [ref=e1032]'
+                - row "8 build result, clear working mem inserted=[], selected_code=None" [ref=e1033]:
+                  - cell "8" [ref=e1034]
+                  - cell "build result, clear working mem" [ref=e1035]
+                  - cell "inserted=[], selected_code=None" [ref=e1036]:
+                    - code [ref=e1037]: inserted=[]
+                    - text: ","
+                    - code [ref=e1038]: selected_code=None
+                - row "9 return (IdleState, result) caller gets Cola + 25c, machine IDLE" [ref=e1039]:
+                  - cell "9" [ref=e1040]
+                  - cell "return (IdleState, result)" [ref=e1041]:
+                    - text: return
+                    - code [ref=e1042]: (IdleState, result)
+                  - cell "caller gets Cola + 25c, machine IDLE" [ref=e1043]
+            - blockquote [ref=e1044]:
+              - emphasis [ref=e1045]:
+                - text: "Edge probe: what if a second thread calls"
+                - code [ref=e1046]: dispense
+                - text: while step 7 is mid-flight on the LAST unit?
+              - text: Without a lock both pass step 3 (both see qty 1), both reach step 7, stock goes to -1 — double-dispense. §9 wraps steps 3–7 in one reentrant lock so the second thread sees qty 0 and gets
+              - code [ref=e1047]: OutOfStockError
+              - text: .
+            - heading "C. Data Structure Choices" [level=3] [ref=e1048]
+            - table [ref=e1050]:
+              - rowgroup [ref=e1051]:
+                - row "Data Structure Used For Why THIS (vs alternative considered) Complexity" [ref=e1052]:
+                  - columnheader "Data Structure" [ref=e1053]
+                  - columnheader "Used For" [ref=e1054]
+                  - columnheader "Why THIS (vs alternative considered)" [ref=e1055]
+                  - columnheader "Complexity" [ref=e1056]
+              - rowgroup [ref=e1057]:
+                - row "dict[str, Slot] slot lookup by code code is the natural key the customer types; alternative was a list scan on every select/dispense — O(n) per call → O(1) O(1) get" [ref=e1058]:
+                  - cell "dict[str, Slot]" [ref=e1059]:
+                    - code [ref=e1060]: dict[str, Slot]
+                  - cell "slot lookup by code" [ref=e1061]
+                  - cell "code is the natural key the customer types; alternative was a list scan on every select/dispense — O(n) per call → O(1)" [ref=e1062]
+                  - cell "O(1) get" [ref=e1063]
+                - row "list[Coin] coins inserted so far preserves the exact coins so cancel refunds them coin-for-coin; a running int total would lose which coins to hand back O(1) append, O(n) sum (n tiny)" [ref=e1064]:
+                  - cell "list[Coin]" [ref=e1065]:
+                    - code [ref=e1066]: list[Coin]
+                  - cell "coins inserted so far" [ref=e1067]
+                  - cell "preserves the exact coins so cancel refunds them coin-for-coin; a running int total would lose which coins to hand back" [ref=e1068]:
+                    - text: preserves the exact coins so cancel refunds them coin-for-coin; a running
+                    - code [ref=e1069]: int
+                    - text: total would lose which coins to hand back
+                  - cell "O(1) append, O(n) sum (n tiny)" [ref=e1070]
+                - row "dict[Coin, int] coin bank inventory a histogram is the natural shape for make-change (take k of a denomination); a flat list of coins would be O(total coins) to scan O(1) per denomination" [ref=e1071]:
+                  - cell "dict[Coin, int]" [ref=e1072]:
+                    - code [ref=e1073]: dict[Coin, int]
+                  - cell "coin bank inventory" [ref=e1074]
+                  - cell "a histogram is the natural shape for make-change (take k of a denomination); a flat list of coins would be O(total coins) to scan" [ref=e1075]
+                  - cell "O(1) per denomination" [ref=e1076]
+                - row "greedy scan over 5 denominations make-change n = 5 fixed denominations; a DP table is needless for the US coin set where greedy is optimal O(5) = O(1)" [ref=e1077]:
+                  - cell "greedy scan over 5 denominations" [ref=e1078]
+                  - cell "make-change" [ref=e1079]
+                  - cell "n = 5 fixed denominations; a DP table is needless for the US coin set where greedy is optimal" [ref=e1080]
+                  - cell "O(5) = O(1)" [ref=e1081]
+            - paragraph [ref=e1082]: "The greedy scan is the deliberately simple choice: I'd flip to a coin-change DP only if the machine had to support an arbitrary, non-canonical coin set where greedy can fail (e.g. coins {1,3,4} making 6)."
+            - heading "D. Tricky Logic" [level=3] [ref=e1083]
+            - blockquote [ref=e1084]:
+              - strong [ref=e1085]: "🧠 Claim:"
+              - code [ref=e1086]: make_change
+              - text: must be all-or-nothing.
+            - blockquote [ref=e1087]:
+              - strong [ref=e1088]: "🔬 Proof:"
+              - text: If it deducted coins denomination-by-denomination and then discovered it couldn't form the last few cents, the bank would be short those coins for the next customer, and we'd raise mid-mutation.
+            - blockquote [ref=e1089]:
+              - strong [ref=e1090]: "🛠️ Fix in code:"
+              - code [ref=e1091]: make_change
+              - text: accumulates a
+              - code [ref=e1092]: plan
+              - text: dict and checks
+              - code [ref=e1093]: remaining != 0
+              - text: BEFORE touching
+              - code [ref=e1094]: self.inventory
+              - text: "; only on success does it deduct. Test:"
+              - code [ref=e1095]: test_make_change_failure_leaves_bank_untouched
+              - text: .
+            - blockquote [ref=e1096]:
+              - strong [ref=e1097]: "🧠 Claim:"
+              - text: A failed sale must keep the customer's money fully refundable.
+            - blockquote [ref=e1098]:
+              - strong [ref=e1099]: "🔬 Proof:"
+              - code [ref=e1100]: dispense
+              - text: deposits the customer's coins into the bank (step 5) so they can be used as change. If change then fails (step 6), those coins are now in the bank, not the
+              - code [ref=e1101]: inserted
+              - text: list — cancel would refund nothing.
+            - blockquote [ref=e1102]:
+              - strong [ref=e1103]: "🛠️ Fix in code:"
+              - text: the
+              - code [ref=e1104]: except CannotMakeChangeError
+              - text: block calls
+              - code [ref=e1105]: _rollback_inserted
+              - text: "to pull the coins back out before re-raising. Test:"
+              - code [ref=e1106]: test_cannot_make_change_rejects_and_refunds
+              - text: .
+            - blockquote [ref=e1107]:
+              - strong [ref=e1108]: "🧠 Claim:"
+              - text: Stock can never go negative, even under a race.
+            - blockquote [ref=e1109]:
+              - strong [ref=e1110]: "🔬 Proof:"
+              - text: Two threads both pass the in-stock check on the last unit and both decrement.
+            - blockquote [ref=e1111]:
+              - strong [ref=e1112]: "🛠️ Fix in code:"
+              - code [ref=e1113]: Slot.vend_one
+              - text: raises
+              - code [ref=e1114]: OutOfStockError
+              - text: if
+              - code [ref=e1115]: quantity <= 0
+              - text: "(backstop), and §9's lock makes the check-then-decrement atomic so only one thread reaches it. Tests: the three concurrency tests assert final qty lands at 0 (never negative)."
+            - blockquote [ref=e1116]:
+              - strong [ref=e1117]: "🧠 Claim:"
+              - code [ref=e1118]: cancel
+              - text: must be a safe no-op when idle.
+            - blockquote [ref=e1119]:
+              - strong [ref=e1120]: "🔬 Proof:"
+              - text: A customer mashes cancel twice; the second call has nothing to refund.
+            - blockquote [ref=e1121]:
+              - strong [ref=e1122]: "🛠️ Fix in code:"
+              - code [ref=e1123]: IdleState.cancel
+              - text: returns
+              - code [ref=e1124]: (self, ())
+              - text: "— empty refund, stays idle. Test:"
+              - code [ref=e1125]: test_cancel_while_idle_is_noop
+              - text: .
+            - blockquote [ref=e1126]:
+              - strong [ref=e1127]: "🧠 Claim:"
+              - code [ref=e1128]: dispense
+              - text: while idle / without a selection must be rejected by the STATE, not a scattered guard.
+            - blockquote [ref=e1129]:
+              - strong [ref=e1130]: "🔬 Proof:"
+              - text: A UI bug fires dispense before any selection.
+            - blockquote [ref=e1131]:
+              - strong [ref=e1132]: "🛠️ Fix in code:"
+              - code [ref=e1133]: IdleState.dispense
+              - text: raises directly;
+              - code [ref=e1134]: HasMoneyState.dispense
+              - text: raises if
+              - code [ref=e1135]: selected_code is None
+              - text: ". Tests:"
+              - code [ref=e1136]: test_dispense_while_idle_raises
+              - text: ","
+              - code [ref=e1137]: test_dispense_without_selection_raises
+              - text: .
+            - heading "E. The \"what I'd write WRONG first\" anti-example" [level=3] [ref=e1138]
+            - blockquote [ref=e1139]:
+              - strong [ref=e1140]: "❌ Naive version a junior would write:"
+            - blockquote [ref=e1141]: BLOCK10
+            - blockquote [ref=e1142]:
+              - strong [ref=e1143]: "Why it's wrong:"
+              - text: three failure modes. (1) It trusts the slot is still in stock from select-time — stale under refill/concurrency. (2) It writes
+              - code [ref=e1144]: quantity -= 1
+              - text: directly, bypassing the never-negative guard, so a race drives it negative. (3) It returns change as an integer, ignoring whether the bank can physically FORM that change. The correct version re-validates stock in
+              - code [ref=e1145]: dispense
+              - text: ", calls"
+              - code [ref=e1146]: slot.vend_one()
+              - text: so the slot guards itself, and asks
+              - code [ref=e1147]: CoinBank.make_change
+              - text: for actual coins all-or-nothing.
+            - heading "F. Narration Order for §6" [level=3] [ref=e1148]
+            - table [ref=e1150]:
+              - rowgroup [ref=e1151]:
+                - row "Order Class One-line open" [ref=e1152]:
+                  - columnheader "Order" [ref=e1153]
+                  - columnheader "Class" [ref=e1154]
+                  - columnheader "One-line open" [ref=e1155]
+              - rowgroup [ref=e1156]:
+                - row "1 Coin + exceptions \"Let me start with the vocabulary — the coin denominations and one typed error per failure mode.\"" [ref=e1157]:
+                  - cell "1" [ref=e1158]
+                  - cell "Coin + exceptions" [ref=e1159]:
+                    - code [ref=e1160]: Coin
+                    - text: + exceptions
+                  - cell "\"Let me start with the vocabulary — the coin denominations and one typed error per failure mode.\"" [ref=e1161]
+                - row "2 Slot + CoinBank \"These own the physical truth — stock count and the coin float with all-or-nothing change.\"" [ref=e1162]:
+                  - cell "2" [ref=e1163]
+                  - cell "Slot + CoinBank" [ref=e1164]:
+                    - code [ref=e1165]: Slot
+                    - text: +
+                    - code [ref=e1166]: CoinBank
+                  - cell "\"These own the physical truth — stock count and the coin float with all-or-nothing change.\"" [ref=e1167]
+                - row "3 MachineState + Idle/HasMoney/Dispensing \"This is the heart — one class per phase, each decides the next state.\"" [ref=e1168]:
+                  - cell "3" [ref=e1169]
+                  - cell "MachineState + Idle/HasMoney/Dispensing" [ref=e1170]:
+                    - code [ref=e1171]: MachineState
+                    - text: + Idle/HasMoney/Dispensing
+                  - cell "\"This is the heart — one class per phase, each decides the next state.\"" [ref=e1172]
+                - row "4 VendingService.__init__ + skeleton \"Here's the brain — it just holds working memory and routes each action to the current state.\"" [ref=e1173]:
+                  - cell "4" [ref=e1174]
+                  - cell "VendingService.__init__ + skeleton" [ref=e1175]:
+                    - code [ref=e1176]: VendingService.__init__
+                    - text: + skeleton
+                  - cell "\"Here's the brain — it just holds working memory and routes each action to the current state.\"" [ref=e1177]
+                - row "5 VendingService.dispense \"Now the pipeline I dry-ran — re-validate everything, then vend all-or-nothing.\"" [ref=e1178]:
+                  - cell "5" [ref=e1179]
+                  - cell "VendingService.dispense" [ref=e1180]:
+                    - code [ref=e1181]: VendingService.dispense
+                  - cell "\"Now the pipeline I dry-ran — re-validate everything, then vend all-or-nothing.\"" [ref=e1182]
+                - row "6 VendingService.cancel + refill \"Cancel is lookup-then-refund; refill is the operator path.\"" [ref=e1183]:
+                  - cell "6" [ref=e1184]
+                  - cell "VendingService.cancel + refill" [ref=e1185]:
+                    - code [ref=e1186]: VendingService.cancel
+                    - text: +
+                    - code [ref=e1187]: refill
+                  - cell "\"Cancel is lookup-then-refund; refill is the operator path.\"" [ref=e1188]
+            - separator [ref=e1189]
+            - heading "6. Implementation — narrated, class by class" [level=2] [ref=e1190]
+            - heading "6.0 Live Writing Order (your interview playbook)" [level=3] [ref=e1191]
+            - heading "(a) The 9 phases" [level=4] [ref=e1192]
+            - paragraph [ref=e1193]:
+              - strong [ref=e1194]: Phase 1 — Set the stage (1-2 min). NO CODE YET.
+            - blockquote [ref=e1195]:
+              - text: "Bolo first: \"Main"
+              - code [ref=e1196]: models.py
+              - text: aur
+              - code [ref=e1197]: vending_service.py
+              - text: — 2 files banaunga. Pehle coin enum aur exceptions, phir
+              - code [ref=e1198]: Slot
+              - text: aur
+              - code [ref=e1199]: CoinBank
+              - text: ", phir state machine —"
+              - code [ref=e1200]: Idle
+              - text: ","
+              - code [ref=e1201]: HasMoney
+              - text: ","
+              - code [ref=e1202]: Dispensing
+              - text: — phir orchestrator. Roadmap pehle, code baad mein."
+            - blockquote [ref=e1203]: "Why: 30 seconds of framing shows you're not in chaos."
+            - paragraph [ref=e1204]:
+              - strong [ref=e1205]: Phase 2 — Enums + exceptions first (2 min).
+            - blockquote [ref=e1206]:
+              - text: "Bolo: \"Coin ek Enum hai, value = cents, taaki change-making sirf arithmetic ho. Ek base"
+              - code [ref=e1207]: VendingError
+              - text: ", har failure ka apna subclass.\""
+            - blockquote [ref=e1208]:
+              - text: "Likho: the"
+              - code [ref=e1209]: Coin
+              - text: enum +
+              - code [ref=e1210]: VendingError
+              - text: and its five subclasses.
+            - paragraph [ref=e1211]:
+              - strong [ref=e1212]: Phase 3 — Physical entities (3 min).
+            - blockquote [ref=e1213]:
+              - text: "Bolo: \""
+              - code [ref=e1214]: Slot
+              - text: apna stock guard karta hai —
+              - code [ref=e1215]: vend_one
+              - text: empty pe raise karega.
+              - code [ref=e1216]: CoinBank
+              - text: ki
+              - code [ref=e1217]: make_change
+              - text: all-or-nothing hai."
+            - blockquote [ref=e1218]:
+              - text: "Likho:"
+              - code [ref=e1219]: Slot.vend_one
+              - text: /
+              - code [ref=e1220]: refill
+              - text: ","
+              - code [ref=e1221]: CoinBank.make_change
+              - text: .
+            - paragraph [ref=e1222]:
+              - strong [ref=e1223]: Phase 4 — State machine (5 min). The heart.
+            - blockquote [ref=e1224]: "Bolo: \"Ye system ka dil hai. Har phase apni class hai. Service kabhi status check nahi karega — bas current state ko action forward karega.\""
+            - blockquote [ref=e1225]:
+              - text: "Likho:"
+              - code [ref=e1226]: MachineState
+              - text: ABC +
+              - code [ref=e1227]: IdleState
+              - text: ","
+              - code [ref=e1228]: HasMoneyState
+              - text: ","
+              - code [ref=e1229]: DispensingState
+              - text: .
+            - blockquote [ref=e1230]:
+              - text: Then drop the
+              - strong [ref=e1231]: PROACTIVE CONCURRENCY FLAG
+              - text: ": \""
+              - code [ref=e1232]: dispense
+              - text: mein race hai — do log last unit pe dono check pass kar denge. Main poori transaction ko §9 mein ek lock se guard karunga."
+            - paragraph [ref=e1233]:
+              - strong [ref=e1234]: Phase 5 — Orchestrator skeleton (2-3 min).
+              - text: ⚠️ CRITICAL.
+            - blockquote [ref=e1235]:
+              - text: "Bolo: \"Pehle saari API surface —"
+              - code [ref=e1236]: __init__
+              - text: aur method signatures
+              - code [ref=e1237]: pass
+              - text: ke saath."
+            - blockquote [ref=e1238]:
+              - text: "Likho:"
+              - code [ref=e1239]: __init__
+              - text: (slots, bank, inserted, selected, state) + every public method signature with
+              - code [ref=e1240]: pass
+              - text: + the no-op
+              - code [ref=e1241]: _lock
+              - text: .
+            - paragraph [ref=e1242]:
+              - strong [ref=e1243]:
+                - text: Phase 6 —
+                - code [ref=e1244]: dispense
+                - text: ", full body (5-7 min). Slow down."
+            - blockquote [ref=e1245]: "Bolo step-by-step: re-validate selection → stock → funds → deposit coins → make change (rollback on fail) → vend → reset → return."
+            - blockquote [ref=e1246]:
+              - text: "Likho: the full"
+              - code [ref=e1247]: HasMoneyState.dispense
+              - text: body. "Notify/IO ki tarah, koi slow cheez lock ke andar nahi — yahan lock bhi nahi, sirf in-memory."
+            - paragraph [ref=e1248]:
+              - strong [ref=e1249]:
+                - text: Phase 7 —
+                - code [ref=e1250]: cancel
+                - text: +
+                - code [ref=e1251]: refill
+                - text: ", full bodies (3-4 min)."
+            - blockquote [ref=e1252]: "Bolo: \"Cancel refund karta hai aur IDLE pe reset. Refill operator ka path hai.\""
+            - blockquote [ref=e1253]:
+              - text: "Likho:"
+              - code [ref=e1254]: HasMoneyState.cancel
+              - text: ","
+              - code [ref=e1255]: IdleState.cancel
+              - text: ","
+              - code [ref=e1256]: VendingService.refill
+              - text: .
+            - paragraph [ref=e1257]:
+              - strong [ref=e1258]: Phase 8 — Demo / run (3-4 min).
+            - blockquote [ref=e1259]:
+              - text: "Mode B:"
+              - code [ref=e1260]: python main.py
+              - text: ", show stdout. Show the IDLE → COLLECTING_MONEY → IDLE transitions on screen."
+            - paragraph [ref=e1261]:
+              - strong [ref=e1262]: Phase 9 — Concurrency (2-3 min, only if asked).
+            - blockquote [ref=e1263]:
+              - text: "Bolo first: \"Single machine = single unit of contention. Ek"
+              - code [ref=e1264]: RLock
+              - text: poori transaction ke around.
+              - code [ref=e1265]: _lock
+              - text: hook ko
+              - code [ref=e1266]: ThreadSafeVendingService
+              - text: override karta hai — core zero changes."
+            - heading "(b) The 7 golden rules" [level=4] [ref=e1267]
+            - list [ref=e1268]:
+              - listitem [ref=e1269]:
+                - strong [ref=e1270]: Roadmap pehle bolo
+                - text: — two files, models → service.
+              - listitem [ref=e1271]:
+                - strong [ref=e1272]: Skeleton-then-flesh
+                - text: — orchestrator gets
+                - code [ref=e1273]: pass
+                - text: bodies first.
+              - listitem [ref=e1274]:
+                - strong [ref=e1275]: State machine before orchestrator
+                - text: — states are independent; the service imports them.
+              - listitem [ref=e1276]:
+                - strong [ref=e1277]: Bolo while likhing
+                - text: — narrate each guard.
+              - listitem [ref=e1278]:
+                - strong [ref=e1279]: Concurrency flag drop karo
+                - text: after the state machine, before being asked.
+              - listitem [ref=e1280]:
+                - strong [ref=e1281]: Demo wait karo
+                - text: — only once everything runs.
+              - listitem [ref=e1282]:
+                - strong [ref=e1283]: Pseudocode → code 1:1
+                - text: — §5.5.B steps become §6 lines in order.
+            - heading "(c) TL;DR time budget" [level=4] [ref=e1284]
+            - table [ref=e1286]:
+              - rowgroup [ref=e1287]:
+                - row "Time Phase What you're writing" [ref=e1288]:
+                  - columnheader "Time" [ref=e1289]
+                  - columnheader "Phase" [ref=e1290]
+                  - columnheader "What you're writing" [ref=e1291]
+              - rowgroup [ref=e1292]:
+                - row "0-2 min Roadmap Just talking" [ref=e1293]:
+                  - cell "0-2 min" [ref=e1294]
+                  - cell "Roadmap" [ref=e1295]
+                  - cell "Just talking" [ref=e1296]
+                - row "2-4 min Enums + exceptions Coin, VendingError tree" [ref=e1297]:
+                  - cell "2-4 min" [ref=e1298]
+                  - cell "Enums + exceptions" [ref=e1299]
+                  - cell "Coin, VendingError tree" [ref=e1300]:
+                    - code [ref=e1301]: Coin
+                    - text: ","
+                    - code [ref=e1302]: VendingError
+                    - text: tree
+                - row "4-7 min Slot + CoinBank stock guard + make-change" [ref=e1303]:
+                  - cell "4-7 min" [ref=e1304]
+                  - cell "Slot + CoinBank" [ref=e1305]:
+                    - code [ref=e1306]: Slot
+                    - text: +
+                    - code [ref=e1307]: CoinBank
+                  - cell "stock guard + make-change" [ref=e1308]
+                - row "7-12 min State machine MachineState + 3 concretes" [ref=e1309]:
+                  - cell "7-12 min" [ref=e1310]
+                  - cell "State machine" [ref=e1311]
+                  - cell "MachineState + 3 concretes" [ref=e1312]:
+                    - code [ref=e1313]: MachineState
+                    - text: + 3 concretes
+                - row "12-15 min Orchestrator skeleton __init__ + signatures pass" [ref=e1314]:
+                  - cell "12-15 min" [ref=e1315]
+                  - cell "Orchestrator skeleton" [ref=e1316]
+                  - cell "__init__ + signatures pass" [ref=e1317]:
+                    - code [ref=e1318]: __init__
+                    - text: + signatures
+                    - code [ref=e1319]: pass
+                - row "15-22 min dispense body full pipeline + narration" [ref=e1320]:
+                  - cell "15-22 min" [ref=e1321]
+                  - cell "dispense body" [ref=e1322]:
+                    - code [ref=e1323]: dispense
+                    - text: body
+                  - cell "full pipeline + narration" [ref=e1324]
+                - row "22-26 min cancel + refill full bodies" [ref=e1325]:
+                  - cell "22-26 min" [ref=e1326]
+                  - cell "cancel + refill" [ref=e1327]:
+                    - code [ref=e1328]: cancel
+                    - text: +
+                    - code [ref=e1329]: refill
+                  - cell "full bodies" [ref=e1330]
+                - row "26-29 min Demo / trace run main.py" [ref=e1331]:
+                  - cell "26-29 min" [ref=e1332]
+                  - cell "Demo / trace" [ref=e1333]
+                  - cell "run main.py" [ref=e1334]
+                - row "29-32 min Concurrency verbal first, code if asked" [ref=e1335]:
+                  - cell "29-32 min" [ref=e1336]
+                  - cell "Concurrency" [ref=e1337]
+                  - cell "verbal first, code if asked" [ref=e1338]
+            - heading "(d) Mid-flight situations" [level=4] [ref=e1339]
+            - list [ref=e1340]:
+              - listitem [ref=e1341]:
+                - strong [ref=e1342]:
+                  - text: Interviewer interrupts mid-
+                  - code [ref=e1343]: dispense
+                - text: — STOP writing, answer fully, then "where was I — I was about to call
+                - code [ref=e1344]: make_change
+                - text: ",\" resume."
+              - listitem [ref=e1345]:
+                - strong [ref=e1346]: Running out of time at 40 min
+                - text: "— cut order: (1st)"
+                - code [ref=e1347]: refill
+                - text: body → describe it; (2nd) the §6 demo; (3rd) §9 code → stay verbal. NEVER cut the state machine,
+                - code [ref=e1348]: dispense
+                - text: ", or the concurrency flag."
+              - listitem [ref=e1349]:
+                - strong [ref=e1350]: Realize you need a field mid-write
+                - text: "— voice it: \"actually I need to roll the coins back on a change failure,\" add it inline."
+              - listitem [ref=e1351]:
+                - strong [ref=e1352]: "\"What if X?\" mid-method"
+                - text: — defer §9 topics ("let me finish dispense, then I'll show concurrency"); pivot inline for a one-arg tweak.
+              - listitem [ref=e1353]:
+                - strong [ref=e1354]: Interviewer silence
+                - text: — keep a steady pace; at a method boundary ask "any thoughts before I move on?"
+            - blockquote [ref=e1355]: "\"Yahi flow practice karo: enums → entities → state machine → skeleton → dispense → cancel → demo. Interview mein flow natural lagega.\""
+            - separator [ref=e1356]
+            - heading "The State classes (models.py)" [level=3] [ref=e1357]:
+              - text: The State classes (
+              - code [ref=e1358]: models.py
+              - text: )
+            - complementary [ref=e1359]:
+              - generic [ref=e1360]: 🎙️ Script — say this
+              - generic [ref=e1361]:
+                - text: "Open:"
+                - emphasis [ref=e1362]: "\"This is the heart — one class per phase, each decides the next state.\""
+            - paragraph [ref=e1363]:
+              - code [ref=e1364]: MachineState
+              - text: "is the abstract base — four actions, each returns the next state:"
+            - generic [ref=e1365]:
+              - generic [ref=e1366]:
+                - generic [ref=e1367]: python
+                - button "copy" [ref=e1368] [cursor=pointer]
+              - code [ref=e1370]: "class MachineState(ABC): \"\"\"One vending-machine state. Handles the four actions, returns next state.\"\"\" name: MachineStateName @abstractmethod def insert_coin(self, ctx: \"VendingContext\", coin: Coin) -> \"MachineState\": ... @abstractmethod def select(self, ctx: \"VendingContext\", code: str) -> \"MachineState\": ... @abstractmethod def dispense(self, ctx: \"VendingContext\") -> tuple[\"MachineState\", DispenseResult]: ... @abstractmethod def cancel(self, ctx: \"VendingContext\") -> tuple[\"MachineState\", tuple[Coin, ...]]: ..."
+            - paragraph [ref=e1371]:
+              - code [ref=e1372]: IdleState
+              - text: — nothing in, nothing selected. The first coin or a pre-select moves us to
+              - code [ref=e1373]: HasMoneyState
+              - text: "; dispense is illegal here:"
+            - generic [ref=e1374]:
+              - generic [ref=e1375]:
+                - generic [ref=e1376]: python
+                - button "copy" [ref=e1377] [cursor=pointer]
+              - code [ref=e1379]: "class IdleState(MachineState): name = MachineStateName.IDLE def insert_coin(self, ctx: VendingContext, coin: Coin) -> MachineState: ctx.inserted.append(coin) return HasMoneyState() def select(self, ctx: VendingContext, code: str) -> MachineState: _validate_selectable(ctx, code) ctx.selected_code = code return HasMoneyState() def dispense(self, ctx: VendingContext) -> tuple[MachineState, DispenseResult]: raise InvalidStateError(\"cannot dispense while idle — insert coins first\") def cancel(self, ctx: VendingContext) -> tuple[MachineState, tuple[Coin, ...]]: return self, ()"
+            - blockquote [ref=e1380]: "🎙️ Say: \"Idle has no legal dispense — that's the whole point of the State pattern. You can't reach DISPENSING from IDLE, so that bug can't exist.\""
+            - blockquote [ref=e1381]: ⚠️ "Why allow select before paying?" → "Real machines let you pick first. Select just validates and remembers; we still wait for money before dispensing."
+            - paragraph [ref=e1382]:
+              - code [ref=e1383]: HasMoneyState.dispense
+              - text: "is the pipeline — re-validate everything, then vend all-or-nothing:"
+            - generic [ref=e1384]:
+              - generic [ref=e1385]:
+                - generic [ref=e1386]: python
+                - button "copy" [ref=e1387] [cursor=pointer]
+              - code [ref=e1389]: "def dispense(self, ctx: VendingContext) -> tuple[MachineState, DispenseResult]: code = ctx.selected_code if code is None: raise InvalidStateError(\"no product selected — select before dispensing\") slot = _validate_selectable(ctx, code) # re-check exists + in stock price = slot.product.price_cents paid = ctx.inserted_cents() if paid < price: raise InsufficientFundsError( f\"product {code} costs {price}, only {paid} inserted\" ) # Fold the customer's coins into the bank so they're usable as change, # then ask for exact change. make_change is all-or-nothing. ctx.coin_bank.deposit_many(tuple(ctx.inserted)) change_owed = paid - price try: change = ctx.coin_bank.make_change(change_owed) except CannotMakeChangeError: _rollback_inserted(ctx) # WHY: keep money refundable on a failed sale raise slot.vend_one() # WHY: slot guards count never < 0 result = DispenseResult(product=slot.product, change=change) ctx.inserted.clear() ctx.selected_code = None return IdleState(), result"
+            - blockquote [ref=e1390]:
+              - strong [ref=e1391]: "Reasoning:"
+              - text: This method is the moment of truth. It re-reads stock, funds, and change together because anything could have changed since
+              - code [ref=e1392]: select
+              - text: . The non-obvious line is
+              - code [ref=e1393]: deposit_many
+              - text: followed by the
+              - code [ref=e1394]: _rollback_inserted
+              - text: on failure — I fold the customer's coins into the bank so they can be used as change, but if change can't be formed I pull them right back out so
+              - code [ref=e1395]: cancel
+              - text: still refunds the customer. Notice we don't trust select-time stock —
+              - code [ref=e1396]: _validate_selectable
+              - text: runs again here, and
+              - code [ref=e1397]: slot.vend_one()
+              - text: is the actual decrement that guards the never-negative rule. The vend completes synchronously, so we return
+              - code [ref=e1398]: IdleState
+              - text: directly rather than parking in
+              - code [ref=e1399]: DispensingState
+              - text: .
+            - blockquote [ref=e1400]: "🎙️ Say: \"Re-validate, deposit, make change all-or-nothing, vend, reset. The tricky bit is rolling coins back out if change fails — the customer's money stays refundable.\""
+            - blockquote [ref=e1401]:
+              - text: ⚠️ "What if the machine can't make change?" → "It raises
+              - code [ref=e1402]: CannotMakeChangeError
+              - text: ", rolls the inserted coins back out of the bank, and never vends. The customer cancels and gets their exact coins back.\""
+            - paragraph [ref=e1403]:
+              - code [ref=e1404]: HasMoneyState.cancel
+              - text: and
+              - code [ref=e1405]: DispensingState
+              - text: "(every action illegal):"
+            - generic [ref=e1406]:
+              - generic [ref=e1407]:
+                - generic [ref=e1408]: python
+                - button "copy" [ref=e1409] [cursor=pointer]
+              - code [ref=e1411]: "def cancel(self, ctx: VendingContext) -> tuple[MachineState, tuple[Coin, ...]]: refund = tuple(ctx.inserted) ctx.inserted.clear() ctx.selected_code = None return IdleState(), refund class DispensingState(MachineState): name = MachineStateName.DISPENSING def insert_coin(self, ctx, coin): raise InvalidStateError(\"busy dispensing — please wait\") def select(self, ctx, code): raise InvalidStateError(\"busy dispensing — please wait\") def dispense(self, ctx): raise InvalidStateError(\"busy dispensing — please wait\") def cancel(self, ctx): raise InvalidStateError(\"cannot cancel while dispensing\")"
+            - heading "The orchestrator skeleton (vending_service.py)" [level=3] [ref=e1412]:
+              - text: The orchestrator skeleton (
+              - code [ref=e1413]: vending_service.py
+              - text: )
+            - complementary [ref=e1414]:
+              - generic [ref=e1415]: 🎙️ Script — say this
+              - generic [ref=e1416]:
+                - text: "Open:"
+                - emphasis [ref=e1417]: "\"Here's the brain — it just holds working memory and routes each action to the current state.\""
+            - generic [ref=e1418]:
+              - generic [ref=e1419]:
+                - generic [ref=e1420]: python
+                - button "copy" [ref=e1421] [cursor=pointer]
+              - code [ref=e1423]: "class VendingService(VendingContext): def __init__(self, slots: dict[str, Slot], coin_bank: CoinBank) -> None: self._slots = slots self._coin_bank = coin_bank self._inserted: list[Coin] = [] self._selected_code: str | None = None self._state: MachineState = IdleState() # boots in IDLE def insert_coin(self, coin: Coin) -> int: ... def select_product(self, code: str) -> None: ... def dispense(self) -> DispenseResult: ... def cancel(self) -> tuple[Coin, ...]: ... def refill(self, code: str, units: int) -> None: ... @contextmanager def _lock(self) -> Iterator[None]: yield # no-op; subclass overrides @contextmanager def transaction(self) -> Iterator[\"VendingService\"]: # The REAL unit of atomicity. A caller wraps its whole flow so the lock # (no-op here, a real RLock in the subclass) is held across the entire # insert -> select -> dispense, not re-acquired per call. with self._lock(): yield self"
+            - paragraph [ref=e1424]:
+              - text: The
+              - code [ref=e1425]: transaction()
+              - text: boundary is the crux of the concurrency design. Insert, select, and dispense all mutate the SAME shared working memory (
+              - code [ref=e1426]: _inserted
+              - text: ","
+              - code [ref=e1427]: _selected_code
+              - text: ","
+              - code [ref=e1428]: _state
+              - text: ). Locking each method individually is
+              - strong [ref=e1429]: not
+              - text: enough — between one customer's insert and dispense, a second customer could slip a coin into the same shared
+              - code [ref=e1430]: _inserted
+              - text: "list and walk off with the first customer's money as \"change.\" So the caller wraps the whole interaction:"
+            - generic [ref=e1431]:
+              - generic [ref=e1432]:
+                - generic [ref=e1433]: python
+                - button "copy" [ref=e1434] [cursor=pointer]
+              - code [ref=e1436]: "with svc.transaction() as machine: machine.insert_coin(Coin.DOLLAR) machine.select_product(\"A1\") result = machine.dispense()"
+            - paragraph [ref=e1437]:
+              - text: In the clean core
+              - code [ref=e1438]: transaction()
+              - text: acquires the no-op
+              - code [ref=e1439]: _lock
+              - text: once; the thread-safe subclass holds one reentrant machine lock for the whole block — one customer's full transaction at a time. The per-method
+              - code [ref=e1440]: _lock()
+              - text: inside re-enters that same
+              - code [ref=e1441]: RLock
+              - text: harmlessly.
+            - paragraph [ref=e1442]: "Now the public methods — each just wraps the (no-op) lock and forwards to the current state, adopting whatever state it returns:"
+            - generic [ref=e1443]:
+              - generic [ref=e1444]:
+                - generic [ref=e1445]: python
+                - button "copy" [ref=e1446] [cursor=pointer]
+              - code [ref=e1448]: "def insert_coin(self, coin: Coin) -> int: with self._lock(): self._state = self._state.insert_coin(self, coin) return self.inserted_cents() def select_product(self, code: str) -> None: with self._lock(): self._state = self._state.select(self, code) def dispense(self) -> DispenseResult: with self._lock(): self._state, result = self._state.dispense(self) return result def cancel(self) -> tuple[Coin, ...]: with self._lock(): self._state, refund = self._state.cancel(self) return refund"
+            - blockquote [ref=e1449]:
+              - strong [ref=e1450]: "Reasoning:"
+              - text: The service is deliberately thin. It owns the data (via the
+              - code [ref=e1451]: VendingContext
+              - text: properties) and does the routing; all the phase rules live in the state classes. The
+              - code [ref=e1452]: self._state = self._state.<action>(...)
+              - text: line is the State pattern in one expression — adopt whatever next state the current state hands back.
+              - code [ref=e1453]: dispense
+              - text: unpacks a tuple because it alone also produces output.
+            - paragraph [ref=e1454]:
+              - code [ref=e1455]: refill
+              - text: "and the helper:"
+            - generic [ref=e1456]:
+              - generic [ref=e1457]:
+                - generic [ref=e1458]: python
+                - button "copy" [ref=e1459] [cursor=pointer]
+              - code [ref=e1461]: "def refill(self, code: str, units: int) -> None: with self._lock(): slot = self._slots.get(code) if slot is None: raise InvalidSelectionError(f\"no such product code: {code}\") slot.refill(units)"
+            - heading "Approach — locating + validating a selectable slot (_validate_selectable)" [level=4] [ref=e1462]:
+              - text: Approach — locating + validating a selectable slot (
+              - code [ref=e1463]: _validate_selectable
+              - text: )
+            - paragraph [ref=e1464]:
+              - strong [ref=e1465]:
+                - text: Approach 1 — validate only in
+                - code [ref=e1466]: select
+                - text: ", trust it in"
+                - code [ref=e1467]: dispense
+                - text: "(rejected):"
+            - generic [ref=e1468]:
+              - button "copy" [ref=e1470] [cursor=pointer]
+              - code [ref=e1472]: "select(code): assert slots[code] in stock; remember code dispense(): slot = slots[selected]; vend it # trusts select-time stock"
+            - blockquote [ref=e1473]:
+              - strong [ref=e1474]: Challenges
+              - text: stock can go stale between select and dispense — a refill, or a concurrent buyer, empties the slot.
+              - code [ref=e1475]: dispense
+              - text: then vends a now-empty slot → negative stock. State divergence.
+            - paragraph [ref=e1476]:
+              - strong [ref=e1477]:
+                - text: Approach 2 — keep a separate
+                - code [ref=e1478]: available_codes
+                - text: "set kept in sync (rejected for this scale):"
+            - generic [ref=e1479]:
+              - button "copy" [ref=e1481] [cursor=pointer]
+              - code [ref=e1483]: "on vend / refill: maintain a set of in-stock codes; select/dispense check the set"
+            - blockquote [ref=e1484]:
+              - strong [ref=e1485]: Challenges
+              - text: the set is a second source of truth — forget to update it on one path and a slot vanishes from availability or sells while empty. For a single machine with a handful of slots, this synchronisation risk buys nothing.
+            - paragraph [ref=e1486]:
+              - strong [ref=e1487]: "Chosen — one shared guard hit at BOTH select and dispense:"
+            - generic [ref=e1488]:
+              - button "copy" [ref=e1490] [cursor=pointer]
+              - code [ref=e1492]: "_validate_selectable(ctx, code): slot = slots.get(code); if None -> InvalidSelectionError if not slot.is_in_stock() -> OutOfStockError return slot"
+            - blockquote [ref=e1493]:
+              - strong [ref=e1494]: "Why it wins:"
+              - text: single source of truth — the slot's own
+              - code [ref=e1495]: quantity
+              - text: . Both
+              - code [ref=e1496]: select
+              - text: (fast reject) and
+              - code [ref=e1497]: dispense
+              - text: (moment of truth) call the SAME guard, so the rules can't drift. O(1) dict lookup; no second structure to keep in sync.
+            - heading "Verification — full-lifecycle dry runs" [level=3] [ref=e1498]
+            - paragraph [ref=e1499]:
+              - strong [ref=e1500]: "Scenario 1 — Happy path (buy cola with $1.00):"
+              - text: "Initial: A1 qty=3,"
+              - code [ref=e1501]: inserted=[]
+              - text: ","
+              - code [ref=e1502]: selected_code=None
+              - text: ", state=IDLE."
+            - table [ref=e1504]:
+              - rowgroup [ref=e1505]:
+                - row "Step Call After" [ref=e1506]:
+                  - columnheader "Step" [ref=e1507]
+                  - columnheader "Call" [ref=e1508]
+                  - columnheader "After" [ref=e1509]
+              - rowgroup [ref=e1510]:
+                - row "1 insert_coin(QUARTER) ×4 inserted=[Q,Q,Q,Q], state=COLLECTING_MONEY, balance 100" [ref=e1511]:
+                  - cell "1" [ref=e1512]
+                  - cell "insert_coin(QUARTER) ×4" [ref=e1513]:
+                    - code [ref=e1514]: insert_coin(QUARTER)
+                    - text: ×4
+                  - cell "inserted=[Q,Q,Q,Q], state=COLLECTING_MONEY, balance 100" [ref=e1515]:
+                    - code [ref=e1516]: inserted=[Q,Q,Q,Q]
+                    - text: ", state=COLLECTING_MONEY, balance 100"
+                - row "2 select_product(\"A1\") selected_code=\"A1\"" [ref=e1517]:
+                  - cell "2" [ref=e1518]
+                  - cell "select_product(\"A1\")" [ref=e1519]:
+                    - code [ref=e1520]: select_product("A1")
+                  - cell "selected_code=\"A1\"" [ref=e1521]:
+                    - code [ref=e1522]: selected_code="A1"
+                - row "3 dispense() A1 qty 3→2, returns Cola + (QUARTER,), inserted=[], selected_code=None, state=IDLE" [ref=e1523]:
+                  - cell "3" [ref=e1524]
+                  - cell "dispense()" [ref=e1525]:
+                    - code [ref=e1526]: dispense()
+                  - cell "A1 qty 3→2, returns Cola + (QUARTER,), inserted=[], selected_code=None, state=IDLE" [ref=e1527]:
+                    - text: A1 qty 3→2, returns Cola + (QUARTER,),
+                    - code [ref=e1528]: inserted=[]
+                    - text: ","
+                    - code [ref=e1529]: selected_code=None
+                    - text: ", state=IDLE"
+            - paragraph [ref=e1530]: Both working-memory fields cleared, slot decremented, change correct. ✓
+            - paragraph [ref=e1531]:
+              - strong [ref=e1532]: "Scenario 2 — Can't make change (reclaim cleanly):"
+              - text: Bank empty, B1 (Chips, 70c) qty=1. Insert DOLLAR, select B1.
+            - table [ref=e1534]:
+              - rowgroup [ref=e1535]:
+                - row "Step Call After" [ref=e1536]:
+                  - columnheader "Step" [ref=e1537]
+                  - columnheader "Call" [ref=e1538]
+                  - columnheader "After" [ref=e1539]
+              - rowgroup [ref=e1540]:
+                - row "1 insert_coin(DOLLAR) inserted=[$], state=COLLECTING_MONEY" [ref=e1541]:
+                  - cell "1" [ref=e1542]
+                  - cell "insert_coin(DOLLAR)" [ref=e1543]:
+                    - code [ref=e1544]: insert_coin(DOLLAR)
+                  - cell "inserted=[$], state=COLLECTING_MONEY" [ref=e1545]:
+                    - code [ref=e1546]: inserted=[$]
+                    - text: ", state=COLLECTING_MONEY"
+                - row "2 select_product(\"B1\") selected_code=\"B1\"" [ref=e1547]:
+                  - cell "2" [ref=e1548]
+                  - cell "select_product(\"B1\")" [ref=e1549]:
+                    - code [ref=e1550]: select_product("B1")
+                  - cell "selected_code=\"B1\"" [ref=e1551]:
+                    - code [ref=e1552]: selected_code="B1"
+                - row "3 dispense() deposits $, make_change(30) fails → rolls $ back out, raises CannotMakeChangeError; B1 qty still 1; bank unchanged" [ref=e1553]:
+                  - cell "3" [ref=e1554]
+                  - cell "dispense()" [ref=e1555]:
+                    - code [ref=e1556]: dispense()
+                  - cell "deposits $, make_change(30) fails → rolls $ back out, raises CannotMakeChangeError; B1 qty still 1; bank unchanged" [ref=e1557]:
+                    - text: deposits $,
+                    - code [ref=e1558]: make_change(30)
+                    - text: fails → rolls $ back out, raises
+                    - code [ref=e1559]: CannotMakeChangeError
+                    - text: ; B1 qty still 1; bank unchanged
+                - row "4 cancel() refunds (DOLLAR,), state=IDLE" [ref=e1560]:
+                  - cell "4" [ref=e1561]
+                  - cell "cancel()" [ref=e1562]:
+                    - code [ref=e1563]: cancel()
+                  - cell "refunds (DOLLAR,), state=IDLE" [ref=e1564]
+            - paragraph [ref=e1565]: The failed sale never vended, never kept the money. ✓
+            - paragraph [ref=e1566]:
+              - strong [ref=e1567]: "Scenario 3 — Race (plain English):"
+              - text: Two threads buy the last gum. WITHOUT a lock both pass the in-stock re-check in
+              - code [ref=e1568]: dispense
+              - text: and both call
+              - code [ref=e1569]: vend_one
+              - text: ", driving qty to -1 (double-dispense) — the"
+              - code [ref=e1570]: vend_one
+              - text: "backstop catches the second only if it happens to run after the first fully committed, which under a widened critical section it does not. WITH the §9 lock, the whole transaction is atomic: thread A holds the lock through check+vend, thread B waits, then sees qty 0 and gets"
+              - code [ref=e1571]: OutOfStockError
+              - text: . Exactly one wins; stock ends at 0.
+            - heading "Complexity Summary" [level=3] [ref=e1572]
+            - table [ref=e1574]:
+              - rowgroup [ref=e1575]:
+                - row "Operation Time Space Key reason" [ref=e1576]:
+                  - columnheader "Operation" [ref=e1577]
+                  - columnheader "Time" [ref=e1578]
+                  - columnheader "Space" [ref=e1579]
+                  - columnheader "Key reason" [ref=e1580]
+              - rowgroup [ref=e1581]:
+                - row "insert_coin O(1) O(1) append to list + sum of a tiny list" [ref=e1582]:
+                  - cell "insert_coin" [ref=e1583]:
+                    - code [ref=e1584]: insert_coin
+                  - cell "O(1)" [ref=e1585]
+                  - cell "O(1)" [ref=e1586]
+                  - cell "append to list + sum of a tiny list" [ref=e1587]
+                - row "select_product O(1) O(1) dict lookup" [ref=e1588]:
+                  - cell "select_product" [ref=e1589]:
+                    - code [ref=e1590]: select_product
+                  - cell "O(1)" [ref=e1591]
+                  - cell "O(1)" [ref=e1592]
+                  - cell "dict lookup" [ref=e1593]
+                - row "dispense O(1) O(1) dict lookup + O(5) make-change over fixed denominations" [ref=e1594]:
+                  - cell "dispense" [ref=e1595]:
+                    - code [ref=e1596]: dispense
+                  - cell "O(1)" [ref=e1597]
+                  - cell "O(1)" [ref=e1598]
+                  - cell "dict lookup + O(5) make-change over fixed denominations" [ref=e1599]
+                - row "cancel O(k) O(k) snapshot the k inserted coins (k small)" [ref=e1600]:
+                  - cell "cancel" [ref=e1601]:
+                    - code [ref=e1602]: cancel
+                  - cell "O(k)" [ref=e1603]
+                  - cell "O(k)" [ref=e1604]
+                  - cell "snapshot the k inserted coins (k small)" [ref=e1605]
+                - row "refill O(1) O(1) dict lookup + increment" [ref=e1606]:
+                  - cell "refill" [ref=e1607]:
+                    - code [ref=e1608]: refill
+                  - cell "O(1)" [ref=e1609]
+                  - cell "O(1)" [ref=e1610]
+                  - cell "dict lookup + increment" [ref=e1611]
+            - separator [ref=e1612]
+            - heading "7. Putting It Together (verified run + pytest suite)" [level=2] [ref=e1613]
+            - heading "7.1 main.py — narrated demo output" [level=3] [ref=e1614]:
+              - text: "7.1"
+              - code [ref=e1615]: main.py
+              - text: — narrated demo output
+            - paragraph [ref=e1616]:
+              - text: Running
+              - code [ref=e1617]: python main.py
+              - text: ":"
+            - generic [ref=e1618]:
+              - button "copy" [ref=e1620] [cursor=pointer]
+              - code [ref=e1622]: "=== Vending Machine demo === Case 1 buy cola with $1.00, get 25c change -> OK ((<Coin.QUARTER: 25>,)) Case 2 buy water with exact $1.00, no change -> OK Case 3 insufficient funds rejected, then refunded 25c -> OK Case 4 invalid slot code rejected -> OK Case 5 last gum sold, second buyer gets OutOfStock -> OK Case 6 cancel refunds all 40c and returns to IDLE -> OK Case 7 transaction-scoped buy of cola, 25c change -> OK All cases passed."
+            - paragraph [ref=e1623]:
+              - text: "Every case is green: a buy-with-change, an exact-money buy, the insufficient-funds reject + refund, an invalid-slot reject, the out-of-stock reject after the last unit, a cancel-refunds-all, and a transaction-scoped buy via"
+              - code [ref=e1624]: "with svc.transaction():"
+              - text: — the API a concurrent caller uses to keep its whole flow atomic.
+            - heading "7.2 tests/test_vending.py — pytest suite" [level=3] [ref=e1625]:
+              - text: "7.2"
+              - code [ref=e1626]: tests/test_vending.py
+              - text: — pytest suite
+            - paragraph [ref=e1627]:
+              - text: Running
+              - code [ref=e1628]: python -m pytest -q
+              - text: ":"
+            - generic [ref=e1629]:
+              - button "copy" [ref=e1631] [cursor=pointer]
+              - code [ref=e1633]: ..................... [100%] 21 passed in 0.45s
+            - paragraph [ref=e1634]:
+              - text: The suite covers every public method, every typed exception path (
+              - code [ref=e1635]: InvalidSelectionError
+              - text: ","
+              - code [ref=e1636]: OutOfStockError
+              - text: ","
+              - code [ref=e1637]: InsufficientFundsError
+              - text: ","
+              - code [ref=e1638]: CannotMakeChangeError
+              - text: ","
+              - code [ref=e1639]: InvalidStateError
+              - text: ), the all-or-nothing change behavior, cancel/idempotency, and
+              - strong [ref=e1640]: three
+              - text: concurrency tests that target three distinct invariants.
+            - list [ref=e1641]:
+              - listitem [ref=e1642]:
+                - code [ref=e1643]: test_concurrent_buyers_race_for_last_unit_money_is_conserved
+                - text: ": 40 buyers race for the 1-stock gum, each running its whole interaction inside"
+                - code [ref=e1644]: svc.transaction()
+                - text: ", and crucially"
+                - strong [ref=e1645]: each inserts a DIFFERENT coin mix
+                - text: "(nickel, dime, quarter, dollar, a quarter+dime+nickel combo). Strict post-state: exactly"
+                - strong [ref=e1646]: "1"
+                - text: winner (got A3), all
+                - strong [ref=e1647]: "39"
+                - text: losers get
+                - code [ref=e1648]: OutOfStockError
+                - text: ", slot ends at"
+                - strong [ref=e1649]: "0"
+                - text: ", and — the real teeth — each loser is refunded"
+                - strong [ref=e1650]: exactly what they inserted
+                - text: and machine-wide money is conserved (
+                - code [ref=e1651]: total_in == price + winner_change + refunds
+                - text: ", no coin created or destroyed). Distinct mixes mean a shared-"
+                - code [ref=e1652]: _inserted
+                - text: leak would unbalance the money, so this proves the transaction boundary, not just a count.
+            - list [ref=e1653]:
+              - listitem [ref=e1654]:
+                - code [ref=e1655]: test_locked_machine_serializes_concurrent_vends_peak_is_one
+                - text: ": stock is set to"
+                - strong [ref=e1656]: "N"
+                - text: ", so"
+                - strong [ref=e1657]: every
+                - text: buyer gets past
+                - code [ref=e1658]: select
+                - text: and reaches
+                - code [ref=e1659]: vend_one
+                - text: (unlike the last-unit race, where losers are rejected at the in-stock check before they ever reach the critical section). A
+                - code [ref=e1660]: pre_vend_hook
+                - text: meters the
+                - strong [ref=e1661]:
+                  - text: peak number of threads simultaneously inside
+                  - code [ref=e1662]: vend_one
+                - text: . Under the real lock that peak is
+                - strong [ref=e1663]: exactly 1
+                - text: — a genuine serialization result, since everyone reached the region. The unlocked base drives
+                - code [ref=e1664]: Slot.vend_one
+                - text: directly from N threads and shows peak
+                - strong [ref=e1665]: "> 1"
+                - text: with stock going
+                - strong [ref=e1666]: negative
+                - text: — the bug the lock exists to prevent.
+            - list [ref=e1667]:
+              - listitem [ref=e1668]:
+                - code [ref=e1669]: test_transaction_atomicity_two_interleaved_customers_dont_cross_contaminate
+                - text: ": two customers buy"
+                - strong [ref=e1670]: different products
+                - text: (Cola 75c → 25c change vs Water 100c → 0c change) on the SAME machine concurrently for many rounds, with small delays widening the insert→dispense window. Every purchase yields exactly its own product and its own change — proving
+                - strong [ref=e1671]: transaction-level
+                - text: atomicity. (Run without
+                - code [ref=e1672]: transaction()
+                - text: this same logic reproduces ~80 cross-contamination events — a Cola buyer receiving Water and 125c of another customer's money — so the wrapper is load-bearing.)
+            - separator [ref=e1673]
+            - heading "8. Key Flow (sequence diagram)" [level=2] [ref=e1674]
+            - paragraph [ref=e1675]:
+              - text: I'm showing
+              - strong [ref=e1676]: dispense
+              - text: because it touches every class — the service, the current state, the slot, and the coin bank — and shows the State pattern firing at runtime.
+            - generic [ref=e1678]: "sequenceDiagram actor Customer participant Svc as VendingService participant State as HasMoneyState participant Bank as CoinBank participant Slot Customer->>Svc: open transaction (acquire machine lock once) Note over Customer,Svc: lock held across the whole insert select dispense flow Customer->>Svc: dispense() Svc->>Svc: _lock re-enters the same RLock (no-op in core) Svc->>State: dispense(ctx) State->>Slot: is_in_stock and price Slot-->>State: in stock, price 75 State->>State: check paid 100 is at least 75 State->>Bank: deposit_many(inserted coins) State->>Bank: make_change(25) Bank-->>State: returns one quarter State->>Slot: vend_one() Slot-->>State: quantity 3 becomes 2 State-->>Svc: return IdleState and DispenseResult Svc->>Svc: store IdleState Svc-->>Customer: Cola plus 25c change Customer->>Svc: close transaction (release machine lock)"
+            - blockquote [ref=e1679]:
+              - text: 🎙️
+              - strong [ref=e1680]: "Walk it arrow by arrow:"
+              - text: "\"The customer opens a"
+              - code [ref=e1681]: transaction
+              - text: ", which acquires the machine lock once and holds it across the whole flow — so no second customer can interleave. Then"
+              - code [ref=e1682]: dispense
+              - text: re-enters that same reentrant lock and forwards to the current state,
+              - code [ref=e1683]: HasMoneyState
+              - text: . The state asks the
+              - code [ref=e1684]: Slot
+              - text: for stock and price, checks the paid amount covers it, then deposits the customer's coins into the
+              - code [ref=e1685]: CoinBank
+              - text: and asks it for exact change. The interesting moment is
+              - code [ref=e1686]: make_change
+              - text: returning a quarter — that's the all-or-nothing change. Then
+              - code [ref=e1687]: vend_one
+              - text: on the slot is the atomic decrement that guards the race. The state hands back
+              - code [ref=e1688]: IdleState
+              - text: plus the result; the service stores the new state and returns the product. The lock only releases when the transaction closes."
+            - paragraph [ref=e1689]:
+              - strong [ref=e1690]: "Why the sequence shows the design is good:"
+              - text: "notice the service coordinates but implements zero business logic — every decision delegates to a state, a slot, or the bank. That's Information Expert and Open/Closed at work: a new phase or a new change algorithm slots in without touching this flow."
+            - separator [ref=e1691]
+            - heading "9. Concurrency, Thread-Safety, Edge Cases & Extensibility" [level=2] [ref=e1692]
+            - paragraph [ref=e1693]:
+              - strong [ref=e1694]: "DEFAULT: describe verbally. Write code only if asked."
+            - paragraph [ref=e1695]:
+              - text: 🗣️
+              - strong [ref=e1696]: "Step 1 — Name the race:"
+              - text: "\"In"
+              - code [ref=e1697]: dispense
+              - text: ", two button-press threads on the same machine both re-check 'gum in stock', both see qty 1, both call"
+              - code [ref=e1698]: vend_one
+              - text: ". Stock goes to -1 — double-dispense. It's a check-then-act race: the stock check and the decrement aren't one atomic step. The same threads also stomp on the shared inserted-coins list and the state pointer.\""
+            - paragraph [ref=e1699]:
+              - text: 🗣️
+              - strong [ref=e1700]: "Step 2 — The solution:"
+              - text: "\"I guard the"
+              - emphasis [ref=e1701]: whole transaction
+              - text: with one reentrant lock on the machine — and that's a transaction
+              - emphasis [ref=e1702]: boundary
+              - text: ", not per-call locking. Locking each method on its own isn't enough: between one customer's insert and their dispense, a second customer could slip a coin into the same shared"
+              - code [ref=e1703]: _inserted
+              - text: list and corrupt both. So the caller wraps the whole flow in
+              - code [ref=e1704]: "with svc.transaction():"
+              - text: ", which holds the machine lock from the first insert through dispense (or cancel). The per-method lock re-enters the same"
+              - code [ref=e1705]: RLock
+              - text: harmlessly. Only one customer's full transaction runs at a time."
+            - paragraph [ref=e1706]:
+              - text: 🗣️
+              - strong [ref=e1707]: "Step 3 — The trade-off:"
+              - text: "\"On a single machine this is exactly right — there's no per-slot parallelism to win because every action shares the same inserted-coins tally and the same coin bank. The machine itself is the unit of mutual exclusion. A finer lock would be pure complexity for zero throughput gain.\""
+            - paragraph [ref=e1708]:
+              - text: 🗣️
+              - strong [ref=e1709]: "Step 4 — Distributed (if asked):"
+              - text: "\"A fleet of machines would each run their own process and their own lock — no shared memory, so no cross-machine contention by design. If they shared a central inventory you'd push atomicity to the DB:"
+              - code [ref=e1710]: UPDATE slot SET qty = qty - 1 WHERE code = ? AND qty > 0
+              - text: — a compare-and-set; whoever's update affects 0 rows lost and gets OutOfStock."
+            - paragraph [ref=e1711]:
+              - strong [ref=e1712]: Concurrency Vocabulary
+            - table [ref=e1714]:
+              - rowgroup [ref=e1715]:
+                - row "Term Plain meaning Where it appears here" [ref=e1716]:
+                  - columnheader "Term" [ref=e1717]
+                  - columnheader "Plain meaning" [ref=e1718]
+                  - columnheader "Where it appears here" [ref=e1719]
+              - rowgroup [ref=e1720]:
+                - row "Race condition Two threads touch shared state at once; result depends on timing dispense on the last unit" [ref=e1721]:
+                  - cell "Race condition" [ref=e1722]
+                  - cell "Two threads touch shared state at once; result depends on timing" [ref=e1723]
+                  - cell "dispense on the last unit" [ref=e1724]:
+                    - code [ref=e1725]: dispense
+                    - text: on the last unit
+                - row "Critical section The block that must run as one atomic step re-check stock → make change → vend_one" [ref=e1726]:
+                  - cell "Critical section" [ref=e1727]
+                  - cell "The block that must run as one atomic step" [ref=e1728]
+                  - cell "re-check stock → make change → vend_one" [ref=e1729]:
+                    - text: re-check stock → make change →
+                    - code [ref=e1730]: vend_one
+                - row "Check-then-act Check a condition, then act, but state changed in between \"saw qty 1, then vended\"" [ref=e1731]:
+                  - cell "Check-then-act" [ref=e1732]
+                  - cell "Check a condition, then act, but state changed in between" [ref=e1733]
+                  - cell "\"saw qty 1, then vended\"" [ref=e1734]
+                - row "Atomic All-or-nothing; no half-done state observable what the lock gives the whole transaction" [ref=e1735]:
+                  - cell "Atomic" [ref=e1736]
+                  - cell "All-or-nothing; no half-done state observable" [ref=e1737]
+                  - cell "what the lock gives the whole transaction" [ref=e1738]
+                - row "Mutex / lock A token only one thread holds at a time threading.RLock on the machine" [ref=e1739]:
+                  - cell "Mutex / lock" [ref=e1740]
+                  - cell "A token only one thread holds at a time" [ref=e1741]
+                  - cell "threading.RLock on the machine" [ref=e1742]:
+                    - code [ref=e1743]: threading.RLock
+                    - text: on the machine
+                - row "Reentrant (RLock) Same thread can re-acquire a lock it holds a guarded method may call another guarded path" [ref=e1744]:
+                  - cell "Reentrant (RLock)" [ref=e1745]
+                  - cell "Same thread can re-acquire a lock it holds" [ref=e1746]
+                  - cell "a guarded method may call another guarded path" [ref=e1747]
+                - row "Lock granularity How much one lock covers whole-MACHINE (one machine = one unit)" [ref=e1748]:
+                  - cell "Lock granularity" [ref=e1749]
+                  - cell "How much one lock covers" [ref=e1750]
+                  - cell "whole-MACHINE (one machine = one unit)" [ref=e1751]
+                - row "Pessimistic locking Grab the lock before touching state the in-process RLock" [ref=e1752]:
+                  - cell "Pessimistic locking" [ref=e1753]
+                  - cell "Grab the lock before touching state" [ref=e1754]
+                  - cell "the in-process RLock" [ref=e1755]:
+                    - text: the in-process
+                    - code [ref=e1756]: RLock
+                - row "Optimistic locking Don't lock; write conditionally, retry on loss the DB compare-and-set, distributed case" [ref=e1757]:
+                  - cell "Optimistic locking" [ref=e1758]
+                  - cell "Don't lock; write conditionally, retry on loss" [ref=e1759]
+                  - cell "the DB compare-and-set, distributed case" [ref=e1760]
+                - row "Compare-and-set Atomic \"update only if value still X\" WHERE qty > 0" [ref=e1761]:
+                  - cell "Compare-and-set" [ref=e1762]
+                  - cell "Atomic \"update only if value still X\"" [ref=e1763]
+                  - cell "WHERE qty > 0" [ref=e1764]:
+                    - code [ref=e1765]: WHERE qty > 0
+                - 'row "Deadlock Two threads each hold what the other needs avoided: only ever ONE lock held" [ref=e1766]':
+                  - cell "Deadlock" [ref=e1767]
+                  - cell "Two threads each hold what the other needs" [ref=e1768]
+                  - 'cell "avoided: only ever ONE lock held" [ref=e1769]'
+                - row "Starvation A thread never gets the lock not a risk; the critical section is microseconds" [ref=e1770]:
+                  - cell "Starvation" [ref=e1771]
+                  - cell "A thread never gets the lock" [ref=e1772]
+                  - cell "not a risk; the critical section is microseconds" [ref=e1773]
+            - paragraph [ref=e1774]:
+              - strong [ref=e1775]: Concurrency Follow-up Q&A
+            - blockquote [ref=e1776]:
+              - text: ❓ "Why
+              - code [ref=e1777]: RLock
+              - text: and not a plain
+              - code [ref=e1778]: Lock
+              - text: "?\""
+            - blockquote [ref=e1779]:
+              - text: "\"Because a guarded public method can call another path that the same thread also runs under the lock. A plain"
+              - code [ref=e1780]: Lock
+              - text: would deadlock on the second acquire by the same thread; an
+              - code [ref=e1781]: RLock
+              - text: lets the owning thread re-enter and only fully releases when the outermost
+              - code [ref=e1782]: with
+              - text: exits."
+            - blockquote [ref=e1783]: ❓ "Why one machine-wide lock instead of one per slot?"
+            - blockquote [ref=e1784]: "\"Per-slot locking would let two buyers vend two different slots in parallel — but on a single machine they still share ONE inserted-coins tally and ONE coin bank. So a per-slot lock wouldn't actually let them proceed independently; they'd corrupt the shared money state. The machine is the real unit of contention, so a single lock is both correct and simplest.\""
+            - blockquote [ref=e1785]: ❓ "What's the deadlock risk?"
+            - blockquote [ref=e1786]:
+              - text: "\"Deadlock needs two locks taken in different orders. Here I only ever hold ONE lock — the machine lock — and there's no nested second lock, so there's no ordering cycle. The re-entry is the same thread re-taking the same"
+              - code [ref=e1787]: RLock
+              - text: ", which is safe by definition.\""
+            - blockquote [ref=e1788]: ❓ "Pessimistic or optimistic — which and why?"
+            - blockquote [ref=e1789]: "\"Pessimistic in-process: the critical section is tiny and there's only one machine, so grabbing a short-held lock is simpler than a retry loop. For a shared-inventory distributed case I'd flip to optimistic — a DB compare-and-set — because you can't hold a Python lock across processes.\""
+            - blockquote [ref=e1790]: ❓ "What if the lock-holder crashes mid-transaction?"
+            - blockquote [ref=e1791]: "\"In-process, a crash takes the whole process down, so the half-done state dies with it — no orphaned lock. In the DB version the compare-and-set is a single atomic statement, so it either committed fully or not at all.\""
+            - paragraph [ref=e1792]:
+              - text: ❓
+              - strong [ref=e1793]: "If asked — the thread-safe version:"
+            - paragraph [ref=e1794]:
+              - strong [ref=e1795]: "Part A — the hook + subclass:"
+            - generic [ref=e1796]:
+              - generic [ref=e1797]:
+                - generic [ref=e1798]: python
+                - button "copy" [ref=e1799] [cursor=pointer]
+              - code [ref=e1801]: "# ─── §6 core (clean): no-op hook, zero lock code in the hot path ─── @contextmanager def _lock(self) -> Iterator[None]: yield # ─── §9 thread-safe subclass: overrides ONLY the hook ─── class ThreadSafeVendingService(VendingService): def __init__(self, slots: dict[str, Slot], coin_bank: CoinBank) -> None: super().__init__(slots, coin_bank) self._machine_lock = threading.RLock() # RLock: a guarded method may re-enter @contextmanager def _lock(self) -> Iterator[None]: with self._machine_lock: yield"
+            - paragraph [ref=e1802]:
+              - strong [ref=e1803]: Part B — what changes (and what doesn't).
+              - text: The public-method bodies are
+              - strong [ref=e1804]: identical
+              - text: between §6 and §9 — that's the point of the Template-Method hook. The
+              - code [ref=e1805]: dispense
+              - text: body never changes; only
+              - code [ref=e1806]: _lock
+              - text: is overridden, and the caller wraps the flow in
+              - code [ref=e1807]: transaction()
+              - text: ":"
+            - generic [ref=e1808]:
+              - generic [ref=e1809]:
+                - generic [ref=e1810]: python
+                - button "copy" [ref=e1811] [cursor=pointer]
+              - code [ref=e1813]: "# ─── §6 version (clean) — _lock() is a no-op ─── def dispense(self) -> DispenseResult: with self._lock(): self._state, result = self._state.dispense(self) return result # ─── §9 version (thread-safe) — IDENTICAL body; only _lock changed ─── def dispense(self) -> DispenseResult: with self._lock(): # now a real RLock via the subclass self._state, result = self._state.dispense(self) return result # ─── the caller holds the lock across the WHOLE transaction ─── with svc.transaction() as machine: # one RLock acquire, held to the end machine.insert_coin(Coin.DOLLAR) machine.select_product(\"A1\") result = machine.dispense() # per-call _lock re-enters harmlessly"
+            - blockquote [ref=e1814]:
+              - text: 🎙️ "The diff from §6 to §9 is zero lines in
+              - code [ref=e1815]: dispense
+              - text: — I only override
+              - code [ref=e1816]: _lock
+              - text: . But the atomic unit is the
+              - emphasis [ref=e1817]: transaction
+              - text: ", not the call: the caller wraps insert→select→dispense in"
+              - code [ref=e1818]: transaction()
+              - text: ", which holds the one reentrant lock across the whole flow. Per-call locking alone would let a second customer corrupt the shared inserted-coins tally between my insert and my dispense. The State machine never changes — that's Template Method paying off.\""
+            - paragraph [ref=e1819]:
+              - strong [ref=e1820]: "Part C — the concurrency tests (proven green in §7), three of them:"
+            - list [ref=e1821]:
+              - listitem [ref=e1822]:
+                - code [ref=e1823]: test_concurrent_buyers_race_for_last_unit_money_is_conserved
+                - text: — 40 buyers with
+                - strong [ref=e1824]: different coin mixes
+                - text: race for the last gum, each inside its own
+                - code [ref=e1825]: transaction()
+                - text: . Exactly 1 wins; every loser is refunded
+                - strong [ref=e1826]: exactly what they inserted
+                - text: ; whole-machine money is conserved (
+                - code [ref=e1827]: in == price + change + refunds
+                - text: ", no coin created/destroyed). The distinct mixes mean a shared-"
+                - code [ref=e1828]: _inserted
+                - text: leak would unbalance the money — so this asserts the transaction boundary, not just a count.
+              - listitem [ref=e1829]:
+                - code [ref=e1830]: test_locked_machine_serializes_concurrent_vends_peak_is_one
+                - text: — stock == N so
+                - strong [ref=e1831]: every
+                - text: buyer reaches
+                - code [ref=e1832]: vend_one
+                - text: (nobody is rejected at select). A hook meters peak concurrency inside
+                - code [ref=e1833]: vend_one
+                - text: . Under the lock peak is
+                - strong [ref=e1834]: exactly 1
+                - text: (genuine serialization, not "nobody got there"); the unlocked base drives
+                - code [ref=e1835]: vend_one
+                - text: from N threads directly and proves peak > 1 with stock going negative.
+              - listitem [ref=e1836]:
+                - code [ref=e1837]: test_transaction_atomicity_two_interleaved_customers_dont_cross_contaminate
+                - text: — two customers buy
+                - strong [ref=e1838]: different products
+                - text: (Cola 75c→25c change vs Water 100c→0c change) on the SAME machine concurrently, with delays widening the insert→dispense window. Every purchase yields exactly its own product and its own change — proving transaction-level atomicity (without
+                - code [ref=e1839]: transaction()
+                - text: "this reproduces ~80 cross-contamination events: Cola buyers getting Water and 125c of someone else's money)."
+            - paragraph [ref=e1840]:
+              - strong [ref=e1841]: Edge cases handled
+            - list [ref=e1842]:
+              - listitem [ref=e1843]:
+                - text: Invalid slot code →
+                - code [ref=e1844]: InvalidSelectionError
+                - text: →
+                - code [ref=e1845]: test_invalid_selection
+                - text: .
+              - listitem [ref=e1846]:
+                - text: Out of stock (incl. after the last unit) →
+                - code [ref=e1847]: OutOfStockError
+                - text: →
+                - code [ref=e1848]: test_out_of_stock_after_last_unit
+                - text: .
+              - listitem [ref=e1849]:
+                - text: Insufficient funds →
+                - code [ref=e1850]: InsufficientFundsError
+                - text: ", money refundable →"
+                - code [ref=e1851]: test_insufficient_funds
+                - text: .
+              - listitem [ref=e1852]:
+                - text: Can't make change →
+                - code [ref=e1853]: CannotMakeChangeError
+                - text: ", coins rolled back, bank untouched →"
+                - code [ref=e1854]: test_cannot_make_change_rejects_and_refunds
+                - text: .
+              - listitem [ref=e1855]:
+                - text: Dispense with no selection / while idle →
+                - code [ref=e1856]: InvalidStateError
+                - text: →
+                - code [ref=e1857]: test_dispense_without_selection_raises
+                - text: ","
+                - code [ref=e1858]: test_dispense_while_idle_raises
+                - text: .
+              - listitem [ref=e1859]:
+                - text: Cancel while idle → no-op, empty refund →
+                - code [ref=e1860]: test_cancel_while_idle_is_noop
+                - text: .
+              - listitem [ref=e1861]:
+                - text: Refill unknown slot / non-positive units →
+                - code [ref=e1862]: InvalidSelectionError
+                - text: →
+                - code [ref=e1863]: test_refill_unknown_slot_raises
+                - text: ","
+                - code [ref=e1864]: test_refill_nonpositive_units_raises
+                - text: .
+              - listitem [ref=e1865]: Concurrent last-unit race → exactly 1 win, stock 0, per-buyer refunds and machine-wide money conservation → the three concurrency tests.
+            - paragraph [ref=e1866]:
+              - strong [ref=e1867]: Extensibility — interviewer twists
+            - paragraph [ref=e1868]:
+              - emphasis [ref=e1869]: "(i) Level-calibration:"
+              - text: a mid-level candidate gets one twist; a senior gets two or three with the actual diff. Here are the likely ones.
+            - paragraph [ref=e1870]:
+              - emphasis [ref=e1871]: (ii) Summary table
+            - table [ref=e1873]:
+              - rowgroup [ref=e1874]:
+                - row "Want to add How (one class/method) What in the core changes" [ref=e1875]:
+                  - columnheader "Want to add" [ref=e1876]
+                  - columnheader "How (one class/method)" [ref=e1877]
+                  - columnheader "What in the core changes" [ref=e1878]
+              - rowgroup [ref=e1879]:
+                - row "A new phase (OUT_OF_SERVICE) new MachineState subclass nothing — service routes to it" [ref=e1880]:
+                  - cell "A new phase (OUT_OF_SERVICE)" [ref=e1881]
+                  - cell "new MachineState subclass" [ref=e1882]:
+                    - text: new
+                    - code [ref=e1883]: MachineState
+                    - text: subclass
+                  - cell "nothing — service routes to it" [ref=e1884]
+                - 'row "Arbitrary coin set extract ChangeStrategy, inject into CoinBank one line: CoinBank(strategy=...)" [ref=e1885]':
+                  - cell "Arbitrary coin set" [ref=e1886]
+                  - cell "extract ChangeStrategy, inject into CoinBank" [ref=e1887]:
+                    - text: extract
+                    - code [ref=e1888]: ChangeStrategy
+                    - text: ", inject into"
+                    - code [ref=e1889]: CoinBank
+                  - 'cell "one line: CoinBank(strategy=...)" [ref=e1890]':
+                    - text: "one line:"
+                    - code [ref=e1891]: CoinBank(strategy=...)
+                - row "Two-phase physical dispense actually park in DispensingState + a confirm() one new method; states already exist" [ref=e1892]:
+                  - cell "Two-phase physical dispense" [ref=e1893]
+                  - cell "actually park in DispensingState + a confirm()" [ref=e1894]:
+                    - text: actually park in
+                    - code [ref=e1895]: DispensingState
+                    - text: + a
+                    - code [ref=e1896]: confirm()
+                  - cell "one new method; states already exist" [ref=e1897]
+                - row "Card payment a PaymentMethod accepted alongside coins new field on the transaction; dispense reads paid the same way" [ref=e1898]:
+                  - cell "Card payment" [ref=e1899]
+                  - cell "a PaymentMethod accepted alongside coins" [ref=e1900]:
+                    - text: a
+                    - code [ref=e1901]: PaymentMethod
+                    - text: accepted alongside coins
+                  - cell "new field on the transaction; dispense reads paid the same way" [ref=e1902]:
+                    - text: new field on the transaction; dispense reads
+                    - code [ref=e1903]: paid
+                    - text: the same way
+            - paragraph [ref=e1904]:
+              - emphasis [ref=e1905]: (iii) Twist walkthroughs
+            - blockquote [ref=e1906]:
+              - strong [ref=e1907]: Twist 1 — "A slot breaks; the machine should refuse to sell it but stay open for others."
+            - blockquote [ref=e1908]
+            - blockquote [ref=e1909]: Right now there's no "broken" concept. The State pattern makes this a per-slot status, not a per-machine state.
+            - blockquote [ref=e1910]
+            - blockquote [ref=e1911]:
+              - text: 🎙️
+              - strong [ref=e1912]: "What you say:"
+              - text: "\"I'd add an"
+              - code [ref=e1913]: OUT_OF_SERVICE
+              - text: flag (or status) on
+              - code [ref=e1914]: Slot
+              - text: and have
+              - code [ref=e1915]: is_in_stock
+              - text: /
+              - code [ref=e1916]: _validate_selectable
+              - text: skip it. The state machine doesn't change at all — selecting a broken slot just raises like an out-of-stock one."
+            - blockquote [ref=e1917]
+            - blockquote [ref=e1918]:
+              - strong [ref=e1919]: "The change:"
+            - blockquote [ref=e1920]: BLOCK27
+            - blockquote [ref=e1921]:
+              - strong [ref=e1922]: Trade-off
+              - text: trivial; one field + one guard line. Worth it always.
+            - blockquote [ref=e1923]:
+              - strong [ref=e1924]: Twist 2 — "Guarantee the product physically dropped before finishing the sale."
+            - blockquote [ref=e1925]
+            - blockquote [ref=e1926]:
+              - text: Today the vend is synchronous, so we never park in
+              - code [ref=e1927]: DispensingState
+              - text: . To model real hardware we split dispense into two phases.
+            - blockquote [ref=e1928]
+            - blockquote [ref=e1929]:
+              - text: 🎙️
+              - strong [ref=e1930]: "What you say:"
+              - text: "\"I'd make"
+              - code [ref=e1931]: dispense
+              - text: move us into
+              - code [ref=e1932]: DispensingState
+              - text: and return a pending result, then add a
+              - code [ref=e1933]: confirm_dispensed()
+              - text: the hardware sensor calls.
+              - code [ref=e1934]: DispensingState.confirm
+              - text: finalizes the sale and returns to IDLE; everything else stays rejected while dispensing — those guards already exist."
+            - blockquote [ref=e1935]
+            - blockquote [ref=e1936]:
+              - strong [ref=e1937]: "The change:"
+            - blockquote [ref=e1938]: BLOCK28
+            - blockquote [ref=e1939]:
+              - strong [ref=e1940]: Trade-off
+              - text: adds a timeout/auto-cancel concern if the sensor never fires; worth it in production where you must verify physical presence, overkill for this interview's synchronous scope.
+            - blockquote [ref=e1941]:
+              - strong [ref=e1942]: "Twist 3 — \"Support an arbitrary coin set where greedy change can fail (e.g. {1,3,4}).\""
+            - blockquote [ref=e1943]
+            - blockquote [ref=e1944]: Greedy is optimal only for the canonical US set. For arbitrary coins you need a DP.
+            - blockquote [ref=e1945]
+            - blockquote [ref=e1946]:
+              - text: 🎙️
+              - strong [ref=e1947]: "What you say:"
+              - text: "\"I'd extract a"
+              - code [ref=e1948]: ChangeStrategy
+              - text: interface with
+              - code [ref=e1949]: make_change(inventory, amount)
+              - text: .
+              - code [ref=e1950]: GreedyChange
+              - text: is today's algorithm;
+              - code [ref=e1951]: DpChange
+              - text: does the coin-change DP.
+              - code [ref=e1952]: CoinBank
+              - text: takes a strategy in its constructor — the all-or-nothing commit stays in the bank."
+            - blockquote [ref=e1953]
+            - blockquote [ref=e1954]:
+              - strong [ref=e1955]: "The change:"
+            - blockquote [ref=e1956]: BLOCK29
+            - blockquote [ref=e1957]:
+              - strong [ref=e1958]: Trade-off
+              - text: DP is O(amount × denominations) vs greedy's O(denominations); I'd only pay that for genuinely non-canonical coin sets.
+            - paragraph [ref=e1959]:
+              - strong [ref=e1960]: Hardest follow-up questions
+            - blockquote [ref=e1961]: ❓ "What's the hardest concurrency case here, and how do you prove you handled it?"
+            - blockquote [ref=e1962]:
+              - text: "\"Two threads buying the last unit, and — the subtler one — two customers cross-contaminating each other's money on the shared machine. I prove it with three tests: a 40-buyer last-unit race where each inserts a DIFFERENT coin mix and I assert per-buyer refunds and machine-wide money conservation; a serialization test where stock == N so every thread reaches"
+              - code [ref=e1963]: vend_one
+              - text: and I assert peak concurrency there is exactly 1; and a transaction-atomicity test where two customers buy different products concurrently and each still gets its own product and change. The first two fail if the lock is removed; the third fails if locking is per-call instead of per-transaction."
+            - blockquote [ref=e1964]: ❓ "What if you had 10,000 machines?"
+            - blockquote [ref=e1965]: "\"Each machine is its own process/object with its own lock — they share no memory, so there's no contention between machines by design. Inventory and sales would go to a per-machine row in a DB; a central dashboard reads aggregates. The in-process lock scales fine because it only ever guards one machine.\""
+            - blockquote [ref=e1966]: ❓ "What if multiple app servers fronted a shared-inventory machine?"
+            - blockquote [ref=e1967]:
+              - text: "\"An in-process lock only protects one process. I'd push atomicity to the DB with a compare-and-set:"
+              - code [ref=e1968]: UPDATE slot SET qty = qty - 1 WHERE code = ? AND qty > 0
+              - text: . Zero rows affected means you lost the race — return OutOfStock. No distributed lock needed for the common case."
+            - blockquote [ref=e1969]:
+              - text: ❓ "What if
+              - code [ref=e1970]: vend_one
+              - text: succeeds but the change payout fails halfway (a multi-step compensate)?"
+            - blockquote [ref=e1971]:
+              - text: "\"I deliberately ordered it so change is computed and committed in the bank BEFORE"
+              - code [ref=e1972]: vend_one
+              - text: . If change can't be made we roll the coins back out and never vend — so there's no 'vended but couldn't pay change' state to compensate. If the physical payout hardware jammed, that's the two-phase
+              - code [ref=e1973]: confirm
+              - text: "path from Twist 2: don't finalize the sale until the payout is acknowledged.\""
+            - complementary [ref=e1974]:
+              - generic [ref=e1975]: 🎙️ Script — say this
+              - generic [ref=e1976]:
+                - text: Final 30-second summary:** "The key insight is the machine is a finite state machine — one class per phase, and the service just routes actions to the current state and adopts the next.
+                - code [ref=e1977]: dispense
+                - text: re-validates stock, funds, and change at the moment of truth, all-or-nothing, so a failed sale never keeps the money or drops stock. The race is two customers on one shared machine — both buying the last unit, or worse, cross-contaminating each other's coins and selection. I guard the whole
+                - emphasis [ref=e1978]: transaction
+                - text: with a single reentrant lock via a
+                - code [ref=e1979]: transaction()
+                - text: "boundary the caller wraps its flow in — one machine is one unit of contention — and prove it three ways: a last-unit race with distinct coin mixes (per-buyer refunds + money conservation), a peak-concurrency serialization proof inside"
+                - code [ref=e1980]: vend_one
+                - text: ", and a two-customer no-cross-contamination proof. For a shared-inventory distributed version I'd push the atomicity to a DB compare-and-set.\""
+          - generic [ref=e1982] [cursor=pointer]:
+            - generic [ref=e1983]: ✎
+            - generic [ref=e1984]: write_file
+            - generic [ref=e1985]: models.py
+            - generic [ref=e1986]: done
+          - generic [ref=e1988] [cursor=pointer]:
+            - generic [ref=e1989]: ✎
+            - generic [ref=e1990]: write_file
+            - generic [ref=e1991]: vending_service.py
+            - generic [ref=e1992]: done
+          - generic [ref=e1994] [cursor=pointer]:
+            - generic [ref=e1995]: ✎
+            - generic [ref=e1996]: write_file
+            - generic [ref=e1997]: main.py
+            - generic [ref=e1998]: done
+          - generic [ref=e2000] [cursor=pointer]:
+            - generic [ref=e2001]: ✎
+            - generic [ref=e2002]: write_file
+            - generic [ref=e2003]: tests/conftest.py
+            - generic [ref=e2004]: done
+          - generic [ref=e2006] [cursor=pointer]:
+            - generic [ref=e2007]: ✎
+            - generic [ref=e2008]: write_file
+            - generic [ref=e2009]: tests/test_vending.py
+            - generic [ref=e2010]: done
+          - generic [ref=e2012] [cursor=pointer]:
+            - generic [ref=e2013]: $
+            - generic [ref=e2014]: run_command
+            - generic [ref=e2015]: python3 main.py
+            - generic [ref=e2016]: done
+          - generic [ref=e2018] [cursor=pointer]:
+            - generic [ref=e2019]: $
+            - generic [ref=e2020]: run_command
+            - generic [ref=e2021]: python3 -m pytest -q
+            - generic [ref=e2022]: done
+          - generic [ref=e2023]:
+            - generic [ref=e2024]:
+              - heading "Complete Code Implementation" [level=2] [ref=e2025]
+              - button "copy all" [ref=e2026] [cursor=pointer]
+            - paragraph [ref=e2027]: While most companies only require pseudocode during interviews, some ask for full implementations. Below is the complete working implementation, file by file.
+            - generic [ref=e2028]:
+              - tablist [ref=e2029]:
+                - button "models.py 429" [ref=e2030] [cursor=pointer]:
+                  - generic [ref=e2031]: models.py
+                  - generic [ref=e2032]: "429"
+                - button "vending_service.py 203" [ref=e2033] [cursor=pointer]:
+                  - generic [ref=e2034]: vending_service.py
+                  - generic [ref=e2035]: "203"
+                - button "main.py 144" [ref=e2036] [cursor=pointer]:
+                  - generic [ref=e2037]: main.py
+                  - generic [ref=e2038]: "144"
+                - button "tests/conftest.py 9" [ref=e2039] [cursor=pointer]:
+                  - generic [ref=e2040]: tests/conftest.py
+                  - generic [ref=e2041]: "9"
+                - button "tests/test_vending.py 465" [ref=e2042] [cursor=pointer]:
+                  - generic [ref=e2043]: tests/test_vending.py
+                  - generic [ref=e2044]: "465"
+              - generic [ref=e2046]:
+                - generic [ref=e2047]:
+                  - generic [ref=e2048]: py
+                  - button "copy" [ref=e2049] [cursor=pointer]
+                - code [ref=e2051]: "# Python 3.11+ \"\"\" models.py — the \"nouns\" of the vending machine, plus the State pattern. The single most important idea in this file: The machine is a FINITE STATE MACHINE. Instead of one big if/else on a `status` string scattered across the service, each machine state is its own small class (Idle, HasMoney, Dispensing). Each state class answers exactly ONE question: \"in this state, what does insert_coin / select / dispense / cancel do, and what state do we move to next?\" 🎙️ \"I model the machine as a state machine with one class per state. The service never asks &#39;what status am I in?' — it just forwards the button press to the current state object, and the state decides the next state. Illegal transitions (e.g. dispense before selecting) become impossible by construction — the Idle state simply has no legal &#39;dispense'.\" \"\"\" from abc import ABC, abstractmethod from collections.abc import Callable from dataclasses import dataclass, field from enum import Enum # ── WHY THIS ENUM ──────────────────────────────────────────────────────────── # Coins are a FIXED, finite set of denominations. Using an IntEnum lets the # change-making algorithm sort and subtract denominations like plain ints. # 🎙️ \"Coins are an IntEnum keyed by cents, so 'make change' is just arithmetic.\" class Coin(Enum): PENNY = 1 NICKEL = 5 DIME = 10 QUARTER = 25 DOLLAR = 100 @property def cents(self) -> int: return self.value # ── WHY THIS ENUM ──────────────────────────────────────────────────────────── # A label the diagram and tests can read; the real behaviour lives in the State # classes below. We expose a `name` only so logs/tests can assert \"we're IDLE\". class MachineStateName(Enum): IDLE = \"IDLE\" COLLECTING_MONEY = \"COLLECTING_MONEY\" DISPENSING = \"DISPENSING\" # ── WHY ONE BASE EXCEPTION ─────────────────────────────────────────────────── # One domain base (VendingError) so callers can `except VendingError` to catch # anything this machine throws, and one specific subclass per failure mode so # tests and UIs can branch on the exact reason. We NEVER raise bare Exception. class VendingError(Exception): \"\"\"Base class for every error this vending machine raises.\"\"\" class InvalidSelectionError(VendingError): \"\"\"The selected slot code does not exist on this machine.\"\"\" class OutOfStockError(VendingError): \"\"\"The selected product exists but has zero units left.\"\"\" class InsufficientFundsError(VendingError): \"\"\"The customer asked to dispense but has not inserted enough money.\"\"\" class CannotMakeChangeError(VendingError): \"\"\"We owe change but the coin bank cannot form the exact amount.\"\"\" class InvalidStateError(VendingError): \"\"\"An operation was attempted that the current state does not allow.\"\"\" # ── WHY THIS VALUE OBJECT ──────────────────────────────────────────────────── # A Product is a catalog fact: a code, a name, a price. It NEVER changes after # the machine is loaded, so it is frozen — Python stops any accidental write. # 🎙️ \"Product is frozen: once the machine is stocked, its price and name are # fixed. Stock count is NOT here — that changes, so it lives on the Slot.\" @dataclass(frozen=True) class Product: code: str # id — the slot code the customer keys in, e.g. \"A1\" name: str price_cents: int # ── WHY THIS ENTITY ────────────────────────────────────────────────────────── # A Slot is the physical shelf position: it holds ONE product type and a count. # It owns its OWN stock transitions (vend / refill) so the rule \"never go below # zero\" lives in one place, not smeared across the service. @dataclass class Slot: product: Product quantity: int # WHY: an injectable seam (defaults to a no-op). Tests set this to a tiny # time.sleep so the gap between the \"is there stock?\" check and the # \"take one\" decrement is WIDE — that's the exact window two unlocked # threads would both slip through. It is the moral equivalent of the # injected Clock: it makes a timing-dependent race reproducible instead # of relying on luck. In production this stays None (zero cost). pre_vend_hook: \"Callable[[], None] | None\" = None def is_in_stock(self) -> bool: return self.quantity > 0 def vend_one(self) -> None: # WHY: the slot guards its own invariant. If two code paths both tried # to dispense the last unit, this raise is the backstop that makes # \"stock can never go negative\" true by construction, not by hope. if self.quantity <= 0: raise OutOfStockError(f\"slot {self.product.code} is empty\") if self.pre_vend_hook is not None: # WHY: widen the check-then-act window so an UNLOCKED machine really # races (two threads both pass the check above, both decrement). # Under the real lock this hook runs while holding the lock, so # no second thread can be inside vend_one at the same time. self.pre_vend_hook() self.quantity -= 1 def refill(self, units: int) -> None: if units <= 0: raise InvalidSelectionError(\"refill units must be positive\") self.quantity += units # ── WHY THIS VALUE OBJECT ──────────────────────────────────────────────────── # The result of a successful purchase: which product came out, and the exact # coins returned as change. Frozen because a completed sale is history — nothing # may rewrite it. main.py and tests assert against this. @dataclass(frozen=True) class DispenseResult: product: Product change: tuple[Coin, ...] @property def change_cents(self) -> int: return sum(c.cents for c in self.change) # ── WHY THIS ENTITY ────────────────────────────────────────────────────────── # The CoinBank is the machine's wallet. It holds the float (coins available to # GIVE as change) and accepts inserted coins. Make-change asks it for an exact # combination; if it cannot form the amount it says so, and the bank is left # untouched (all-or-nothing). # 🎙️ \"The bank owns the coin inventory. Crucially, make_change is all-or-nothing # — it computes the full combination first and only deducts if it succeeds, # so a failed change attempt never leaves the bank short a few dimes.\" @dataclass class CoinBank: # inventory: how many of each denomination we currently hold to give back. inventory: dict[Coin, int] = field(default_factory=dict) def deposit(self, coin: Coin, count: int = 1) -> None: self.inventory[coin] = self.inventory.get(coin, 0) + count def deposit_many(self, coins: tuple[Coin, ...]) -> None: # WHY: when a customer's coins are accepted into the machine they become # part of the float we can hand back to the NEXT customer. for coin in coins: self.deposit(coin) def make_change(self, amount_cents: int) -> tuple[Coin, ...]: # WHY: greedy from the largest denomination down is OPTIMAL for the US # coin set (1,5,10,25,100) — each larger coin is a multiple-friendly # step, so greedy never paints itself into a corner here. # WHY: we build the result in a scratch copy and only commit to the real # inventory at the very end. If we run out of coins mid-way we raise # and the bank is unchanged — all-or-nothing, no partial deduction. if amount_cents < 0: raise CannotMakeChangeError(\"cannot make negative change\") remaining = amount_cents plan: dict[Coin, int] = {} for coin in sorted(Coin, key=lambda c: c.cents, reverse=True): if remaining <= 0: break available = self.inventory.get(coin, 0) needed = remaining // coin.cents take = min(needed, available) if take > 0: plan[coin] = take remaining -= take * coin.cents if remaining != 0: # WHY: we could not form the EXACT amount from what we hold. raise CannotMakeChangeError( f\"cannot make exact change for {amount_cents} cents\" ) # Commit the plan — only now do we touch the real inventory. for coin, take in plan.items(): self.inventory[coin] -= take # Expand the plan into a flat tuple of coins, biggest first. change: list[Coin] = [] for coin, take in plan.items(): change.extend([coin] * take) return tuple(change) # ═══════════════════════════════════════════════════════════════════════════ # THE STATE PATTERN — one class per machine state # ═══════════════════════════════════════════════════════════════════════════ # Each State knows how to handle the four customer actions. The METHODS return # the NEXT state (and, for dispense, also a DispenseResult). The service holds a # `current_state` reference and replaces it with whatever the state returns. # # Why a class per state instead of an if/else on a string? # - Illegal actions are impossible by construction: IdleState.dispense() just # raises, because there's nothing selected. No \"if status == DISPENSING and # also no selection\" bug can sneak in. # - Adding a new state (e.g. OUT_OF_SERVICE) is a new class, not edits to five # scattered if-branches. class MachineState(ABC): \"\"\"One vending-machine state. Handles the four actions, returns next state.\"\"\" name: MachineStateName @abstractmethod def insert_coin(self, ctx: \"VendingContext\", coin: Coin) -> \"MachineState\": ... @abstractmethod def select(self, ctx: \"VendingContext\", code: str) -> \"MachineState\": ... @abstractmethod def dispense( self, ctx: \"VendingContext\" ) -> tuple[\"MachineState\", DispenseResult]: ... @abstractmethod def cancel(self, ctx: \"VendingContext\") -> tuple[\"MachineState\", tuple[Coin, ...]]: ... # A tiny protocol the states use to read/mutate the machine's working memory # (the coins inserted so far, the chosen slot, the catalog, the bank). Keeping # this on a context object means the State classes stay pure behaviour and the # service owns the data. class VendingContext(ABC): @property @abstractmethod def slots(self) -> dict[str, Slot]: ... @property @abstractmethod def coin_bank(self) -> CoinBank: ... @property @abstractmethod def inserted(self) -> list[Coin]: ... @property @abstractmethod def selected_code(self) -> str | None: ... @selected_code.setter @abstractmethod def selected_code(self, value: str | None) -> None: ... def inserted_cents(self) -> int: return sum(c.cents for c in self.inserted) class IdleState(MachineState): \"\"\"IDLE — nothing inserted, nothing selected. Waiting for a customer.\"\"\" name = MachineStateName.IDLE def insert_coin(self, ctx: VendingContext, coin: Coin) -> MachineState: # WHY: the first coin moves us from IDLE into COLLECTING_MONEY. We add # the coin to the running tally and hand control to HasMoneyState. ctx.inserted.append(coin) return HasMoneyState() def select(self, ctx: VendingContext, code: str) -> MachineState: # WHY: you can pre-select before paying (common on real machines). We # validate the code exists and is in stock, remember it, but stay # collecting money until enough is in. _validate_selectable(ctx, code) ctx.selected_code = code return HasMoneyState() def dispense( self, ctx: VendingContext ) -> tuple[MachineState, DispenseResult]: # WHY: nothing selected, no money in — dispensing makes no sense here. raise InvalidStateError(\"cannot dispense while idle — insert coins first\") def cancel(self, ctx: VendingContext) -> tuple[MachineState, tuple[Coin, ...]]: # WHY: cancel while idle is harmless — nothing to refund, stay idle. return self, () class HasMoneyState(MachineState): \"\"\"COLLECTING_MONEY — coins inserted and/or a product selected, not yet vended.\"\"\" name = MachineStateName.COLLECTING_MONEY def insert_coin(self, ctx: VendingContext, coin: Coin) -> MachineState: ctx.inserted.append(coin) return self def select(self, ctx: VendingContext, code: str) -> MachineState: # WHY: customer (re)picks a product. Validate then remember it. Re-select # is fine — it just overwrites the previous choice. _validate_selectable(ctx, code) ctx.selected_code = code return self def dispense( self, ctx: VendingContext ) -> tuple[MachineState, DispenseResult]: # WHY: this is the heart of the machine. We re-validate everything at the # moment of truth: a product is selected, still in stock, funds are # enough, and we can form exact change. Only if ALL hold do we move # to DISPENSING and actually vend. Any failure raises a typed error # and leaves us in COLLECTING_MONEY (money still refundable). code = ctx.selected_code if code is None: raise InvalidStateError(\"no product selected — select before dispensing\") slot = _validate_selectable(ctx, code) price = slot.product.price_cents paid = ctx.inserted_cents() if paid < price: raise InsufficientFundsError( f\"product {code} costs {price}, only {paid} inserted\" ) # Compute change BEFORE committing anything. make_change is all-or-nothing, # so if we can't form the change the bank is untouched and we raise here — # the customer's money is still fully refundable via cancel(). # First fold the customer's coins into the bank so they're available as # change too, then ask for the change owed. ctx.coin_bank.deposit_many(tuple(ctx.inserted)) change_owed = paid - price try: change = ctx.coin_bank.make_change(change_owed) except CannotMakeChangeError: # WHY: roll the customer's coins back OUT of the bank so cancel can # refund them — we never keep money for a sale we couldn't finish. _rollback_inserted(ctx) raise # Commit the vend: the slot guards its own count (never negative). slot.vend_one() result = DispenseResult(product=slot.product, change=change) # Reset working memory: the sale is done. ctx.inserted.clear() ctx.selected_code = None # WHY: we briefly pass through DISPENSING then settle back to IDLE. We # return IdleState because the transaction has fully completed. return IdleState(), result def cancel(self, ctx: VendingContext) -> tuple[MachineState, tuple[Coin, ...]]: # WHY: refund every coin the customer put in, drop any selection, go IDLE. refund = tuple(ctx.inserted) ctx.inserted.clear() ctx.selected_code = None return IdleState(), refund class DispensingState(MachineState): \"\"\"DISPENSING — a transient state while the product physically drops. In this single-customer, in-memory model the vend completes synchronously inside HasMoneyState.dispense, so the machine never actually *parks* here. We model the state explicitly (it&#39;s in the problem's IDLE → COLLECTING_MONEY → DISPENSING lifecycle) and make every action illegal: while a product is physically dropping, no new coins, selections, or cancels are accepted. \"\"\" name = MachineStateName.DISPENSING def insert_coin(self, ctx: VendingContext, coin: Coin) -> MachineState: raise InvalidStateError(\"busy dispensing — please wait\") def select(self, ctx: VendingContext, code: str) -> MachineState: raise InvalidStateError(\"busy dispensing — please wait\") def dispense( self, ctx: VendingContext ) -> tuple[MachineState, DispenseResult]: raise InvalidStateError(\"busy dispensing — please wait\") def cancel(self, ctx: VendingContext) -> tuple[MachineState, tuple[Coin, ...]]: # WHY: you cannot cancel a sale once the product is dropping — too late. raise InvalidStateError(\"cannot cancel while dispensing\") # ── shared guards used by several states ───────────────────────────────────── def _validate_selectable(ctx: VendingContext, code: str) -> Slot: # WHY: one place decides \"is this a thing I can sell right now?\" — used by # both select() and dispense() so the rules can never drift apart. slot = ctx.slots.get(code) if slot is None: raise InvalidSelectionError(f\"no such product code: {code}\") if not slot.is_in_stock(): raise OutOfStockError(f\"product {code} is out of stock\") return slot def _rollback_inserted(ctx: VendingContext) -> None: # WHY: undo the deposit_many we did when computing change, coin for coin, so # a failed change attempt leaves the bank exactly as it started. for coin in ctx.inserted: # The coin must be present (we just deposited it), but guard anyway. if ctx.coin_bank.inventory.get(coin, 0) > 0: ctx.coin_bank.inventory[coin] -= 1"
+          - generic [ref=e2052]: ↳ 9000 in · 16000 out · 40000 cached
+        - generic [ref=e2053]:
+          - button "🧩 Design Patterns" [ref=e2054] [cursor=pointer]
+          - button "📊 Sequence Diagram" [ref=e2055] [cursor=pointer]
+          - button "🔒 Error Handling" [ref=e2056] [cursor=pointer]
+          - button "🧪 Unit Tests" [ref=e2057] [cursor=pointer]
+  - generic [ref=e2058]:
+    - button "Dictate by voice" [ref=e2059] [cursor=pointer]:
+      - img [ref=e2060]
+    - button "Attach image" [ref=e2063] [cursor=pointer]:
+      - img [ref=e2064]
+    - textbox "Problem input" [ref=e2066]:
+      - /placeholder: Name an OOD problem (e.g. design a parking lot) — or dictate it…
+    - button "Send" [ref=e2067] [cursor=pointer]:
+      - img [ref=e2068]
