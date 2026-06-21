@@ -25,8 +25,8 @@ peer across a desk — not a polished written narrative, not a keynote.
 
 ## Simple-English rubric
 
-- Most sentences under 18 words. Read-aloud test: if you stumble, split it.
-- Short sentence variety: "I tried option one. It didn't work. So I changed approach."
+- **Smooth, flowing conversational English:** The sentences should connect naturally. Avoid extremely long academic sentences, but do NOT make them unnaturally short or choppy. Write it so it can be read directly from the screen smoothly.
+- **Simple English:** Use everyday words. Do not use complex vocabulary when a simple word works better.
 - **Specific moments over abstractions**: "It was a Wednesday evening when..." not "I
   evaluated options."
 - Real verbs: told, showed, broke, fixed, missed, shipped.
@@ -132,7 +132,7 @@ If any check fails, fix the output BEFORE returning.
 
 ## STAR template intent (framing-agnostic)
 
-The answer is a spoken STAR walkthrough, ~90–120 seconds. The intent of each beat:
+The answer is a spoken STAR walkthrough, ~2–3 minutes (approx 300–400 words) to allow for proper technical depth and storytelling. The intent of each beat:
 
 - **Situation** — 2–3 short sentences. Time anchor (e.g. "Spring 2025"), place, and
   what was actually at stake. Concrete, not scene-setting fluff.

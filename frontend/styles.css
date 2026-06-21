@@ -247,6 +247,37 @@ body {
   border-radius: 2px 2px 0 0;
 }
 
+/* ---------- LP Coach embed panel ---------- */
+.lp-panel {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+.lp-panel iframe {
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+}
+.lp-offline {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: var(--text-dim);
+  font-size: 0.9rem;
+  text-align: center;
+  padding: 40px;
+}
+.lp-offline-icon { font-size: 2.5rem; margin-bottom: 6px; }
+.lp-offline-sub { color: var(--text-faint); font-size: 0.8rem; }
+.lp-offline code { color: var(--accent); background: var(--surface-2); padding: 1px 5px; border-radius: 4px; }
+
 /* ---------- Panels / Transcript ---------- */
 
 .panels {
@@ -295,6 +326,35 @@ body {
   transition: transform var(--dur) var(--ease), border-color var(--dur) var(--ease), color var(--dur) var(--ease);
 }
 .example-chip:hover { transform: translateY(-2px); border-color: var(--accent); color: var(--text); }
+
+/* ---------- Quick-action buttons (per-turn follow-up prompts) ---------- */
+.quick-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+.quick-action-btn {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  border-radius: 999px;
+  padding: 5px 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform var(--dur) var(--ease), border-color var(--dur) var(--ease), color var(--dur) var(--ease), background var(--dur) var(--ease);
+  white-space: nowrap;
+}
+.quick-action-btn:hover {
+  transform: translateY(-1px);
+  border-color: var(--accent);
+  color: var(--text);
+  background: oklch(72% 0.16 45 / 0.07);
+}
+.quick-action-btn:active { transform: translateY(0); }
 
 /* message rows */
 .msg { animation: rise var(--dur) var(--ease); }
@@ -605,13 +665,46 @@ body {
 
 /* ---------- Conversational beats (🤝 checkpoint / 🆘 stuck / 🧠 if-they-ask / ⚠️ trap) ----------
    A semantic colored left-border + faint tint each — readable signposts, not a sticker sheet. */
-.prose blockquote.check, .prose blockquote.sos, .prose blockquote.ask, .prose blockquote.trap {
+.prose blockquote.check, .prose blockquote.sos, .prose blockquote.ask, .prose blockquote.trap,
+.prose blockquote.voice, .prose blockquote.hard, .prose blockquote.warn,
+.prose blockquote.fork, .prose blockquote.prev, .prose blockquote.math,
+.prose blockquote.ok, .prose blockquote.upgrade, .prose blockquote.tradeoff,
+.prose blockquote.script {
   font-style: normal; border-radius: 0 8px 8px 0; padding: 8px 12px 8px 14px; color: var(--text);
 }
-.prose blockquote.check { border-left: 3px solid var(--accent); background: var(--accent-soft); }
-.prose blockquote.sos { border-left: 3px solid var(--think); background: oklch(74% 0.10 300 / 0.10); }
-.prose blockquote.ask { border-left: 3px solid oklch(80% 0.13 80); background: oklch(80% 0.13 80 / 0.09); }
-.prose blockquote.trap { border-left: 3px solid var(--danger); background: oklch(70% 0.19 25 / 0.09); }
+.prose blockquote.check    { border-left: 3px solid var(--accent); background: var(--accent-soft); }
+.prose blockquote.sos      { border-left: 3px solid var(--think); background: oklch(74% 0.10 300 / 0.10); }
+.prose blockquote.ask      { border-left: 3px solid oklch(80% 0.13 80); background: oklch(80% 0.13 80 / 0.09); }
+.prose blockquote.trap     { border-left: 3px solid var(--danger); background: oklch(70% 0.19 25 / 0.09); }
+
+/* 🗣️ Plain-words / "how to say it" explanation */
+.prose blockquote.voice    { border-left: 3px solid oklch(70% 0.14 260); background: oklch(70% 0.14 260 / 0.08); }
+/* ⚡ Why it's hard */
+.prose blockquote.hard     { border-left: 3px solid oklch(78% 0.15 60); background: oklch(78% 0.15 60 / 0.07); }
+/* 💥 What breaks without it */
+.prose blockquote.warn     { border-left: 3px solid var(--danger); background: oklch(70% 0.19 25 / 0.06); color: var(--text-dim); }
+/* ↔️ Design fork */
+.prose blockquote.fork     { border-left: 3px solid oklch(72% 0.16 200); background: oklch(72% 0.16 200 / 0.07); }
+/* ↩️ What previous tier got wrong */
+.prose blockquote.prev     { border-left: 3px solid oklch(65% 0.14 280); background: oklch(65% 0.14 280 / 0.07); }
+/* 🔢 Decision math */
+.prose blockquote.math     { border-left: 3px solid oklch(80% 0.12 200); background: oklch(80% 0.12 200 / 0.06); font-family: var(--font-mono); font-size: 0.88em; }
+/* ✅ Failure matrix / success */
+.prose blockquote.ok       { border-left: 3px solid var(--run); background: oklch(78% 0.15 165 / 0.07); }
+/* 🔁 What forces the upgrade */
+.prose blockquote.upgrade  { border-left: 3px solid oklch(78% 0.13 50); background: oklch(78% 0.13 50 / 0.07); }
+/* 🔀 Trade-off */
+.prose blockquote.tradeoff { border-left: 3px solid var(--think); background: oklch(74% 0.10 300 / 0.07); }
+/* 🎙️ Script (when emitted as a blockquote rather than the <aside> path) */
+.prose blockquote.script   { border-left: 3px solid var(--accent); background: oklch(72% 0.16 45 / 0.07); font-style: italic; }
+
+/* "> - item" inside blockquotes — the design-fork bullets */
+.prose .bq-li {
+  display: list-item; list-style: disc;
+  margin: 0.2em 0 0.2em 2.2em;
+  color: var(--text-dim); font-size: 0.93rem;
+  line-height: 1.55;
+}
 
 /* ---------- Deep-dive tiers (Bad / Good / Great cards) ---------- */
 .tier {
@@ -701,12 +794,26 @@ body {
   position: fixed; inset: 0; z-index: 60;
   background: oklch(10% 0.01 265 / 0.93);
   backdrop-filter: blur(6px);
-  display: grid; place-items: center;
+  /* block scroll so the diagram is anchored top-left and scrollable in both axes.
+     Flex centering caused wide diagrams to open with the left edge off-screen. */
+  display: block;
   padding: 24px;
+  box-sizing: border-box;
   overflow: auto;
-  cursor: zoom-out;
+  -webkit-overflow-scrolling: touch;
+  cursor: grab;
+  user-select: none;
 }
-.mermaid-zoom svg { width: auto; max-width: none; height: auto; max-height: none; }
+.mermaid-zoom.is-dragging { cursor: grabbing; }
+.mermaid-zoom svg {
+  /* Scale down to fit the viewport width so the full diagram is visible on open.
+     max-width is respected only when the SVG's inline maxWidth style is cleared (see JS). */
+  display: block;
+  width: auto;
+  max-width: calc(100vw - 48px);
+  height: auto;
+  max-height: none;
+}
 .mermaid-zoom-hint {
   position: fixed; bottom: max(14px, env(safe-area-inset-bottom)); left: 0; right: 0;
   text-align: center; font-size: 0.74rem; color: var(--text-faint);
@@ -760,6 +867,102 @@ body {
 .speak-btn:hover, .full-code-btn:hover { color: var(--text); border-color: var(--border-strong); }
 .speak-btn.speaking { color: var(--run); border-color: var(--run); }
 .full-code-btn { color: var(--accent-strong); border-color: oklch(72% 0.16 45 / 0.4); }
+
+/* ---------- Inline "Complete Code Implementation" (LLD mode only) ---------- */
+.inline-fullcode {
+  margin-top: 28px;
+  padding-top: 22px;
+  border-top: 1px solid var(--border);
+}
+.ifc-head {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 6px;
+}
+.ifc-title {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 680;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+.ifc-copyall {
+  margin-left: auto;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  border-radius: 999px;
+  padding: 3px 12px;
+  font-size: 0.68rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: color var(--dur) var(--ease), border-color var(--dur) var(--ease);
+}
+.ifc-copyall:hover { color: var(--text); border-color: var(--border-strong); }
+.ifc-copyall.copied { color: var(--run); border-color: var(--run); }
+.ifc-blurb {
+  margin: 0 0 16px;
+  font-size: 0.88rem;
+  line-height: 1.55;
+  color: var(--text-dim);
+}
+/* Tabbed viewer: file tabs along the top, one fixed-height scrolling pane below. */
+.ifc-viewer {
+  border: 1px solid var(--border-strong);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--surface);
+}
+.ifc-tabs {
+  display: flex;
+  align-items: stretch;
+  gap: 2px;
+  overflow-x: auto;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--border);
+  scrollbar-width: thin;
+}
+.ifc-tab {
+  display: inline-flex; align-items: center; gap: 7px;
+  flex: none;
+  padding: 9px 15px;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-faint);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color var(--dur) var(--ease), background var(--dur) var(--ease), border-color var(--dur) var(--ease);
+}
+.ifc-tab:hover { color: var(--text-dim); background: oklch(100% 0 0 / 0.03); }
+.ifc-tab.active {
+  color: var(--accent-strong);
+  background: var(--surface);
+  border-bottom-color: var(--accent-strong);
+}
+.ifc-tab-meta {
+  font-size: 0.62rem;
+  color: var(--text-faint);
+  opacity: 0.7;
+}
+.ifc-tab.active .ifc-tab-meta { color: var(--accent-strong); opacity: 0.6; }
+/* The single code pane — fixed height, internal scroll, so the page stays compact. */
+.ifc-pane {
+  max-height: 62vh;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+}
+/* The inner code-block already has chrome; strip its border/radius/margin in the pane. */
+.ifc-pane .code-block {
+  border: none;
+  border-radius: 0;
+  margin: 0;
+}
+.ifc-pane .code-bar {
+  position: sticky; top: 0; z-index: 1;   /* keep the copy button reachable while scrolling */
+}
 
 /* ---------- Full-code modal (complete program, file by file) ---------- */
 .code-modal {

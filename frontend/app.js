@@ -93,8 +93,67 @@ function setUrlSession(id) {
   } catch (_) { /* non-fatal */ }
 }
 
+// ── LP Coach embed ──────────────────────────────────────────────
+// The LP Coach tab is a special case: it embeds an iframe to the
+// skills-study-guide-ui project running on localhost:5173.
+// It bypasses the session/streaming system entirely.
+const lpPanel = $("lp-panel");
+const lpIframe = $("lp-iframe");
+const lpOffline = $("lp-offline");
+const lpTab = $("lp-tab");
+let lpActive = false;
+
+function lpCoachUrl() {
+  // Use the same host that served Algora so the URL works on MacBook (0.0.0.0
+  // or localhost) and on phone/tablet (LAN IP like 192.168.1.x) automatically.
+  const host = window.location.hostname || "localhost";
+  return `https://${host}:5173/google-interview-prep/chat`;
+}
+
+function tryLoadLpIframe() {
+  // Skip the fetch probe — it fails on self-signed certs even when the server
+  // is up. Just set the src directly; if the server is down or the cert hasn't
+  // been accepted yet, the browser shows its own "can't connect" page in the
+  // iframe which is clear enough.
+  const url = lpCoachUrl();
+  if (lpIframe.src !== url) lpIframe.src = url;
+  lpIframe.hidden = false;
+  lpOffline.hidden = true;
+}
+
+$("lp-reload").addEventListener("click", tryLoadLpIframe);
+
+function enterLpTab() {
+  if (lpActive) return;
+  lpActive = true;
+  // Deactivate all regular tabs and hide their panels + composer
+  for (const m in tabs) {
+    tabs[m].el.hidden = true;
+    tabs[m].el.classList.remove("is-active");
+  }
+  panels.hidden = true;
+  form.hidden = true;
+  lpPanel.hidden = false;
+  document.querySelectorAll(".tab").forEach((b) => {
+    b.classList.toggle("is-active", b === lpTab);
+    b.setAttribute("aria-selected", b === lpTab ? "true" : "false");
+  });
+  tryLoadLpIframe();
+}
+
+function exitLpTab() {
+  if (!lpActive) return;
+  lpActive = false;
+  panels.hidden = false;
+  form.hidden = false;
+  lpPanel.hidden = true;
+}
+
+lpTab.addEventListener("click", enterLpTab);
+
 function switchTab(mode) {
-  if (!tabs[mode] || mode === active) return;
+  if (!tabs[mode] || (mode === active && !lpActive)) return;
+  exitLpTab();
   active = mode;
   setUrlSession(tabs[mode].sessionId);
   for (const m in tabs) {
@@ -110,7 +169,7 @@ function switchTab(mode) {
   renderAttachments();
   syncComposer();
 }
-document.querySelectorAll(".tab").forEach((b) =>
+document.querySelectorAll(".tab[data-mode]").forEach((b) =>
   b.addEventListener("click", () => switchTab(b.dataset.mode))
 );
 
@@ -166,7 +225,7 @@ function startAssistantTurn(tab) {
   el.innerHTML =
     `<div class="assistant-label"><span class="al-name">Algora</span>` +
     `<button class="full-code-btn" type="button" title="View the complete code, file by file" hidden>📂 full code</button>` +
-    `</div><div class="assistant-body"></div>`;
+    `</div><div class="assistant-body"></div><div class="quick-actions" hidden></div>`;
   tab.el.appendChild(el);
   tab.turn = {
     msgEl: el,
@@ -229,6 +288,61 @@ function finalizeText(turn) {
   }
   turn.textEl = null;
   turn.thinkEl = null;
+}
+
+// ============================================================
+//  Quick-action buttons — mode-specific follow-up prompts shown
+//  below each completed assistant turn so one click fires the
+//  most common next question without any typing.
+// ============================================================
+const QUICK_ACTIONS = {
+  interview: [
+    { label: "🔍 Brute Force",          prompt: "Walk me through the brute force approach step by step — narrate it exactly as I'd explain it out loud to an interviewer. Show the code too." },
+    { label: "⚡ Optimal Deep Dive",    prompt: "Go line by line through the optimal solution. For each key step, tell me exactly what to say to the interviewer." },
+    { label: "📖 Explain the Code",     prompt: "Explain the optimal code to me properly so I actually understand it, in simple Hinglish. Break it into a few logical parts; for each part show that piece of the code, then explain in plain words WHAT it does and WHY — like teaching a friend. Use small concrete examples and tiny diagrams where they help. This is for my own learning, not for narrating to an interviewer. At the end, give the whole thing in one Hinglish line, and invite me to ask about any single line or loop I'm stuck on." },
+    { label: "💡 Core Intuition",       prompt: "What is the single key insight that makes the optimal solution work? Explain the 'aha' moment I should be able to articulate clearly." },
+    { label: "🧪 Dry Run",              prompt: "Trace through the optimal solution on the problem's example — show exactly what's in each variable/data-structure at every step, like I'd draw on a whiteboard." },
+    { label: "❓ Interviewer Follow-ups", prompt: "What are the 3 most likely follow-up questions an interviewer would ask after I present this solution? Give me each question and an ideal concise answer." },
+    { label: "🎯 Quiz Me",              prompt: "Don't explain anything — quiz me instead. Ask me one targeted question to test my understanding of this solution, and wait for my answer before revealing anything." },
+    { label: "📐 Edge Cases",           prompt: "What are the critical edge cases I must identify and handle? For each one, show what the solution does and what I should say to the interviewer." },
+  ],
+  assessment: [
+    { label: "🧪 More Tests",           prompt: "Run 5 more adversarial test cases — especially edge cases the sample didn't cover. Verify the solution handles them all." },
+    { label: "⚡ Optimize Further",     prompt: "Is there a way to optimize this solution further in time or space? If so, implement and verify the optimized version." },
+    { label: "🔄 Alternative Approach", prompt: "Show me a completely different algorithmic approach to this problem. Compare both on time, space, and code simplicity." },
+    { label: "🔍 Explain Logic",        prompt: "Explain the logic of this solution in plain English — what is the algorithm actually doing conceptually, step by step?" },
+  ],
+  lld: [
+    { label: "🧩 Design Patterns",      prompt: "Which design patterns best strengthen this design and why? Show how to refactor one key class to apply one of them." },
+    { label: "📊 Sequence Diagram",     prompt: "Generate a more detailed sequence diagram showing a complete end-to-end interaction flow through all layers." },
+    { label: "🔒 Error Handling",       prompt: "Add comprehensive error handling and input validation to the existing code — show exactly what changes and why each matters." },
+    { label: "🧪 Unit Tests",           prompt: "Write a thorough unit test suite for the core classes in this design." },
+  ],
+  hld: [
+    { label: "📈 Scale 10x",            prompt: "Walk through what happens when this system gets 10x the expected load. What is the first bottleneck and exactly how would you fix it?" },
+    { label: "🔒 Security",             prompt: "What are the top 3 security threats to this design and how would you mitigate each one concretely?" },
+    { label: "💾 DB Deep Dive",         prompt: "Go deeper on the database layer — design the schema, key indexes, and explain the partitioning or sharding strategy with tradeoffs." },
+    { label: "🔄 Failure Modes",        prompt: "Walk through the 3 most likely failure scenarios. What fails, what is the user impact, and how does the system detect and recover?" },
+  ],
+  behavioral: [
+    { label: "💪 Strengthen It",        prompt: "Make this answer stronger — sharper numbers, clearer impact statement, tighter STAR structure. Show me the improved version." },
+    { label: "🎯 LP Mapping",           prompt: "Which Amazon Leadership Principle is the strongest fit for this story? Rewrite the answer to make that connection explicit and compelling." },
+    { label: "❓ Hard Follow-ups",      prompt: "What are the 3 hardest follow-up questions an interviewer could ask about this story? Give me an ideal response for each." },
+    { label: "🔄 Different Angle",      prompt: "Reframe this same story to answer a different behavioral question type — pick the best alternative question it could answer and give the full answer." },
+  ],
+};
+
+function showQuickActions(tab) {
+  const turn = tab.turn;
+  if (!turn || !turn.msgEl) return;
+  const qa = turn.msgEl.querySelector(".quick-actions");
+  if (!qa) return;
+  const actions = QUICK_ACTIONS[tab.mode] || [];
+  if (!actions.length) return;
+  qa.innerHTML = actions
+    .map((a) => `<button class="quick-action-btn" data-prompt="${a.prompt.replace(/"/g, "&quot;")}">${a.label}</button>`)
+    .join("");
+  qa.hidden = false;
 }
 
 const TOOL_META = {
@@ -391,8 +505,9 @@ function handleEvent(tab, ev) {
       // text blocks too.
       finalizeText(tab.turn);
       renderMermaidIn(tab.turn.body);
-      attachFullCode(tab.turn);
+      attachFullCode(tab.turn, tab.mode);
       if (ev.usage) showUsage(tab, ev.usage);
+      showQuickActions(tab);
       break;
     case "notice":
       showNotice(tab, ev.message);
@@ -470,7 +585,16 @@ async function send() {
       }
     }
   } catch (err) {
-    showError(tab, String(err && err.message ? err.message : err));
+    tab.pendingRecovery = true;  // attempt server-side recovery on next foreground
+    // Show a soft "resuming" notice instead of a hard error — the server keeps
+    // generating even after iOS suspends the browser; we'll auto-load on return.
+    if (!tab.turn) startAssistantTurn(tab);
+    finalizeText(tab.turn);
+    const notice = document.createElement("div");
+    notice.className = "notice-line bg-resume-notice";
+    notice.textContent = "⏳ Generating in background — come back to see your answer.";
+    tab.turn.body.appendChild(notice);
+    scrollDown(tab);
   } finally {
     setStreaming(tab, false); // syncComposer reflects the error state for the active tab
   }
@@ -478,6 +602,10 @@ async function send() {
 
 function setStreaming(tab, on) {
   tab.streaming = on;
+  if (on) {
+    // Hide all quick-action bars in this tab — a new user message is being processed.
+    tab.el.querySelectorAll(".quick-actions").forEach((el) => { el.hidden = true; });
+  }
   if (tab === cur()) syncComposer();
 }
 
@@ -574,16 +702,102 @@ panels.addEventListener("click", (e) => {
   const tc = e.target.closest(".tool-head");
   if (tc) { tc.parentElement.classList.toggle("open"); return; }
   const chip = e.target.closest(".example-chip");
-  if (chip) { input.value = chip.dataset.example; autosize(); input.focus(); }
+  if (chip) { input.value = chip.dataset.example; autosize(); input.focus(); return; }
+  const qa = e.target.closest(".quick-action-btn");
+  if (qa && !cur().streaming) {
+    input.value = qa.dataset.prompt;
+    autosize();
+    send();
+  }
 });
 
-// Attach the captured write_file files to the message and reveal the "📂 full code"
-// button when there's at least one. Called when a turn finishes (live or restored).
-function attachFullCode(turn) {
+// Attach the captured write_file files to the message. In LLD mode we render a
+// hellointerview-style "Complete Code Implementation" section INLINE at the end of the
+// answer — collapsible per file, no modal. In every other mode the existing "📂 full
+// code" button reveals the modal. The data source is the same `turn.files` either way.
+function attachFullCode(turn, mode) {
   if (!turn || !turn.msgEl) return;
   turn.msgEl._files = turn.files || [];
   const btn = turn.msgEl.querySelector(".full-code-btn");
-  if (btn) btn.hidden = !(turn.files && turn.files.length);
+  const hasFiles = !!(turn.files && turn.files.length);
+  if (mode === "lld") {
+    if (btn) btn.hidden = true;     // LLD prefers the inline section
+    renderInlineFullCode(turn);
+    return;
+  }
+  if (btn) btn.hidden = !hasFiles;
+}
+
+// LLD-only: render an inline "Complete Code Implementation" section after the answer.
+// A TABBED viewer (hellointerview style): file names as tabs along the top, a single
+// fixed-height code pane below that scrolls internally. Switching tabs swaps the pane —
+// the page stays compact instead of stacking every file vertically.
+function renderInlineFullCode(turn) {
+  if (!turn || !turn.body) return;
+  // Idempotent: replace any existing section if attachFullCode runs twice (e.g. restore
+  // after a live render).
+  const existing = turn.body.querySelector(".inline-fullcode");
+  if (existing) existing.remove();
+  const files = turn.files || [];
+  if (!files.length) return;
+
+  const section = document.createElement("section");
+  section.className = "inline-fullcode";
+  section.innerHTML =
+    `<div class="ifc-head">` +
+    `<h2 class="ifc-title">Complete Code Implementation</h2>` +
+    `<button class="ifc-copyall" type="button" title="Copy every file as one block">copy all</button>` +
+    `</div>` +
+    `<p class="ifc-blurb">While most companies only require pseudocode during interviews, ` +
+    `some ask for full implementations. Below is the complete working implementation, ` +
+    `file by file.</p>` +
+    `<div class="ifc-viewer">` +
+    `<div class="ifc-tabs" role="tablist"></div>` +
+    `<div class="ifc-pane"></div>` +
+    `</div>`;
+
+  const tabsEl = section.querySelector(".ifc-tabs");
+  const paneEl = section.querySelector(".ifc-pane");
+
+  files.forEach((f, idx) => {
+    const tab = document.createElement("button");
+    tab.className = "ifc-tab" + (idx === 0 ? " active" : "");
+    tab.type = "button";
+    tab.dataset.i = String(idx);
+    tab.innerHTML =
+      `<span class="ifc-tab-name">${escapeHtml(f.path)}</span>` +
+      `<span class="ifc-tab-meta">${f.content.split("\n").length}</span>`;
+    tabsEl.appendChild(tab);
+  });
+
+  const show = (idx) => {
+    paneEl.innerHTML = renderCodeBlock(langFromPath(files[idx].path), files[idx].content);
+    tabsEl.querySelectorAll(".ifc-tab").forEach((t, k) => t.classList.toggle("active", k === idx));
+    paneEl.scrollTop = 0;
+  };
+  show(0);
+
+  tabsEl.addEventListener("click", (e) => {
+    const b = e.target.closest(".ifc-tab");
+    if (b) show(+b.dataset.i);
+  });
+
+  // The "copy all" button; per-file copy uses the existing panels-level `.copy-btn`
+  // handler since the rendered code-block already includes its own copy button.
+  const copyAll = section.querySelector(".ifc-copyall");
+  copyAll.addEventListener("click", () => {
+    const all = files.map((f) => `# ===== ${f.path} =====\n${f.content}`).join("\n\n\n");
+    navigator.clipboard.writeText(all).then(() => {
+      copyAll.textContent = "copied!";
+      copyAll.classList.add("copied");
+      setTimeout(() => {
+        copyAll.textContent = "copy all";
+        copyAll.classList.remove("copied");
+      }, 1400);
+    });
+  });
+
+  turn.body.appendChild(section);
 }
 
 // ============================================================
@@ -784,7 +998,7 @@ function renderSavedAssistant(tab, item) {
     }
   }
   renderMermaidIn(turn.body);
-  attachFullCode(turn);
+  attachFullCode(turn, tab.mode);
   if (item.usage) showUsage(tab, item.usage);
 }
 
@@ -804,6 +1018,7 @@ async function restoreConversation(id, mode) {
   t.sessionId = id; // follow-ups continue THIS conversation
   setUrlSession(id);
   const tr = data.transcript || [];
+  let lastRole = null;
   for (const it of tr) {
     if (it.role === "user") {
       const txt = (it.images ? `📎 ${it.images} image(s)\n` : "") + (it.text || "");
@@ -811,7 +1026,10 @@ async function restoreConversation(id, mode) {
     } else {
       renderSavedAssistant(t, it);
     }
+    lastRole = it.role;
   }
+  // Show quick-action buttons on the last assistant turn so follow-ups are one click away.
+  if (lastRole === "assistant") showQuickActions(t);
   // This device is now PASSIVELY viewing a server-stored conversation: live-sync picks up
   // turns added from another device. Cleared the moment this device authors a turn (send()).
   t.passiveSession = id;
@@ -882,6 +1100,7 @@ async function liveSyncTick() {
     const tr = data.transcript || [];
     if (tr.length <= (t.renderedCount || 0)) return;
     const wasBottom = atBottom(t);
+    let syncLastRole = null;
     for (let k = t.renderedCount || 0; k < tr.length; k++) {
       const it = tr[k];
       if (it.role === "user") {
@@ -889,18 +1108,69 @@ async function liveSyncTick() {
       } else {
         renderSavedAssistant(t, it);
       }
+      syncLastRole = it.role;
     }
     t.renderedCount = tr.length;
+    if (syncLastRole === "assistant") showQuickActions(t);
     if (wasBottom) t.el.scrollTop = t.el.scrollHeight;
   } catch { /* transient — try again next tick */ }
 }
 setInterval(liveSyncTick, 5000);
+// When a stream fails because iOS backgrounded the app (fetch connection drops while
+// suspended), the server's agent keeps running and saves the completed response via
+// _persist_turn(). On foreground, we poll until the assistant turn appears, then
+// silently re-render the full conversation — no error card, seamless resume.
+async function tryRecoverInterruptedStream() {
+  const t = cur();
+  if (!t || !t.pendingRecovery || t.streaming) return;
+  t.pendingRecovery = false;
+  const id = t.sessionId;
+  if (!id) return;
+
+  // Poll up to ~60s (12 × 5s) — covers long behavioral / code answers.
+  for (let attempt = 0; attempt < 12; attempt++) {
+    await new Promise(r => setTimeout(r, attempt === 0 ? 1500 : 5000));
+    if (t !== cur() || t.streaming || !id) return;  // user navigated away or sent a new msg
+    try {
+      const r = await fetch(`/api/conversations/${encodeURIComponent(id)}`, { headers: authHeaders() });
+      if (!r.ok) continue;
+      const data = await r.json();
+      const tr = data.transcript || [];
+      if (!tr.length || tr[tr.length - 1].role !== "assistant") continue;
+      // Got the completed assistant turn — clear partial content and re-render cleanly.
+      t.el.innerHTML = "";
+      t.turn = null; t.lastError = false;
+      for (const it of tr) {
+        if (it.role === "user") {
+          addUserMessage(t, (it.images ? `📎 ${it.images} image(s)\n` : "") + (it.text || ""), []);
+        } else {
+          renderSavedAssistant(t, it);
+        }
+      }
+      showQuickActions(t);
+      t.el.scrollTop = t.el.scrollHeight;
+      return;  // done
+    } catch { /* transient — retry */ }
+  }
+  // All retries exhausted — show a real error so user knows to re-send.
+  if (!t.turn) startAssistantTurn(t);
+  const notice = t.el.querySelector(".bg-resume-notice");
+  if (notice) {
+    notice.className = "tool-card open error-card";
+    notice.innerHTML =
+      `<div class="tool-head"><span class="tool-icon err-icon">!</span>` +
+      `<span class="tool-title err-title">error</span></div>` +
+      `<div class="tool-body"><pre class="stderr">Response lost — please re-send your message.</pre></div>`;
+  }
+}
+
 // Coming back to a device (unlock phone / refocus tab): refresh immediately rather than
 // waiting for the next interval, so it feels in-sync the moment you look at it.
 document.addEventListener("visibilitychange", () => {
   if (document.hidden) return;
   if (!historyDrawer.hidden) refreshHistory();
   liveSyncTick();
+  tryRecoverInterruptedStream();
 });
 window.addEventListener("focus", () => { if (!historyDrawer.hidden) refreshHistory(); liveSyncTick(); });
 

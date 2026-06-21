@@ -15,6 +15,12 @@
 - Numbers are conclusions, not labels. State them flat: "dropped from 30s to 12s." No TED-talk closers.
 - "Sole architect" / "I led" / "I owned" claims are real for the stories so tagged — use them confidently.
 
+### Story priority (pick in this order)
+
+- **PRIMARY — pick from these FIRST** (most-practiced, deepest, most defensible): **W1, W2, W3, W5, W8, W9, G1, G2, G3, G5, G6.** Whenever a question maps to one of these, use it.
+- **SECONDARY — coverage and backup** (use when no PRIMARY fits the principle, or as the second example for the same competency): **W7, W10, W12, G8, P1, P2, P3, P4.**
+- **HONEST GAP RULE (critical):** if a question genuinely doesn't map to any card — e.g. a pure "tell me about formally mentoring someone to a promotion" ask — do **not** stretch a story into something it isn't, and do **not** invent specifics. Say it honestly and pivot to the closest real thing: _"I haven't done exactly that, but the closest is —"_ then use a real card. For "developing others / raising the bar," the honest real angle is **force-multiplier work**: W2 (a shared library three teams adopted, cutting their integration from 2 weeks to 1 day) and W8 (design-first spec that let other teams build in parallel) — frame it as team/org-level, not 1:1 mentoring. An honest near-match always beats a fabricated perfect-match: you can defend what's real, you can't defend what isn't.
+
 ---
 
 # WALMART — Data Ventures / Luminate / NRT (SE-III · June 2024–present)
@@ -22,6 +28,7 @@
 Supplier-facing data APIs for Pepsi, Coca-Cola, Unilever, P&G. Core stack across the org: Spring Boot 3, Java 17, Kafka 3.x, Kafka Connect, GCS, BigQuery, Cosmos DB, PostgreSQL, Apollo Federation GraphQL, Dynatrace, Prometheus, Grafana, Flagger, WCNP/Istio. Platform-wide SLA target 99.9%, P95 ≤ 200ms.
 
 ### W1 — The 5-day silent Kafka failure
+
 **Company:** Walmart Data Ventures
 
 **Situation.** The audit-logging pipeline (Kafka Connect → GCS sink) silently stopped writing data. No error surfaced — it took 5 days to root-cause because there was no consumer-lag monitoring.
@@ -32,6 +39,7 @@ Supplier-facing data APIs for Pepsi, Coca-Cola, Unilever, P&G. Core stack across
 **Result.** Zero data loss after replay. Two-tier consumer-lag alerting (warning at 100, critical at 500) added afterward has since caught two issues before they became incidents.
 
 ### W2 — Shared library `dv-api-common-libraries` (kills Splunk audit cost)
+
 **Company:** Walmart Data Ventures
 
 **Situation.** Three product teams were each duplicating audit-logging code, and audit logging ran through Splunk, which Walmart was decommissioning company-wide (expensive licensing). Suppliers also wanted self-service "why did my request fail?" visibility.
@@ -42,6 +50,7 @@ Supplier-facing data APIs for Pepsi, Coca-Cola, Unilever, P&G. Core stack across
 **Result.** Integration time dropped from 2 weeks to 1 day per service. Replaced Splunk audit logging at ~$50K/mo with a custom pipeline at ~$500/mo (~99% cost cut). ~2M events/day, P99 under 5ms, suppliers self-serve debugging.
 
 ### W3 — DiscardPolicy feedback (slept on it, then fixed it)
+
 **Company:** Walmart Data Ventures
 
 **Situation.** In design review, a senior flagged that Anshul's `ThreadPoolExecutor` config (`RejectedExecutionHandler.DiscardPolicy` + bounded queue of 100) would silently drop audit records under load.
@@ -51,17 +60,8 @@ Supplier-facing data APIs for Pepsi, Coca-Cola, Unilever, P&G. Core stack across
 **Stack:** `ThreadPoolExecutor`, `CallerRunsPolicy`, Micrometer.
 **Result.** Zero customer-facing drops over the following 90 days. (Good "disagree, then commit / take feedback" story.)
 
-### W4 — Multi-region resilience (turned a vague VP ask into RTO/RPO)
-**Company:** Walmart Data Ventures
-
-**Situation.** A VP gave a vague "make it resilient" directive with no defined targets.
-
-**Action.** Anshul defined the actual requirements first: RTO 15 minutes, RPO 0. He compared active/active vs active/passive (A/A costs ~1.7× the infra) and chose A/A across two regions (EUS2 + SCUS) with a sticky producer and cross-region failover, because zero data loss mattered more than the cost delta for supplier-facing data.
-
-**Stack:** Kafka multi-region, sticky producer, EUS2 + SCUS regions, CompletableFuture failover chaining.
-**Result.** Hit the 15-minute target in a DR drill.
-
 ### W5 — Spring Boot 2.7→3.2 and Java 11→17 migration (`cp-nrti-apis`)
+
 **Company:** Walmart Data Ventures
 
 **Situation.** The main supplier API service (`cp-nrti-apis`) was on EOL Spring Boot 2.7 / Java 11 with CVEs that couldn't be patched without upgrading. Anshul volunteered to lead the migration.
@@ -71,17 +71,8 @@ Supplier-facing data APIs for Pepsi, Coca-Cola, Unilever, P&G. Core stack across
 **Stack:** Spring Boot 3.2, Java 17, jakarta namespace, WebClient `.block()`, Hibernate 6, Mockito, Flagger/Istio canary.
 **Result.** Zero customer-impacting issues. Production release end of April 2025.
 
-### W6 — Supplier self-service debugging (Pepsi)
-**Company:** Walmart Data Ventures
-
-**Situation.** Anshul noticed Pepsi was making 50+ repeated re-queries per debugging session because they had no direct visibility into their own API data; each debug round-tripped through Walmart support.
-
-**Action.** He built BigQuery external tables over the audit data sitting in GCS as Parquet, and enforced row-level security via a `@policy_tag` on `supplier_id` so each supplier only sees their own rows. Suppliers now run their own SQL.
-
-**Stack:** BigQuery external tables, GCS Parquet, row-level security / policy tags.
-**Result.** A debug that took 2 days now takes ~30 seconds. Roughly 12 hours/week of support time saved.
-
 ### W7 — DSD real-time delivery notifications
+
 **Company:** Walmart Data Ventures
 
 **Situation.** Direct Store Delivery: suppliers (e.g. Pepsi) drop goods at store docks, but associates only discovered deliveries during periodic 2–4 hour checks, so goods sat unshelved and shelves looked empty. 1,200+ associates across 300+ stores.
@@ -92,6 +83,7 @@ Supplier-facing data APIs for Pepsi, Coca-Cola, Unilever, P&G. Core stack across
 **Result.** ~35% improvement in replenishment timing (gap between ARRIVED event and first inventory scan), tracked via the business team's operational dashboard.
 
 ### W8 — DC Inventory Search API (design-first + performance)
+
 **Company:** Walmart Data Ventures
 
 **Situation.** Suppliers had no standardized way to query inventory across Walmart's 30+ distribution centers; every integration was custom and consumers had no contract to build against.
@@ -102,6 +94,7 @@ Supplier-facing data APIs for Pepsi, Coca-Cola, Unilever, P&G. Core stack across
 **Result.** P99 dropped from ~3s to ~800ms via parallel downstream calls. Design-first cut consumer integration time ~30%.
 
 ### W9 — Cosmos DB → PostgreSQL migration (Transaction Event History)
+
 **Company:** Walmart Data Ventures
 
 **Situation.** The Transaction Event History API ran on Cosmos DB, whose RU-based pricing was unpredictable; the team had stronger PostgreSQL expertise and other services already ran Postgres on WCNP.
@@ -112,6 +105,7 @@ Supplier-facing data APIs for Pepsi, Coca-Cola, Unilever, P&G. Core stack across
 **Result.** Zero-downtime migration, predictable costs, constant-time pagination regardless of page depth. Became the foundation for the later Canada launch.
 
 ### W10 — Observability across the platform
+
 **Company:** Walmart Data Ventures
 
 **Situation.** The supplier API platform needed end-to-end observability, and (post-silent-failure) needed alerting that catches "processing-incorrectly," not just "is it up."
@@ -121,17 +115,8 @@ Supplier-facing data APIs for Pepsi, Coca-Cola, Unilever, P&G. Core stack across
 **Stack:** Dynatrace, Prometheus, Grafana, Flagger/Istio, Spring Boot Actuator/Micrometer, custom child-span transaction marking.
 **Result.** 99.9% uptime SLA upheld. This monitoring is what caught the Spring Boot 3 post-migration behavior and surfaced the heap-OOM trend during the silent-failure incident.
 
-### W11 — IAM / Unified Onboarding + mentoring a junior to promotion
-**Company:** Walmart Data Ventures
-
-**Situation.** 6+ Data Ventures products needed unified identity/onboarding sitting in front of 10+ microservices.
-
-**Action.** Anshul built a GraphQL Apollo Federation BFF over the microservices, with OAuth2 + Falcon SSO + MeghaCache and a 10-table Postgres model (`ext_identity_auth_policies`), using Strategy + Chain of Responsibility patterns. The standout ownership slice: he **mentored a junior from a non-CS background in their first SDE role** on the credential-management subgraph — paired ~1 hr/day for 6 weeks, code-reviewed 8 PRs, and sponsored him for an SDE-2 promotion ahead of cohort.
-
-**Stack:** GraphQL Apollo Federation, OAuth2, Falcon SSO, MeghaCache, PostgreSQL, Strategy + Chain of Responsibility.
-**Result.** The junior now owns the subgraph solo (180ms p95) and already mentors the next SDE-1. (Primary "develop people / hire and develop the best" story.)
-
 ### W12 — Why leaving Walmart (framing only)
+
 **Company:** Walmart Data Ventures
 
 **Situation.** Comes up in intro/closing rounds.
@@ -147,6 +132,7 @@ Supplier-facing data APIs for Pepsi, Coca-Cola, Unilever, P&G. Core stack across
 ~5-person backend team. Anshul was sole architect of 6 production services, ~60K+ LOC across Go and Python. Note: say "Good Creator Co.", not "GCC," to interviewers.
 
 ### G1 — ClickHouse migration (HERO STORY)
+
 **Company:** Good Creator Co.
 
 **Situation.** The analytics workload was on PostgreSQL taking 10M+ writes/day, and write latency had degraded from ~5ms to ~500ms. Analytics queries were slow and storage/cost were climbing.
@@ -157,6 +143,7 @@ Supplier-facing data APIs for Pepsi, Coca-Cola, Unilever, P&G. Core stack across
 **Result.** ~99% I/O cut, ~33× throughput, analytics queries 30s → 12s (and elsewhere ~2.5× faster retrieval), storage 500GB → 100GB (~5× compression), ~30% infra cost cut, zero data loss.
 
 ### G2 — Beat: distributed social scraping engine
+
 **Company:** Good Creator Co.
 
 **Situation.** GCC needed to aggregate data from 15+ social APIs (8 Instagram, 4 YouTube providers, plus Shopify, GPT, etc.); the prior system was single-threaded, constantly rate-limited, and managed only a few thousand profiles/day.
@@ -167,6 +154,7 @@ Supplier-facing data APIs for Pepsi, Coca-Cola, Unilever, P&G. Core stack across
 **Result.** ~10K events/sec, 10M+ data points/day. API costs down ~30% (credential rotation + rate limiting), response times up ~25% (asyncpg connection pooling). Provider outages (previously 2–3 visible/month) became invisible to the business.
 
 ### G3 — Stir: data platform (ClickHouse → Postgres sync)
+
 **Company:** Good Creator Co.
 
 **Situation.** Analytics lived in ClickHouse but the SaaS web app read from PostgreSQL, and the old monolithic daily batch meant a profile update could take ~24 hours to appear in the app.
@@ -176,17 +164,8 @@ Supplier-facing data APIs for Pepsi, Coca-Cola, Unilever, P&G. Core stack across
 **Stack:** Airflow 2.6.3, dbt-core 1.3.1, ClickHouse, S3, PostgreSQL, SSHOperator, atomic table swap.
 **Result.** Data freshness 24h → under 1h overall (core metrics under 15 min). His framing: scheduling is a product decision — match freshness to business need rather than making everything real-time.
 
-### G4 — Coffee: dual-DB multi-tenant Go API (+ SaaS Gateway)
-**Company:** Good Creator Co.
-
-**Situation.** The SaaS platform needed a multi-tenant backend serving 50+ endpoints across 12 business modules (discovery, leaderboards, collections, genre insights, keyword analytics) for brands and agencies.
-
-**Action.** Anshul built Coffee with a generic 4-layer architecture using Go generics — `Service[RES, EX, EN, I]` → Manager → DAO — so every module follows the same type-safe API-Service-Manager-DAO pattern. It runs PostgreSQL for OLTP and ClickHouse for analytics, with Ristretto + Redis caching. In front he built the SaaS Gateway proxying all 13 microservices, doing JWT + Redis-session auth, a two-layer cache (Ristretto nanosecond + Redis millisecond), and tenant header enrichment.
-
-**Stack:** Go 1.18, go-chi, GORM (Postgres + ClickHouse), Ristretto, redis-go, Watermill, JWT.
-**Result.** Profile response 200ms → 5ms, analytics 30s → 2s, ~25% faster API responses, ~30% operational cost cut (analytics offloaded to ClickHouse).
-
 ### G5 — S3 assets pipeline + discovery
+
 **Company:** Good Creator Co.
 
 **Situation.** The platform needed to ingest and serve millions of social media images per day reliably.
@@ -197,6 +176,7 @@ Supplier-facing data APIs for Pepsi, Coca-Cola, Unilever, P&G. Core stack across
 **Result.** 8M images/day processed; ~10% engagement growth attributed to faster/complete asset availability.
 
 ### G6 — Fake-follower detection (ML without labeled data)
+
 **Company:** Good Creator Co.
 
 **Situation.** Brands needed reliable follower-quality metrics, but content filtering was manual and there was no labeled dataset of fake-vs-real accounts.
@@ -206,17 +186,8 @@ Supplier-facing data APIs for Pepsi, Coca-Cola, Unilever, P&G. Core stack across
 **Stack:** Python, RapidFuzz, `indictrans` HMM/Viterbi (Cython), AWS Lambda + ECR, SQS, Kinesis, ClickHouse source.
 **Result.** ~50% throughput gain over the prior single-threaded approach, with consistent explainable scoring.
 
-### G7 — Sole architect of 6 production services
-**Company:** Good Creator Co.
-
-**Situation.** On a ~5-person backend team, as an SE-I, Anshul owned 6 production services end-to-end: Beat, Coffee, Event-gRPC, Stir, SaaS Gateway, and the Fake-Follower Lambda.
-
-**Action.** For each he did design, implementation, deployment, and on-call. This is the umbrella "ownership / scope" story — use it when an interviewer doubts the breadth, then drop into one specific service (G1/G2/G3 etc.) for depth.
-
-**Stack:** Go + Python, RabbitMQ, ClickHouse, PostgreSQL, Redis, AWS, Airflow/dbt, gRPC.
-**Result.** All 6 ran in production supporting the SaaS platform's enterprise customers.
-
 ### G8 — Tech-stack defence (right-sizing decisions)
+
 **Company:** Good Creator Co.
 
 **Situation.** Interviewers probe why the GCC stack diverged from "default big-company" choices.
@@ -226,36 +197,6 @@ Supplier-facing data APIs for Pepsi, Coca-Cola, Unilever, P&G. Core stack across
 **Stack:** decision-rationale card (no single stack).
 **Result.** N/A — this is a "are right a lot / frugality" reasoning card.
 
-### G9 — Sentry / per-service observability
-**Company:** Good Creator Co.
-
-**Situation.** The 6 services needed error tracking and per-service metrics.
-
-**Action.** Anshul set up Sentry with custom tags (service / flow / provider) so errors and metrics were sliceable per service and per data provider.
-
-**Stack:** Sentry, custom tagging.
-**Result.** Per-service metrics and faster fault isolation across the fleet. (Supporting card — pair with G1/G2 for depth.)
-
-### G10 — Event-gRPC ingestion backbone
-**Company:** Good Creator Co.
-
-**Situation.** Analytics events arrived from many sources (mobile, web, third-party webhooks like Shopify/Branch.io/WebEngage) through 5+ ad-hoc HTTP endpoints — no single typed entry point.
-
-**Action.** Anshul built Event-gRPC in Go: 60+ event types defined in Protocol Buffers using the `oneof` pattern for type-safe polymorphism, a single `dispatch` RPC, a worker pool fanning events across 26 RabbitMQ queues via exchange routing keys, and the G1 buffered-sinker pattern into ClickHouse. Self-heals with auto-reconnecting DB connections and dead-letter queues.
-
-**Stack:** Go 1.14, gRPC, Protocol Buffers (60+ proto types), RabbitMQ (26 queues, 90+ workers), ClickHouse, GORM.
-**Result.** Replaced 5+ ad-hoc HTTP endpoints with one ingestion entry point; 10M+ daily events, ~2.5× faster analytics via the ClickHouse path.
-
-### G11 — Learn-fast onboarding (zero Go experience → owning services)
-**Company:** Good Creator Co.
-
-**Situation.** Anshul joined GCC with no Go experience and an unfamiliar stack.
-
-**Action.** He self-taught Go, gRPC, ClickHouse, Airflow, and dbt on the job, shipping his first production PR in 4 weeks.
-
-**Stack:** Go, gRPC, ClickHouse, Airflow, dbt.
-**Result.** By month 6 he was owning 2 services solo. (Primary "learn and be curious" story.)
-
 ---
 
 # PAYU — loan disbursal (intern → SE · earliest role)
@@ -263,6 +204,7 @@ Supplier-facing data APIs for Pepsi, Coca-Cola, Unilever, P&G. Core stack across
 First professional role. First Spring Boot, first 24/7 on-call, real customer money moving.
 
 ### P1 — Partner API failure rate 4.6% → 0.3%
+
 **Company:** PayU
 
 **Situation.** Loan-disbursal partner API calls (to NPCI / NBFC partners) were failing at ~4.6%, blocking disbursals.
@@ -273,6 +215,7 @@ First professional role. First Spring Boot, first 24/7 on-call, real customer mo
 **Result.** Failure rate dropped 4.6% → 0.3%; business operations scaled ~40%.
 
 ### P2 — Disbursal TAT 3.2 min → 1.1 min
+
 **Company:** PayU
 
 **Situation.** End-to-end loan disbursal turnaround time was ~3.2 minutes because KYC, bank-verification, and risk checks ran sequentially.
@@ -283,6 +226,7 @@ First professional role. First Spring Boot, first 24/7 on-call, real customer mo
 **Result.** TAT 3.2 min → 1.1 min; disbursal funnel conversion up ~18%.
 
 ### P3 — Test coverage 30% → 83% (as an intern)
+
 **Company:** PayU
 
 **Situation.** The loan-disbursal codebase had ~30% test coverage and deploy errors were frequent.
@@ -293,6 +237,7 @@ First professional role. First Spring Boot, first 24/7 on-call, real customer mo
 **Result.** Coverage 30% → 83%; deploy errors down ~90%.
 
 ### P4 — First-job learning curve (framing)
+
 **Company:** PayU
 
 **Situation.** PayU was Anshul's first real engineering job — first Spring Boot, first time on 24/7 on-call, first time code moved real customer money.
@@ -303,16 +248,16 @@ First professional role. First Spring Boot, first 24/7 on-call, real customer mo
 
 ---
 
-## Pairing guide (primary + backup)
+## Pairing guide (primary → backup)
 
-- **Ownership / scope:** G7 (primary) → W2 or G1 (backup).
-- **Dive deep / debugging:** W1 (primary) → G1 or W8 (backup).
+- **Ownership / scope:** W8 (DC Inventory Search, design-to-prod solo) → W2 or G1.
+- **Dive deep / debugging:** W1 (silent Kafka failure) → G1 or W8.
 - **Invent and simplify:** W2 or W8 (design-first) → G2 (`FOR UPDATE SKIP LOCKED`).
-- **Are right a lot / good judgment:** W5 (`.block()` call), W4 (RTO/RPO), G8 (stack defence).
-- **Have backbone / disagree & commit:** W3 (DiscardPolicy), W9 (cursor vs offset).
-- **Hire and develop the best:** W11 (mentoring to promotion).
-- **Learn and be curious:** G11 (zero-Go → owning services), P3.
-- **Deliver results / frugality:** W2 (Splunk cost), G1 (ClickHouse cost), P1/P2.
-- **Customer obsession:** W6 (Pepsi self-service), W7 (DSD associates).
+- **Are right a lot / good judgment:** W5 (`.block()` call) → W9 (cursor vs offset), G8 (stack defence).
+- **Have backbone / disagree & commit:** W3 (DiscardPolicy) → W9 (cursor vs offset).
+- **Hire and develop / develop others:** no 1:1 mentoring card by design — use the honest _force-multiplier_ angle: W2 (shared library three teams adopted, 2 weeks → 1 day) → W8 (design-first spec other teams built against in parallel). State plainly it's team/org-level, not formal mentoring; do not fabricate a mentoring story.
+- **Learn and be curious:** G6 (chose interpretable ML, learned `indictrans`/HMM transliteration) or G2/G3 (new Go/ClickHouse/Airflow/dbt stack) → P3.
+- **Deliver results / frugality:** W2 (Splunk ~$50K→$500/mo), G1 (ClickHouse cost + 5× compression) → P1/P2.
+- **Customer obsession:** W7 (DSD associates, talked to them first) → W2 (suppliers self-serve their own audit data).
 
 <!-- PII redaction: phone, email, personal site, LinkedIn handle, and GitHub handle all removed/never included. First name "Anshul" intentionally kept for the voice persona. No source code, credentials, or .certs included — curated narrative only. -->

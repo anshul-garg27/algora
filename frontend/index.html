@@ -55,6 +55,9 @@
       <button class="tab" data-mode="behavioral" role="tab" aria-selected="false">
         <span class="tab-icon">💼</span> Behavioral / HM
       </button>
+      <button class="tab" id="lp-tab" role="tab" aria-selected="false">
+        <span class="tab-icon">🏷</span> LP Coach
+      </button>
     </nav>
 
     <main class="panels">
@@ -144,6 +147,22 @@
         </div>
       </section>
     </main>
+
+    <!-- LP Coach embed — shown instead of .panels when the LP tab is active -->
+    <div id="lp-panel" class="lp-panel" hidden>
+      <div class="lp-offline" id="lp-offline">
+        <div class="lp-offline-icon">🏷</div>
+        <p>LP Coach server is not running.</p>
+        <p class="lp-offline-sub">Start it with <code>npm run dev</code> in your skills-study-guide-ui folder, then click Reload.</p>
+        <button id="lp-reload" class="ghost-btn">Reload</button>
+      </div>
+      <iframe
+        id="lp-iframe"
+        title="LP Coach"
+        allow="microphone"
+        hidden
+      ></iframe>
+    </div>
 
     <div id="attachments" class="attachments" hidden></div>
 

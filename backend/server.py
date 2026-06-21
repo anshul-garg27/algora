@@ -18,6 +18,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
+from typing import Any
 
 from . import config, store
 from .agent import Agent
@@ -29,6 +30,9 @@ app = FastAPI(title="Claude DSA Agent", version="1.0.0")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=config.ALLOWED_ORIGINS,
+    # Allow LP Coach dev server (any host, port 5173) so the iframe can call
+    # /api/lp-proxy and /api/lp-config without a cross-origin block.
+    allow_origin_regex=r"https?://[^/]+:5173",
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -146,23 +150,81 @@ async def _stream_events(
     agent: Agent, lock: threading.Lock, user_content: list[dict], session_id: str, mode: str
 ) -> AsyncIterator[str]:
     """Wrap the agent generator as SSE, guarding the session with a lock, and
-    record a render-ready transcript so the conversation can be reopened later."""
+    record a render-ready transcript so the conversation can be reopened later.
+
+    The agent runs in an independent asyncio Task so it survives client disconnects
+    (e.g. iOS backgrounding the browser tab). The generator forwards events to the
+    client while connected; on GeneratorExit it simply stops yielding but the task
+    keeps running, collects the full response, and persists it to disk.
+    """
+    import asyncio
+
     acquired = lock.acquire(blocking=False)
     if not acquired:
         yield _sse({"type": "error", "message": "This session is already processing a request."})
         return
+
     tb = TranscriptBuilder()
     tb.add_user(user_content)
+    q: asyncio.Queue = asyncio.Queue()
+
+    async def _run_agent() -> None:
+        """Drain the agent to completion regardless of whether the client is still connected."""
+        existing = store.load(session_id)
+        existing_transcript = existing.get("transcript", []) if existing else []
+        
+        # Save the user message immediately so the session appears in history
+        # and is recoverable even if the client disconnects mid-generation.
+        user_items = tb.items()  # only user message at this point
+        title = (existing or {}).get("title") or _title_from(user_items) or "Untitled"
+        try:
+            store.save(
+                session_id, agent.mode,
+                title,
+                agent.export_messages(), existing_transcript + user_items,
+            )
+        except Exception:
+            pass
+
+        try:
+            async for event in agent.stream_turn(user_content):
+                tb.consume(event)
+                await q.put(("event", event))
+        except Exception as exc:
+            await q.put(("error", f"{type(exc).__name__}: {exc}"))
+        finally:
+            # Overwrite with complete transcript (user + assistant).
+            try:
+                final_items = tb.items()
+                store.save(
+                    session_id, agent.mode,
+                    title,
+                    agent.export_messages(), existing_transcript + final_items,
+                )
+            except Exception:
+                pass
+            await q.put(("done", None))
+            lock.release()
+
+    task = asyncio.create_task(_run_agent())
+
     try:
-        async for event in agent.stream_turn(user_content):
-            tb.consume(event)
-            yield _sse(event)
-    except Exception as exc:  # never leak a raw 500 mid-stream
-        yield _sse({"type": "error", "message": f"{type(exc).__name__}: {exc}"})
-    finally:
-        _persist_turn(agent, session_id, agent.mode, tb.items())
-        yield _sse({"type": "done"})
-        lock.release()
+        while True:
+            kind, payload = await q.get()
+            if kind == "event":
+                yield _sse(payload)
+            elif kind == "error":
+                yield _sse({"type": "error", "message": payload})
+                yield _sse({"type": "done"})
+                break
+            else:  # "done"
+                yield _sse({"type": "done"})
+                break
+    except GeneratorExit:
+        # Client disconnected (iOS background, tab closed, etc.).
+        # The task keeps running independently — it will save the complete
+        # response to disk when Claude finishes, so recovery polling works.
+        pass
 
 
 # --- Routes -------------------------------------------------------------------
@@ -289,6 +351,131 @@ def delete_conversation(session_id: str, x_algora_token: str | None = Header(def
         _sessions.pop(session_id, None)
     store.delete(session_id)
     return {"status": "deleted", "session_id": session_id}
+
+
+# --- LP Coach proxy -----------------------------------------------------------
+# Routes the LP Coach iframe's streaming Claude calls through Algora's
+# subscription auth so no separate ANTHROPIC_API_KEY is needed.
+
+
+class LpProxyRequest(BaseModel):
+    model: str = "claude-haiku-4-5-20251001"
+    system: Any = None      # string or list of Anthropic content blocks
+    messages: list[dict]    # [{role, content}, ...]
+    maxTokens: int = 4000
+
+
+def _lp_system_str(system: Any) -> str:
+    """Flatten an Anthropic system value (string or block list) to plain text."""
+    if not system:
+        return ""
+    if isinstance(system, str):
+        return system
+    if isinstance(system, list):
+        return "\n\n".join(
+            b.get("text", "") for b in system if isinstance(b, dict)
+        )
+    return str(system)
+
+
+def _lp_prompt(messages: list[dict]) -> str:
+    """Convert a messages array to a single prompt string for the Agent SDK.
+
+    The current (last) user message becomes the prompt. Prior turns are
+    prepended as inline context so follow-up questions have history.
+    """
+    if not messages:
+        return ""
+    if len(messages) == 1:
+        return messages[0].get("content", "")
+    prior_parts = []
+    for m in messages[:-1]:
+        role = "User" if m.get("role") == "user" else "Assistant"
+        prior_parts.append(f"[{role}]: {m.get('content', '')}")
+    history = "\n\n".join(prior_parts)
+    current = messages[-1].get("content", "")
+    return f"Previous conversation for context:\n{history}\n\n[User]: {current}"
+
+
+async def _lp_stream(req: LpProxyRequest):
+    """Async generator that runs one LP turn and re-emits Anthropic SSE events."""
+    import json
+
+    from claude_agent_sdk import ClaudeAgentOptions, StreamEvent, query
+
+    system_str = _lp_system_str(req.system)
+    prompt = _lp_prompt(req.messages)
+    if not prompt:
+        yield f'data: {json.dumps({"type": "message_stop"})}\n\n'
+        return
+
+    ws = config.WORKSPACE_DIR / "lp_proxy"
+    ws.mkdir(parents=True, exist_ok=True)
+
+    opts_dict: dict = {
+        "system_prompt": system_str,
+        "model": req.model,
+        "cwd": str(ws),
+        "permission_mode": config.PERMISSION_MODE,
+        "allowed_tools": [],   # pure text completion — no tool use
+        "max_turns": 1,
+        "include_partial_messages": True,
+    }
+    env = config.subprocess_env()
+    if env is not None:
+        opts_dict["env"] = env
+    if config.CLAUDE_CLI:
+        opts_dict["cli_path"] = config.CLAUDE_CLI
+
+    options = ClaudeAgentOptions(**opts_dict)
+
+    try:
+        async for message in query(prompt=prompt, options=options):
+            if isinstance(message, StreamEvent):
+                ev = message.event
+                if (
+                    isinstance(ev, dict)
+                    and ev.get("type") == "content_block_delta"
+                    and ev.get("delta", {}).get("type") == "text_delta"
+                    and ev.get("delta", {}).get("text")
+                ):
+                    yield f"data: {json.dumps(ev)}\n\n"
+    except Exception as exc:
+        err_ev = {"type": "error", "error": {"type": "api_error", "message": str(exc)}}
+        yield f"data: {json.dumps(err_ev)}\n\n"
+
+    yield f'data: {json.dumps({"type": "message_stop"})}\n\n'
+
+
+@app.get("/api/lp-config")
+def lp_config():
+    """Tell LP Coach that subscription-based streaming is available."""
+    return {
+        "hasServerKey": True,
+        "defaultModel": "claude-haiku-4-5-20251001",
+        "lpAnswerCount": 0,
+        # Force RAG mode when using the Algora proxy — the Agent SDK can't
+        # handle the 700KB full-bank system prompt (causes silent failure).
+        "contextMode": "rag",
+        "modelOptions": [
+            {"id": "claude-haiku-4-5-20251001", "label": "Haiku 4.5 (fast)"},
+            {"id": "claude-sonnet-4-6", "label": "Sonnet 4.6 (balanced)"},
+        ],
+    }
+
+
+@app.post("/api/lp-proxy")
+def lp_proxy(req: LpProxyRequest):
+    """Stream an LP Coach answer via Algora's subscription auth (no API key needed)."""
+    return StreamingResponse(
+        _lp_stream(req),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",
+        },
+    )
 
 
 # Static frontend mounted last so /api/* routes take precedence.

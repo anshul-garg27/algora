@@ -55,7 +55,9 @@ const C_LANGS = /^(java|c|cpp|c\+\+|cs|csharp|js|javascript|ts|typescript|go|gol
 let _mermaidSeq = 0;
 
 function renderCodeBlock(lang, code) {
-  const language = (lang || "").toLowerCase();
+  // Strip the " copy" suffix that Next.js-style docs use (```py copy) — we
+  // handle copying ourselves; the word is meaningless as a language tag.
+  const language = (lang || "").toLowerCase().replace(/\s+copy\s*$/, "").trim();
   // Mermaid -> a placeholder rendered into SVG after the text settles.
   if (language === "mermaid") {
     const raw = btoa(unescape(encodeURIComponent(code.replace(/\n$/, ""))));
@@ -66,8 +68,8 @@ function renderCodeBlock(lang, code) {
   // trace / array diagram isn't sprayed with random keyword/number colors.
   const isPy = /^(py|python)$/.test(language);
   const body = isPy ? highlightPy(escaped) : (C_LANGS.test(language) ? highlightC(escaped) : escaped);
-  // No language chip for plain/untagged blocks (the old "TEXT" stamp was pure noise).
-  const label = /^(text|plain|txt)$/.test(language) ? "" : language;
+  // Suppress the language chip for plain/untagged/copy-only blocks.
+  const label = /^(copy|text|plain|txt)$/.test(language) ? "" : language;
   const raw = btoa(unescape(encodeURIComponent(code.replace(/\n$/, ""))));
   return (
     `<div class="code-block"><div class="code-bar">` +
@@ -169,12 +171,26 @@ function tierOf(text) {
   return m ? m[1].toLowerCase() : null;
 }
 
-// Lead-emoji -> blockquote modifier class. Lets 💬 say-lines, 🎙 scripts, and the
-// 🤝/🆘/🧠/⚠️ conversational beats each get a distinct, semantic treatment.
+// Lead-emoji -> blockquote modifier class. Covers all emojis used in HLD/LLD prompts.
+// Uses startsWith so multi-codepoint variants (e.g. ↔️ = ↔ + U+FE0F) match naturally.
 function markerClass(s) {
-  const m = s.match(/^\s*(💬|🎙|🤝|🆘|🧠|⚠️|⚠)/u);
-  if (!m) return "";
-  return { "💬": "talk", "🎙": "script", "🤝": "check", "🆘": "sos", "🧠": "ask", "⚠️": "trap", "⚠": "trap" }[m[1]] || "";
+  const t = s.trimStart();
+  if (t.startsWith("💬")) return "talk";
+  if (t.startsWith("🎙")) return "script";
+  if (t.startsWith("🤝")) return "check";
+  if (t.startsWith("🆘")) return "sos";
+  if (t.startsWith("🧠")) return "ask";
+  if (t.startsWith("⚠"))  return "trap";
+  if (t.startsWith("🗣"))  return "voice";
+  if (t.startsWith("⚡"))  return "hard";
+  if (t.startsWith("💥"))  return "warn";
+  if (t.startsWith("↔"))  return "fork";
+  if (t.startsWith("↩"))  return "prev";
+  if (t.startsWith("🔢")) return "math";
+  if (t.startsWith("✅")) return "ok";
+  if (t.startsWith("🔁")) return "upgrade";
+  if (t.startsWith("🔀")) return "tradeoff";
+  return "";
 }
 
 function renderMarkdown(src) {
@@ -188,15 +204,19 @@ function renderMarkdown(src) {
   );
   // 1) extract fenced code (and mermaid) blocks
   const blocks = [];
-  const work = src.replace(/```(\w+)?\n?([\s\S]*?)```/g, (m, lang, code) => {
+  const work = src.replace(/```([\w]+(?:\s+copy)?)?\s*\n?([\s\S]*?)```/g, (m, lang, code) => {
     blocks.push(renderCodeBlock(lang, code));
     return `  BLOCK${blocks.length - 1}  `;
   });
 
+  // Pre-unwrap bold-wrapped headings (**#### Bad: ...**) BEFORE dehyphenated runs,
+  // so the dehyphenated step doesn't split the ** from the #### and leave orphan ** paragraphs.
+  const preUnwrapped = work.replace(/^\*\*(#{1,4}\s[\s\S]*?)\*\*\s*$/mg, "$1");
+
   // split headers glued onto the end of a line (e.g. "…numbers)### Key numbers").
   // The preceding char must be non-space AND non-'#' so real line-start headers
   // (## / ### / ####) are never split.
-  const dehyphenated = work.replace(/([^\s#])(#{2,4}\s)/g, "$1\n$2");
+  const dehyphenated = preUnwrapped.replace(/([^\s#])(#{2,4}\s)/g, "$1\n$2");
   const lines = [];
   for (const ln of dehyphenated.split("\n")) {
     const expanded = maybeExpandGluedTable(ln);
@@ -218,6 +238,26 @@ function renderMarkdown(src) {
     let line = lines[i];
     // Unwrap a heading the model mistakenly bold-wrapped: **#### Bad: x** -> #### Bad: x
     line = line.replace(/^\*\*(#{1,4}\s[\s\S]*?)\*\*\s*$/, "$1");
+
+    // Strip orphan leading "** " (two stars + space) — not valid Markdown bold.
+    // The model emits this for "spoken" text: ** "I'd start with..."
+    line = line.replace(/^\*\*\s+/, "");
+
+    // Horizontal rule: --- or *** or ___ alone on a line.
+    if (/^(\*{3,}|-{3,}|_{3,})\s*$/.test(line.trim())) {
+      flushPara(); closeList(); closeTier();
+      html += "<hr>";
+      continue;
+    }
+
+    // Skip lone language/copy tokens the model places before a code fence
+    // (e.g. "py" then "```python ...") — only when the next non-blank line
+    // is a code block placeholder so we never eat real single-word paragraphs.
+    if (/^(copy|py|js|ts|python|java|go|rust|c|cpp|cs|text|plain|txt|bash|shell|sh)$/.test(line.trim())) {
+      let j = i + 1;
+      while (j < lines.length && lines[j].trim() === "") j++;
+      if (j < lines.length && /^ \x00BLOCK\d+\x00 $/.test(lines[j])) { i = j - 1; continue; }
+    }
 
     const placeholder = line.match(/^  BLOCK(\d+)  $/);
     if (placeholder) { flushPara(); closeList(); html += blocks[+placeholder[1]]; continue; }
@@ -262,7 +302,33 @@ function renderMarkdown(src) {
     const bq = line.match(/^>\s?(.*)$/);
     if (bq) {
       flushPara(); closeList();
-      html += `<blockquote class="${markerClass(bq[1])}">${inlineMd(escapeHtml(bq[1]))}</blockquote>`;
+      const bqContent = bq[1];
+
+      // "> | header |" followed by "> |---|" — a table embedded in a blockquote context.
+      // Strip the leading "> " from each row and render as a normal table.
+      if (bqContent.includes("|") && i + 1 < lines.length) {
+        const nextBq = lines[i + 1].match(/^>\s?(.*)$/);
+        if (nextBq && isTableSep(nextBq[1])) {
+          const tableLines = [bqContent];
+          let j = i + 1;
+          while (j < lines.length) {
+            const nb = lines[j].match(/^>\s?(.*)$/);
+            if (nb && nb[1].trim().startsWith("|")) { tableLines.push(nb[1]); j++; }
+            else break;
+          }
+          html += renderTable(tableLines);
+          i = j - 1;
+          continue;
+        }
+      }
+
+      // "> - item" inside a blockquote: render as a styled list item, not plain "- text".
+      const bqLi = bqContent.match(/^[-*]\s+(.*)$/);
+      if (bqLi) {
+        html += `<li class="bq-li">${inlineMd(escapeHtml(bqLi[1]))}</li>`;
+      } else {
+        html += `<blockquote class="${markerClass(bqContent)}">${inlineMd(escapeHtml(bqContent))}</blockquote>`;
+      }
       continue;
     }
 
@@ -281,7 +347,8 @@ function renderMarkdown(src) {
         if (nx.trim() === "") break;
         if (/^\s*(#{1,4}\s|>|[-*]\s|\d+\.\s|---|🎙|💬|🤝|🆘|🧠|⚠)/u.test(nx)) break;
         if (/^\s*\x00?\s*BLOCK\d+/.test(nx)) break;
-        parts.push(nx.trim());
+        // Strip orphan leading ** the model emits for emphasis in spoken text.
+        parts.push(nx.trim().replace(/^\*\*\s*/, ""));
         j++;
       }
       i = j - 1;
@@ -394,17 +461,46 @@ function wireMermaidZoom() {
     const overlay = document.createElement("div");
     overlay.className = "mermaid-zoom";
     const clone = svg.cloneNode(true);
-    clone.style.maxWidth = "none";
+    // cloneNode(true) copies inline styles set by _onMermaidRendered (maxWidth:"none").
+    // Clear that so CSS max-width:calc(100vw - 48px) can scale the SVG to fit the viewport.
     clone.removeAttribute("width");
+    clone.style.maxWidth = "";
+    // Always start the zoom view from the left edge (the start of the diagram),
+    // not the center — wide diagrams were opening with the beginning off-screen.
+    clone.style.alignSelf = "flex-start";
     overlay.appendChild(clone);
     const hint = document.createElement("div");
     hint.className = "mermaid-zoom-hint";
-    hint.textContent = "tap anywhere or press Esc to close";
+    hint.textContent = "drag to pan · tap to close · Esc to close";
     overlay.appendChild(hint);
+
     const close = () => { overlay.remove(); document.removeEventListener("keydown", onKey); };
     const onKey = (ev) => { if (ev.key === "Escape") close(); };
-    overlay.addEventListener("click", close);
     document.addEventListener("keydown", onKey);
+
+    // Drag-to-pan: track mouse movement; only fire close() on a genuine tap (< 6px travel).
+    let dragStartX = 0, dragStartY = 0, scrollStartX = 0, scrollStartY = 0, didDrag = false;
+    overlay.addEventListener("mousedown", (ev) => {
+      dragStartX = ev.clientX; dragStartY = ev.clientY;
+      scrollStartX = overlay.scrollLeft; scrollStartY = overlay.scrollTop;
+      didDrag = false;
+      overlay.classList.add("is-dragging");
+      ev.preventDefault();
+    });
+    overlay.addEventListener("mousemove", (ev) => {
+      if (!overlay.classList.contains("is-dragging")) return;
+      const dx = ev.clientX - dragStartX;
+      const dy = ev.clientY - dragStartY;
+      if (Math.abs(dx) > 4 || Math.abs(dy) > 4) didDrag = true;
+      overlay.scrollLeft = scrollStartX - dx;
+      overlay.scrollTop  = scrollStartY - dy;
+    });
+    overlay.addEventListener("mouseup", () => {
+      overlay.classList.remove("is-dragging");
+      if (!didDrag) close();
+    });
+    overlay.addEventListener("mouseleave", () => overlay.classList.remove("is-dragging"));
+
     document.body.appendChild(overlay);
   });
 }

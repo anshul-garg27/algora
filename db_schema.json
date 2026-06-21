@@ -1,0 +1,34 @@
+{
+  "parent": {
+    "type": "page_id",
+    "page_id": "383fd41c-3003-8191-992e-c3ffbe457aca"
+  },
+  "title": [
+    {
+      "type": "text",
+      "text": {
+        "content": "Problem Tracker"
+      }
+    }
+  ],
+  "properties": {
+    "Problem Name": {
+      "title": {}
+    },
+    "Type": {
+      "select": {
+        "options": [
+          { "name": "Coding", "color": "blue" },
+          { "name": "LLD", "color": "green" },
+          { "name": "HLD", "color": "red" }
+        ]
+      }
+    },
+    "Tags": {
+      "multi_select": {}
+    },
+    "Status": {
+      "checkbox": {}
+    }
+  }
+}

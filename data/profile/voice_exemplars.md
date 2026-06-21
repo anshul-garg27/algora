@@ -126,7 +126,7 @@ I designed a three-tier pipeline spanning three services.
 
 Beat (Python) stopped doing `session.add()` on log objects. Instead it called `make_scrape_log_event("profile_log", profile)` to publish to RabbitMQ. The old code is literally still commented in `processing.py` so you can see the before/after on the same lines. Fire-and-forget from the scraper's perspective.
 
-Event-gRPC (Go) was the new consumer. I wrote it from scratch. Each topic — `profile_log_events`, `post_log_events`, `sentiment_log_events`, `scrape_request_events` — has its own sinker. The sinker buffers up to 1000 records in a Go channel, then either flushes when the channel fills or when a ticker fires every 1-5 minutes (configurable per topic). The flush is a batch INSERT into ClickHouse via GORM. That single change is the heart of the throughput jump — Postgres saw 10,000 INSERTs per second before, ClickHouse sees 10 batched INSERTs per second now.
+The new consumer was a Go service I wrote from scratch. Each topic — `profile_log_events`, `post_log_events`, `sentiment_log_events`, `scrape_request_events` — has its own sinker. The sinker buffers up to 1000 records in a Go channel, then either flushes when the channel fills or when a ticker fires every 1-5 minutes (configurable per topic). The flush is a batch INSERT into ClickHouse via GORM. That single change is the heart of the throughput jump — Postgres saw 10,000 INSERTs per second before, ClickHouse sees 10 batched INSERTs per second now.
 
 ClickHouse table design mattered. `MergeTree` engine, `PARTITION BY toYYYYMM(event_timestamp)`, `ORDER BY (platform, profile_id, event_timestamp)`. That ordering means a "30-day follower growth for profile X on Instagram" query hits an indexed range scan on the same disk block.
 
@@ -174,32 +174,32 @@ Shipped in 4 weeks. Zero customer-impacting issues during canary. The 9-month ta
 
 ---
 
-## Exemplar 6 — Frugality (ran six services solo, no extra headcount)
+## Exemplar 6 — Frugality (ran the platform lean, no extra headcount)
 
 > **Q**: Tell me about a time you accomplished something without hiring more people.
 
 ### Situation
 
-At Good Creator Co. I was the sole platform engineer. Five-person eng team total, three on product, one on infra, me on platform. The platform side had six services that needed to keep running and keep evolving: Beat (Python scraping), Event-gRPC (Go ingestion), Stir (Airflow + dbt), Coffee (Go REST), SaaS Gateway (Go API gateway), and a fake-follower ML service on Lambda. I asked for a DevOps hire twice in my first two months. Both times the answer was no — runway didn't allow it.
+At Good Creator Co. I was the sole platform engineer on a five-person engineering team — three on product, one on infra, me on the backend platform. I owned the data and analytics services the SaaS app ran on, and they had to keep running and keep evolving. I asked for a DevOps hire twice in my first couple of months. Both times the answer was no — the runway didn't allow it.
 
 ### Task
 
-Run all six services. Ship the new features the product team needed for the roadmap — Genre Insights, Keyword Analytics, fake-follower detection, a ClickHouse migration. Without additional headcount for at least a year.
+Keep the platform running and ship the roadmap — a ClickHouse migration, fake-follower detection, the scraping and asset pipelines — without any additional headcount for at least a year.
 
 ### Action
 
-The win condition was "don't try to be a 3-person team in one body." Three deliberate moves:
+The win condition was "don't try to be a three-person team in one body." Three deliberate moves.
 
-One — standardise so all six services felt like one codebase. Coffee already had a 4-layer pattern (API → Service → Manager → DAO) with Go generics. I extended the same pattern to the gateway and to event-grpc. Every new module — Genre Insights, Keyword Analytics, Campaign Profiles — was the same four files with one converter pair. Adding endpoints stopped costing brain cycles.
+One — refuse ops complexity. No Kubernetes, no service mesh, no heavy observability stack. systemd units, bash deploy scripts checked into each repo, simple alerting. The whole platform was operable by one person at 2 AM because none of the pieces were complicated. I used RabbitMQ over Kafka for the same reason — about 100K events a day didn't need Kafka's throughput or replay, and the ops cost wasn't worth it for a team our size.
 
-Two — say no to ops complexity. No Kubernetes, no service mesh, no fancy observability stack. systemd unit files, bash deploy scripts checked into each repo, Sentry for errors, Slack for alerts, RabbitMQ management UI for messaging health. The whole platform was operable by one person at 2 AM because none of the components were complicated.
+Two — push work onto managed or simple things instead of running more infra. For the fake-follower detection I built a heuristic ensemble on Lambda with SQS in and Kinesis out, instead of standing up a model-training pipeline — bursty batch work, pay per invocation, nothing sitting idle. For task coordination across the scrapers I used Postgres `FOR UPDATE SKIP LOCKED` as the queue instead of adding Redis or a broker — one less system to run.
 
-Three — push work out, not in. When the ClickHouse migration came up, I picked self-hosted ClickHouse on existing VMs instead of Snowflake or BigQuery — neither would have cost less in money but both would have cost more in operational learning. For the fake-follower ML I built a heuristic ensemble running on Lambda + SQS + Kinesis instead of a model-training pipeline. Each choice traded "best in class" for "ops-free for the team I actually had."
+Three — when I did spend, spend where it pays back. The ClickHouse migration was self-hosted on the VMs we already had, not Snowflake or BigQuery. It cut analytics infra about 30% and compressed storage 5x. So the one big infra change actually lowered the bill instead of raising it.
 
-I also wrote a one-page runbook per service in my first month — what it does, top failure modes, how to restart, where the logs are. Cost 15 days; saved hours every month for the rest of my time there.
+I also wrote a one-page runbook per service in my first month — what it does, top failure modes, how to restart, where the logs are. Cost me a couple of weeks, saved hours every month after that.
 
 ### Result
 
-18 months. Six services kept running. Two cost-impacting projects shipped — the ClickHouse migration cut infra ~30%, the fake-follower detection unlocked sales conversations we'd been losing. Two product modules — Genre Insights, Keyword Analytics — shipped in Coffee. No new platform headcount during my tenure.
+About 18 months, no new platform headcount. The platform kept running and the roadmap shipped — the ClickHouse migration cut infra ~30%, the fake-follower work unlocked sales conversations we'd been losing.
 
-The honest part: this had real costs. Code quality varied. Some of my early bash deploy scripts make me wince now. But not hiring forced choices that turned out to be better than the textbook answers — standardise patterns, refuse ops complexity, push work onto managed services we already paid for.
+The honest part: it had real costs. Code quality varied, and some of my early bash deploy scripts make me wince now. But not hiring forced choices that turned out better than the textbook ones — refuse ops complexity, push work onto managed services, and only spend where it pays back.

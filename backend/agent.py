@@ -23,6 +23,7 @@ from __future__ import annotations
 
 import base64
 import binascii
+import sys
 from pathlib import Path
 from typing import Any, AsyncIterator
 
@@ -50,6 +51,44 @@ _IMAGE_EXT = {
     "image/gif": "gif",
     "image/webp": "webp",
 }
+
+# Modes where the model MUST run code (write + execute to verify) before the answer
+# is complete. If a turn in one of these ends WITHOUT any tool call, the model stopped
+# after its text-only opener (a known failure: it streams the speakable sections, says
+# "now let me verify", and ends the turn — the SDK loop then has nothing to resume).
+# We detect that and auto-resume the session to drive it to completion. `behavioral`
+# is excluded: it's a pure-text STAR answer that legitimately uses no tools.
+_VERIFY_MODES = {"assessment", "interview", "lld", "hld"}
+
+# Sent on resume when a verify-mode turn stopped early. Tells the model to pick up
+# where it left off — verify, then finish — WITHOUT re-streaming what it already wrote.
+_CONTINUE_PROMPT = (
+    "You stopped after the opening/explanation sections and ended your turn before "
+    "verifying the code and writing the rest of the answer. Continue now: silently use "
+    "your tools (write the file, run it against the examples and edge cases) to confirm "
+    "the solution is correct, then write EVERY remaining section through the end of the "
+    "required output format. Do NOT repeat or rewrite the sections you already produced — "
+    "pick up exactly where you left off and do not stop again until the answer is complete."
+)
+
+# Safety cap so a model that keeps stopping can't loop forever.
+_MAX_AUTO_CONTINUES = 3
+
+# A complete verify-mode answer ends with a substantial written conclusion AFTER the last
+# code run (the final sections). If the text emitted after the last tool call is shorter than
+# this, the model verified and then stopped before writing the answer — treat it as incomplete.
+_MIN_FINAL_ANSWER_CHARS = 400
+
+
+def _log_turn_end(*, mode, attempt, tools_used, text_since_tool, stop_reason, will_continue) -> None:
+    """One line to the server console so premature stops are diagnosable, not guessed at."""
+    print(
+        f"[auto-continue] mode={mode} attempt={attempt} tools_used={tools_used} "
+        f"text_after_last_tool={text_since_tool} stop_reason={stop_reason} "
+        f"-> {'RESUMING (stopped early)' if will_continue else 'done'}",
+        file=sys.stderr,
+        flush=True,
+    )
 
 
 class Agent:
@@ -81,7 +120,13 @@ class Agent:
         return config.MODES[self.mode]
 
     def _workspace(self) -> Path:
-        """Per-conversation workspace subdir so concurrent chats never share files."""
+        """Per-conversation workspace subdir so concurrent chats never share files.
+
+        Behavioral mode is pure text (no code execution) — use the project root so
+        `data/knowledge_base/` relative paths in the system prompt are resolvable.
+        """
+        if self.mode == "behavioral":
+            return config.PROJECT_ROOT
         return config.workspace_for(self.session_id, self.mode)
 
     # -- persistence -----------------------------------------------------------
@@ -180,6 +225,11 @@ class Agent:
         A single ``query`` call runs Claude Code's full internal agentic loop
         (write → run → read → fix → …) up to ``max_turns``; we surface each piece
         of it as it streams in.
+
+        In verify-modes the model is required to run code before its answer is
+        complete. If it ends a turn without any tool call (it streamed the text
+        opener and stopped), we auto-resume the session with a continue prompt and
+        keep streaming into the SAME message — so the user never sees a half answer.
         """
         cwd = self._workspace()
         cwd.mkdir(parents=True, exist_ok=True)
@@ -187,20 +237,78 @@ class Agent:
         self._tool_names = {}
 
         yield {"type": "step_start", "step": 0}
-        try:
-            async for message in query(prompt=prompt, options=self._options(cwd)):
-                for event in self._translate(message):
-                    yield event
-        except CLINotFoundError:
-            yield {
-                "type": "error",
-                "message": "The `claude` CLI was not found. Install Claude Code "
-                "and ensure it is on PATH (or set ALGORA_CLAUDE_CLI).",
-            }
-        except ClaudeSDKError as exc:
-            yield {"type": "error", "message": f"Agent error: {type(exc).__name__}: {exc}"}
-        except Exception as exc:  # never leak a raw 500 mid-stream
-            yield {"type": "error", "message": f"{type(exc).__name__}: {exc}"}
+
+        # Auto-continue only applies to the FIRST turn of a conversation — the one that
+        # must produce the full verified answer. Follow-ups (cc_session_id already set)
+        # legitimately reply in plain text with no tools, so we must not hijack them.
+        verify_first_turn = self.mode in _VERIFY_MODES and self.cc_session_id is None
+
+        next_prompt = prompt
+        attempts = 0
+        ever_used_tools = False  # cumulative across attempts — did we verify code at any point?
+        while True:
+            stop_reason: str | None = None
+            pending_done: dict | None = None  # held back until we decide to continue/finish
+            # Chars of answer text emitted AFTER the most recent tool call/result, THIS attempt.
+            # A complete answer ends with a long written conclusion (the final sections) after the
+            # last code run; if this stays tiny, the model stopped before writing the answer.
+            text_since_tool = 0
+            try:
+                async for message in query(prompt=next_prompt, options=self._options(cwd)):
+                    for event in self._translate(message):
+                        etype = event.get("type")
+                        if etype == "tool_call":
+                            ever_used_tools = True
+                            text_since_tool = 0
+                        elif etype == "tool_result":
+                            text_since_tool = 0
+                        elif etype == "text_delta":
+                            text_since_tool += len(event.get("text", ""))
+                        if etype == "turn_done":
+                            # Don't surface completion yet — we may auto-continue. Stash it.
+                            stop_reason = event.get("stop_reason")
+                            pending_done = event
+                            continue
+                        yield event
+            except CLINotFoundError:
+                yield {
+                    "type": "error",
+                    "message": "The `claude` CLI was not found. Install Claude Code "
+                    "and ensure it is on PATH (or set ALGORA_CLAUDE_CLI).",
+                }
+                return
+            except ClaudeSDKError as exc:
+                yield {"type": "error", "message": f"Agent error: {type(exc).__name__}: {exc}"}
+                return
+            except Exception as exc:  # never leak a raw 500 mid-stream
+                yield {"type": "error", "message": f"{type(exc).__name__}: {exc}"}
+                return
+
+            attempts += 1
+            # Two ways the answer can be short of complete:
+            #  (a) code was never run across any attempt (stopped after the text opener), or
+            #  (b) this attempt ended without a substantial written conclusion after the last run.
+            incomplete = (not ever_used_tools) or (text_since_tool < _MIN_FINAL_ANSWER_CHARS)
+            stopped_early = (
+                verify_first_turn and incomplete and attempts <= _MAX_AUTO_CONTINUES
+            )
+            _log_turn_end(
+                mode=self.mode,
+                attempt=attempts,
+                tools_used=ever_used_tools,
+                text_since_tool=text_since_tool,
+                stop_reason=stop_reason,
+                will_continue=stopped_early,
+            )
+            if stopped_early:
+                # Model ended its turn before finishing — resume and drive it to completion.
+                next_prompt = _CONTINUE_PROMPT
+                continue
+
+            # Genuinely done (full answer written, or non-verify mode, or we hit the cap).
+            if pending_done is not None:
+                yield pending_done
+            return
 
     def _translate(self, message: Any) -> list[dict]:
         """Map one SDK message to zero or more frontend event dicts."""
